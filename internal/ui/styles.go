@@ -72,6 +72,11 @@ func ModelTag(model string) string {
 		return StyleTagSonnet.Render("sonnet")
 	case strings.Contains(model, "haiku"):
 		return StyleTagHaiku.Render("haiku")
+	case strings.Contains(model, "glm"):
+		return lipgloss.NewStyle().
+			Background(lipgloss.Color("#352050")).
+			Foreground(lipgloss.Color("#d090f0")).
+			Padding(0, 1).Render("glm")
 	default:
 		return StyleDim.Render(model)
 	}
