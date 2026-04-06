@@ -1,0 +1,2 @@
+{"type":"human","sessionId":"test-123","uuid":"msg-001","timestamp":"2026-04-07T16:00:00Z","cwd":"/Users/test/work/in-progress"}
+{"type":"assistant","sessionId":"test-123","uuid":"msg-002","timestamp":"2026-04-07T16:00:10Z","message":{"id":"msg_001","role":"assistant","model":"claude-opus-4-6","usage":{"input_tokens":5000,"output_tokens":800,"cache_creation_input_tokens":3000,"cache_read_input_tokens":0}},"costUSD":0.15

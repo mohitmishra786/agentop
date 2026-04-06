@@ -1,0 +1,17 @@
+{"type":"user","sessionId":"test-good-cache","uuid":"msg-001","timestamp":"2026-04-07T10:00:00Z","cwd":"/Users/test/work/acme-app","gitBranch":"feature/auth"}
+{"type":"assistant","sessionId":"test-good-cache","uuid":"msg-002","timestamp":"2026-04-07T10:00:05Z","message":{"id":"msg_001","role":"assistant","model":"claude-opus-4-6","usage":{"input_tokens":8500,"output_tokens":1200,"cache_creation_input_tokens":5000,"cache_read_input_tokens":0}},"costUSD":0.22}
+{"type":"tool","toolName":"Read","sessionId":"test-good-cache","uuid":"tool-001","timestamp":"2026-04-07T10:00:06Z"}
+{"type":"tool_result","toolName":"Read","sessionId":"test-good-cache","uuid":"tool-res-001","timestamp":"2026-04-07T10:00:07Z"}
+{"type":"user","sessionId":"test-good-cache","uuid":"msg-003","timestamp":"2026-04-07T10:01:00Z","cwd":"/Users/test/work/acme-app","gitBranch":"feature/auth"}
+{"type":"assistant","sessionId":"test-good-cache","uuid":"msg-004","timestamp":"2026-04-07T10:01:10Z","message":{"id":"msg_002","role":"assistant","model":"claude-opus-4-6","usage":{"input_tokens":9000,"output_tokens":1500,"cache_creation_input_tokens":4500,"cache_read_input_tokens":8000}},"costUSD":0.24}
+{"type":"tool","toolName":"Edit","sessionId":"test-good-cache","uuid":"tool-002","timestamp":"2026-04-07T10:01:11Z"}
+{"type":"user","sessionId":"test-good-cache","uuid":"msg-005","timestamp":"2026-04-07T10:02:00Z","cwd":"/Users/test/work/acme-app","gitBranch":"feature/auth"}
+{"type":"assistant","sessionId":"test-good-cache","uuid":"msg-006","timestamp":"2026-04-07T10:02:15Z","message":{"id":"msg_003","role":"assistant","model":"claude-opus-4-6","usage":{"input_tokens":8500,"output_tokens":1100,"cache_creation_input_tokens":4000,"cache_read_input_tokens":15000}},"costUSD":0.20}
+{"type":"tool","toolName":"Bash","sessionId":"test-good-cache","uuid":"tool-003","timestamp":"2026-04-07T10:02:16Z"}
+{"type":"user","sessionId":"test-good-cache","uuid":"msg-007","timestamp":"2026-04-07T10:03:00Z","cwd":"/Users/test/work/acme-app","gitBranch":"feature/auth"}
+{"type":"assistant","sessionId":"test-good-cache","uuid":"msg-008","timestamp":"2026-04-07T10:03:20Z","message":{"id":"msg_004","role":"assistant","model":"claude-opus-4-6","usage":{"input_tokens":8200,"output_tokens":900,"cache_creation_input_tokens":3500,"cache_read_input_tokens":25000}},"costUSD":0.18}
+{"type":"user","sessionId":"test-good-cache","uuid":"msg-009","timestamp":"2026-04-07T10:04:00Z","cwd":"/Users/test/work/acme-app","gitBranch":"feature/auth"}
+{"type":"assistant","sessionId":"test-good-cache","uuid":"msg-010","timestamp":"2026-04-07T10:04:25Z","message":{"id":"msg_005","role":"assistant","model":"claude-opus-4-6","usage":{"input_tokens":8000,"output_tokens":800,"cache_creation_input_tokens":3000,"cache_read_input_tokens":35000}},"costUSD":0.16}
+{"type":"user","sessionId":"test-good-cache","uuid":"msg-011","timestamp":"2026-04-07T10:05:00Z","cwd":"/Users/test/work/acme-app","gitBranch":"feature/auth"}
+{"type":"assistant","sessionId":"test-good-cache","uuid":"msg-012","timestamp":"2026-04-07T10:05:30Z","message":{"id":"msg_006","role":"assistant","model":"claude-opus-4-6","usage":{"input_tokens":7800,"output_tokens":700,"cache_creation_input_tokens":2500,"cache_read_input_tokens":45000}},"costUSD":0.15}
+{"type":"summary","summary":"Refactored authentication module to use JWT tokens with improved cache efficiency","sessionId":"test-good-cache","uuid":"sum-001","timestamp":"2026-04-07T10:06:00Z"}
