@@ -71,6 +71,15 @@ func loadSessions() ([]*aggregator.SessionStats, error) {
 		if stats.ID == "" {
 			stats.ID = f.SessionID
 		}
+
+		if len(f.SubagentFiles) > 0 {
+			subTokens, subCount, subCost := aggregator.AggregateSubagents(f.SubagentFiles, pricer)
+			stats.SubagentTokens = subTokens
+			stats.SubagentCount = subCount
+			stats.CostUSD += subCost
+			stats.TotalTokens += subTokens
+		}
+
 		sessions = append(sessions, stats)
 	}
 

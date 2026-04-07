@@ -47,6 +47,11 @@ func RenderSessionRow(s *aggregator.SessionStats, barWidth int) string {
 
 	effStyle := CacheEfficiencyStyle(s.CacheEfficiency)
 
+	subagentNote := ""
+	if s.SubagentCount > 0 {
+		subagentNote = StyleDim.Render(fmt.Sprintf(" (+%d subagents, %s tokens)", s.SubagentCount, HumanizeTokens(s.SubagentTokens)))
+	}
+
 	row := fmt.Sprintf("%s %s  %s  %s  %s",
 		sessionName+" "+ModelTag(model),
 		bar,
@@ -57,7 +62,7 @@ func RenderSessionRow(s *aggregator.SessionStats, barWidth int) string {
 
 	subtitle := TokenSubtitle(s.InputTokens, s.OutputTokens, s.CacheCreateTokens, s.CacheReadTokens)
 
-	return row + "\n" + subtitle
+	return row + subagentNote + "\n" + subtitle
 }
 
 func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {

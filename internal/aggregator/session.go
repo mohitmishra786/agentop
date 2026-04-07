@@ -29,6 +29,9 @@ type SessionStats struct {
 	CacheReadTokens   int64
 	TotalTokens       int64
 
+	SubagentTokens int64
+	SubagentCount  int
+
 	CostUSD           float64
 	CostUSDCalculated float64
 
@@ -55,7 +58,6 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 
 	modelTokens := make(map[string]claude.Usage)
 
-	// Collect all assistant events, then deduplicate by msg_id keeping the one with stop_reason set
 	type assistantEntry struct {
 		msgID      string
 		model      string
@@ -66,9 +68,12 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	assistantMap := make(map[string]assistantEntry)
 
 	var firstTime, lastTime time.Time
-	var firstAssistantTime time.Time
 
 	for _, e := range events {
+		if e.IsSidechain {
+			continue
+		}
+
 		if firstTime.IsZero() || e.Timestamp.Before(firstTime) {
 			firstTime = e.Timestamp
 		}
@@ -78,6 +83,9 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 
 		switch e.Type {
 		case "human", "user":
+			if e.UserType == "tool" {
+				continue
+			}
 			s.MessageCount++
 			s.TurnCount++
 			if s.ProjectPath == "" && e.CWD != "" {
@@ -92,10 +100,6 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 			s.TurnCount++
 			if e.Message == nil {
 				continue
-			}
-
-			if firstAssistantTime.IsZero() {
-				firstAssistantTime = e.Timestamp
 			}
 
 			msgID := e.Message.ID
@@ -225,4 +229,28 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	}
 
 	return s
+}
+
+func AggregateSubagents(subagentFiles []string, pricer pricing.Pricer) (int64, int, float64) {
+	var totalTokens int64
+	var count int
+	var totalCost float64
+
+	for _, f := range subagentFiles {
+		events, err := claude.ParseSession(f)
+		if err != nil {
+			continue
+		}
+
+		stats := AggregateSession(events, nil, pricer)
+		if stats == nil {
+			continue
+		}
+
+		totalTokens += stats.TotalTokens
+		count++
+		totalCost += stats.CostUSD
+	}
+
+	return totalTokens, count, totalCost
 }

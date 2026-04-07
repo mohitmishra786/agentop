@@ -12,10 +12,11 @@ import (
 var ErrClaudeNotFound = errors.New("~/.claude/projects/ not found — is Claude Code installed?")
 
 type SessionFile struct {
-	Path        string
-	ProjectHash string
-	SessionID   string
-	ModTime     time.Time
+	Path          string
+	ProjectHash   string
+	SessionID     string
+	ModTime       time.Time
+	SubagentFiles []string
 }
 
 func Discover(claudeDir string) ([]SessionFile, error) {
@@ -55,7 +56,10 @@ func collectSessions(projectDir, projectHash string, sessions *[]SessionFile) {
 	for _, entry := range entries {
 		if entry.IsDir() {
 			dirName := entry.Name()
-			if dirName == "subagents" || dirName == "tool-results" || dirName == "memory" {
+			if dirName == "tool-results" || dirName == "memory" {
+				continue
+			}
+			if dirName == "subagents" {
 				continue
 			}
 			collectSessions(filepath.Join(projectDir, dirName), projectHash, sessions)
@@ -64,12 +68,34 @@ func collectSessions(projectDir, projectHash string, sessions *[]SessionFile) {
 
 		if strings.HasSuffix(entry.Name(), ".jsonl") {
 			info, _ := entry.Info()
+			sessionPath := filepath.Join(projectDir, entry.Name())
+			sessionID := strings.TrimSuffix(entry.Name(), ".jsonl")
+
+			subFiles := findSubagents(projectDir, sessionID)
+
 			*sessions = append(*sessions, SessionFile{
-				Path:        filepath.Join(projectDir, entry.Name()),
-				ProjectHash: projectHash,
-				SessionID:   strings.TrimSuffix(entry.Name(), ".jsonl"),
-				ModTime:     info.ModTime(),
+				Path:          sessionPath,
+				ProjectHash:   projectHash,
+				SessionID:     sessionID,
+				ModTime:       info.ModTime(),
+				SubagentFiles: subFiles,
 			})
 		}
 	}
+}
+
+func findSubagents(projectDir, sessionID string) []string {
+	subDir := filepath.Join(projectDir, sessionID, "subagents")
+	entries, err := os.ReadDir(subDir)
+	if err != nil {
+		return nil
+	}
+
+	var files []string
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(e.Name(), ".jsonl") {
+			files = append(files, filepath.Join(subDir, e.Name()))
+		}
+	}
+	return files
 }
