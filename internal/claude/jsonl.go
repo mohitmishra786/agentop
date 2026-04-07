@@ -15,7 +15,9 @@ func ParseSession(path string) ([]RawEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, maxLineBytes), maxLineBytes)
