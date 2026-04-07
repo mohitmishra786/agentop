@@ -32,17 +32,36 @@ $ agentop
 
 ## Install
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap mohitmishra786/homebrew-tap
+brew install agentop
+```
+
+### Go install
+
 ```bash
 go install github.com/agentop-dev/agentop@latest
 ```
 
-Or build from source:
+### Build from source
 
 ```bash
 git clone https://github.com/mohitmishra786/agentop.git
 cd agentop
 make build
 ```
+
+### Binaries
+
+Download prebuilt binaries for your platform from the [Releases](https://github.com/mohitmishra786/agentop/releases) page:
+
+- **Linux**: x86_64, arm64, i386, arm, ppc64le
+- **FreeBSD**: x86_64
+- **OpenBSD**: x86_64
+- **macOS**: x86_64, arm64 (Apple Silicon)
+- **Windows**: x86_64, i386
 
 ## Usage
 

@@ -5,11 +5,14 @@ import (
 )
 
 var (
-	version = ""
-	commit  = ""
+	// Version contains the application version number. It's set via ldflags when building.
+	Version = ""
+
+	// CommitSHA contains the SHA of the commit that this application was built against. It's set via ldflags when building.
+	CommitSHA = ""
 )
 
 func main() {
-	cmd.SetVersionInfo(version, commit)
+	cmd.SetVersionInfo(Version, CommitSHA)
 	cmd.Execute()
 }

@@ -12,11 +12,6 @@ import (
 )
 
 var (
-	Version   = ""
-	CommitSHA = ""
-)
-
-var (
 	claudeDir string
 	since     string
 	until     string
@@ -32,8 +27,8 @@ var (
 
 var rootCmd = &cobra.Command{
 	Use:   "agentop",
-	Short: "Terminal dashboard for Claude Code sessions",
-	Long: `agentop reads ~/.claude/projects/ and shows token usage,
+	Short: "Terminal dashboard for AI coding assistant sessions",
+	Long: `agentop reads AI assistant session data and shows token usage,
 cost, and cache efficiency in a duf-style terminal dashboard.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runToday(cmd, args)
@@ -44,7 +39,7 @@ func init() {
 	home, _ := os.UserHomeDir()
 	defaultDir := filepath.Join(home, ".claude")
 
-	rootCmd.PersistentFlags().StringVar(&claudeDir, "claude-dir", defaultDir, "Path to Claude data directory")
+	rootCmd.PersistentFlags().StringVar(&claudeDir, "claude-dir", defaultDir, "Path to AI assistant data directory")
 	rootCmd.PersistentFlags().StringVar(&since, "since", "today", `Date filter: "today", "7d", "30d", or "2026-04-01"`)
 	rootCmd.PersistentFlags().StringVar(&until, "until", "", "End date filter")
 	rootCmd.PersistentFlags().StringVar(&project, "project", "", "Filter by project path (partial match)")
@@ -66,6 +61,11 @@ func Execute() {
 		os.Exit(1)
 	}
 }
+
+var (
+	Version   = ""
+	CommitSHA = ""
+)
 
 func SetVersionInfo(v, c string) {
 	Version = v

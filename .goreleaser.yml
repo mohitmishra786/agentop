@@ -11,18 +11,27 @@ builds:
   - binary: agentop
     flags:
       - -trimpath
-    ldflags: -s -w -X github.com/agentop-dev/agentop/cmd.Version={{ .Version }} -X github.com/agentop-dev/agentop/cmd.CommitSHA={{ .Commit }}
+    ldflags: -s -w -X main.Version={{ .Version }} -X main.CommitSHA={{ .Commit }}
     goos:
       - linux
+      - freebsd
+      - openbsd
       - darwin
       - windows
     goarch:
       - amd64
       - arm64
       - 386
+      - arm
+      - ppc64le
+    goarm:
+      - 6
+      - 7
     ignore:
       - goos: windows
-        goarch: arm64
+        goarm: "6"
+      - goos: windows
+        goarm: "7"
 
 archives:
   - format_overrides:
@@ -34,17 +43,20 @@ archives:
       {{- .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end -}}
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end -}}
     files:
       - agentop.1
       - LICENSE
       - README.md
 
 nfpms:
-  - vendor: mohitmishra786
+  - ids:
+      - agentop
+    vendor: mohitmishra786
     homepage: "https://github.com/mohitmishra786/agentop"
     maintainer: "Mohit Mishra <mohitmishra786687@gmail.com>"
-    description: "Terminal dashboard for Claude Code sessions"
+    description: "Terminal dashboard for AI coding assistant sessions"
     license: MIT
     formats:
       - apk
@@ -52,22 +64,19 @@ nfpms:
       - rpm
     bindir: /usr/bin
 
-brews:
+homebrew_casks:
   - repository:
       owner: mohitmishra786
       name: homebrew-tap
     commit_author:
       name: "Mohit Mishra"
-      email: "chessman786@gmail.com"
+      email: "mohitmishra786687@gmail.com"
     homepage: "https://github.com/mohitmishra786/agentop"
-    description: "Terminal dashboard for Claude Code sessions"
+    description: "Terminal dashboard for AI coding assistant sessions"
     license: "MIT"
+    manpages:
+      - agentop.1
     skip_upload: auto
-    test: |
-      system "#{bin}/agentop --version"
-    install: |
-      bin.install "agentop"
-      man1.install "agentop.1"
 
 signs:
   - artifacts: checksum
