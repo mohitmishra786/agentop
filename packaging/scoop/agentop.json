@@ -5,12 +5,19 @@
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/mohitmishra786/agentop/releases/download/v0.1.0/agentop_0.1.0_windows_amd64.zip",
-      "hash": "SHA256 Placeholder (update on release)"
+      "url": "https://github.com/mohitmishra786/agentop/releases/download/v0.1.0/agentop_v0.1.0_windows_x86_64.zip",
+      "hash": "f770744f131f04e90d199a2fac7c9e4d740e2f5bb06a2a538374ebd286cc9747"
     }
   },
-  "installer": {
-    "script": "install.ps1"
-  },
-  "persist": "agentop.exe"
+  "bin": [
+    ["agentop.exe", "agentop"]
+  ],
+  "checkver": "github",
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/mohitmishra786/agentop/releases/download/v$version/agentop_v$version_windows_x86_64.zip"
+      }
+    }
+  }
 }
