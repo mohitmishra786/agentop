@@ -1,0 +1,21 @@
+pkgname=agentop
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Terminal dashboard for AI coding assistant sessions"
+arch=('x86_64' 'aarch64')
+url="https://github.com/mohitmishra786/agentop/archive/refs/tags/v$pkgver.tar.gz"
+source=("$pkgname-$pkgver.tar.gz")
+sha256sums=('<update-on-release>')
+license=('MIT')
+makedepends=('go')
+
+build() {
+  cd "$pkgname-$pkgver"
+  go build -o agentop .
+}
+
+package() {
+  install -Dm755 agentop "$pkgdir/usr/bin/agentop"
+  install -Dm644 agentop.1 "$pkgdir/usr/share/man/man1/agentop.1"
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

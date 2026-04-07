@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "description": "Terminal dashboard for AI coding assistant sessions",
+  "homepage": "https://github.com/mohitmishra786/agentop",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/mohitmishra786/agentop/releases/download/v0.1.0/agentop_0.1.0_windows_amd64.zip",
+      "hash": "SHA256 Placeholder (update on release)"
+    }
+  },
+  "installer": {
+    "script": "install.ps1"
+  },
+  "persist": "agentop.exe"
+}
