@@ -4,7 +4,7 @@
 
 A terminal dashboard for AI coding assistant sessions. Token usage, cost, and cache efficiency at a glance.
 
-[![Go Version](https://img.shields.io/badge/go-1.25+-00ADD8?style=flat-square)](https://go.dev/)
+[![Go Version](https://img.shields.io/badge/go-1.23+-00ADD8?style=flat-square)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Twitter Follow](https://img.shields.io/twitter/follow/chessMan786?style=flat-square)](https://x.com/chessMan786)
 
@@ -39,10 +39,23 @@ brew tap mohitmishra786/homebrew-tap
 brew install agentop
 ```
 
+### Download Release (v0.1.0)
+
+**[Download v0.1.0](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.0)** - First stable release
+
+Prebuilt binaries available for:
+- **Linux**: x86_64, arm64, i386, armv6, armv7, ppc64le
+- **FreeBSD**: x86_64, arm64, i386, armv6, armv7
+- **OpenBSD**: x86_64, arm64, i386, armv6, armv7
+- **macOS**: x86_64 (Intel), arm64 (Apple Silicon)
+- **Windows**: x86_64, i386, arm64
+
+Linux packages also available: `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL), `.apk` (Alpine)
+
 ### Go install
 
 ```bash
-go install github.com/agentop-dev/agentop@latest
+go install github.com/agentop-dev/agentop@v0.1.0
 ```
 
 ### Build from source
@@ -50,18 +63,9 @@ go install github.com/agentop-dev/agentop@latest
 ```bash
 git clone https://github.com/mohitmishra786/agentop.git
 cd agentop
+git checkout v0.1.0
 make build
 ```
-
-### Binaries
-
-Download prebuilt binaries for your platform from the [Releases](https://github.com/mohitmishra786/agentop/releases) page:
-
-- **Linux**: x86_64, arm64, i386, arm, ppc64le
-- **FreeBSD**: x86_64
-- **OpenBSD**: x86_64
-- **macOS**: x86_64, arm64 (Apple Silicon)
-- **Windows**: x86_64, i386
 
 ## Usage
 
