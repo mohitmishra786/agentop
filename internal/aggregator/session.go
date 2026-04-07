@@ -55,7 +55,18 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 
 	modelTokens := make(map[string]claude.Usage)
 
+	// Collect all assistant events, then deduplicate by msg_id keeping the one with stop_reason set
+	type assistantEntry struct {
+		msgID      string
+		model      string
+		usage      *claude.Usage
+		stopReason string
+		costUSD    float64
+	}
+	assistantMap := make(map[string]assistantEntry)
+
 	var firstTime, lastTime time.Time
+	var firstAssistantTime time.Time
 
 	for _, e := range events {
 		if firstTime.IsZero() || e.Timestamp.Before(firstTime) {
@@ -83,29 +94,41 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 				continue
 			}
 
-			usage := e.Message.Usage
-			if usage == nil {
-				continue
+			if firstAssistantTime.IsZero() {
+				firstAssistantTime = e.Timestamp
 			}
 
+			msgID := e.Message.ID
+			stopReason := e.Message.StopReason
 			model := e.Message.Model
 			if model == "" {
 				model = "unknown"
 			}
 
-			s.InputTokens += int64(usage.InputTokens)
-			s.OutputTokens += int64(usage.OutputTokens)
-			s.CacheCreateTokens += int64(usage.CacheCreationInputTokens)
-			s.CacheReadTokens += int64(usage.CacheReadInputTokens)
-
-			s.CostUSD += e.CostUSD
-
-			existing := modelTokens[model]
-			existing.InputTokens += usage.InputTokens
-			existing.OutputTokens += usage.OutputTokens
-			existing.CacheCreationInputTokens += usage.CacheCreationInputTokens
-			existing.CacheReadInputTokens += usage.CacheReadInputTokens
-			modelTokens[model] = existing
+			existing, exists := assistantMap[msgID]
+			if !exists {
+				assistantMap[msgID] = assistantEntry{
+					msgID:      msgID,
+					model:      model,
+					usage:      e.Message.Usage,
+					stopReason: stopReason,
+					costUSD:    e.CostUSD,
+				}
+			} else {
+				if stopReason != "" {
+					existing.stopReason = stopReason
+				}
+				if e.Message.Usage != nil {
+					existing.usage = e.Message.Usage
+				}
+				if e.CostUSD > 0 {
+					existing.costUSD = e.CostUSD
+				}
+				if model != "unknown" {
+					existing.model = model
+				}
+				assistantMap[msgID] = existing
+			}
 
 		case "tool", "tool_result":
 			if e.ToolName != "" {
@@ -117,6 +140,33 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 				s.Summary = e.Summary
 			}
 		}
+	}
+
+	for _, entry := range assistantMap {
+		if entry.stopReason == "" {
+			continue
+		}
+
+		if entry.usage == nil {
+			continue
+		}
+
+		usage := entry.usage
+		model := entry.model
+
+		s.InputTokens += int64(usage.InputTokens)
+		s.OutputTokens += int64(usage.OutputTokens)
+		s.CacheCreateTokens += int64(usage.CacheCreationInputTokens)
+		s.CacheReadTokens += int64(usage.CacheReadInputTokens)
+
+		s.CostUSD += entry.costUSD
+
+		existing := modelTokens[model]
+		existing.InputTokens += usage.InputTokens
+		existing.OutputTokens += usage.OutputTokens
+		existing.CacheCreationInputTokens += usage.CacheCreationInputTokens
+		existing.CacheReadInputTokens += usage.CacheReadInputTokens
+		modelTokens[model] = existing
 	}
 
 	s.TotalTokens = s.InputTokens + s.OutputTokens + s.CacheCreateTokens + s.CacheReadTokens
@@ -131,6 +181,10 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 
 	for model, usage := range modelTokens {
 		s.CostUSDCalculated += pricer.Calculate(usage, model)
+	}
+
+	if s.CostUSD <= 0 && s.CostUSDCalculated > 0 {
+		s.CostUSD = s.CostUSDCalculated
 	}
 
 	maxTokens := 0

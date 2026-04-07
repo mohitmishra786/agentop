@@ -62,6 +62,11 @@ var (
 			Background(lipgloss.Color("#1e3520")).
 			Foreground(lipgloss.Color("#90d080")).
 			Padding(0, 1)
+
+	StyleTagGLM = lipgloss.NewStyle().
+			Background(lipgloss.Color("#352050")).
+			Foreground(lipgloss.Color("#d090f0")).
+			Padding(0, 1)
 )
 
 func ModelTag(model string) string {
@@ -73,10 +78,7 @@ func ModelTag(model string) string {
 	case strings.Contains(model, "haiku"):
 		return StyleTagHaiku.Render("haiku")
 	case strings.Contains(model, "glm"):
-		return lipgloss.NewStyle().
-			Background(lipgloss.Color("#352050")).
-			Foreground(lipgloss.Color("#d090f0")).
-			Padding(0, 1).Render("glm")
+		return StyleTagGLM.Render("glm")
 	default:
 		return StyleDim.Render(model)
 	}

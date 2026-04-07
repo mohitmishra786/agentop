@@ -21,7 +21,9 @@ func TestAggregateSession(t *testing.T) {
 			SessionID: "test-1",
 			Timestamp: time.Date(2026, 4, 7, 10, 0, 5, 0, time.UTC),
 			Message: &claude.RawMessage{
-				Model: "claude-opus-4-6",
+				ID:         "msg-001",
+				Model:      "claude-opus-4-6",
+				StopReason: "end_turn",
 				Usage: &claude.Usage{
 					InputTokens:              10000,
 					OutputTokens:             1000,
@@ -41,7 +43,9 @@ func TestAggregateSession(t *testing.T) {
 			SessionID: "test-1",
 			Timestamp: time.Date(2026, 4, 7, 10, 1, 10, 0, time.UTC),
 			Message: &claude.RawMessage{
-				Model: "claude-opus-4-6",
+				ID:         "msg-002",
+				Model:      "claude-opus-4-6",
+				StopReason: "end_turn",
 				Usage: &claude.Usage{
 					InputTokens:              9000,
 					OutputTokens:             800,
@@ -83,10 +87,56 @@ func TestAggregateSession(t *testing.T) {
 		t.Errorf("expected 1 Read tool call, got %d", stats.ToolCalls["Read"])
 	}
 
-	// Cache efficiency: 110000 / (19000 + 9000 + 110000) = 110000 / 138000 ≈ 0.797
 	expectedEff := 110000.0 / 138000.0
 	if stats.CacheEfficiency < expectedEff-0.01 || stats.CacheEfficiency > expectedEff+0.01 {
 		t.Errorf("expected cache efficiency ~%.3f, got %.3f", expectedEff, stats.CacheEfficiency)
+	}
+}
+
+func TestAggregateSessionSkipsStreamingChunks(t *testing.T) {
+	events := []claude.RawEvent{
+		{
+			Type:      "user",
+			SessionID: "test-stream",
+			Timestamp: time.Date(2026, 4, 7, 10, 0, 0, 0, time.UTC),
+		},
+		{
+			Type:      "assistant",
+			SessionID: "test-stream",
+			Timestamp: time.Date(2026, 4, 7, 10, 0, 5, 0, time.UTC),
+			Message: &claude.RawMessage{
+				ID:         "msg-001",
+				Model:      "claude-opus-4-6",
+				StopReason: "",
+				Usage: &claude.Usage{
+					InputTokens:  0,
+					OutputTokens: 0,
+				},
+			},
+		},
+		{
+			Type:      "assistant",
+			SessionID: "test-stream",
+			Timestamp: time.Date(2026, 4, 7, 10, 0, 6, 0, time.UTC),
+			Message: &claude.RawMessage{
+				ID:         "msg-001",
+				Model:      "claude-opus-4-6",
+				StopReason: "end_turn",
+				Usage: &claude.Usage{
+					InputTokens:  5000,
+					OutputTokens: 500,
+				},
+			},
+			CostUSD: 0.10,
+		},
+	}
+
+	stats := AggregateSession(events, nil, pricing.DefaultPricer{})
+	if stats.InputTokens != 5000 {
+		t.Errorf("expected 5000 input tokens (deduplicated), got %d", stats.InputTokens)
+	}
+	if stats.CostUSD != 0.10 {
+		t.Errorf("expected 0.10 cost, got %f", stats.CostUSD)
 	}
 }
 
@@ -109,7 +159,9 @@ func TestAggregateSessionHumanType(t *testing.T) {
 			SessionID: "test-2",
 			Timestamp: time.Date(2026, 4, 7, 10, 0, 5, 0, time.UTC),
 			Message: &claude.RawMessage{
-				Model: "claude-sonnet-4-6",
+				ID:         "msg-003",
+				Model:      "claude-sonnet-4-6",
+				StopReason: "end_turn",
 				Usage: &claude.Usage{
 					InputTokens:  5000,
 					OutputTokens: 500,
@@ -122,5 +174,8 @@ func TestAggregateSessionHumanType(t *testing.T) {
 	stats := AggregateSession(events, nil, pricing.DefaultPricer{})
 	if stats.MessageCount != 1 {
 		t.Errorf("expected 1 message, got %d", stats.MessageCount)
+	}
+	if stats.InputTokens != 5000 {
+		t.Errorf("expected 5000 input tokens, got %d", stats.InputTokens)
 	}
 }

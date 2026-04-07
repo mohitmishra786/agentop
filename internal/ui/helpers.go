@@ -6,6 +6,9 @@ import (
 )
 
 func FormatCost(usd float64) string {
+	if usd <= 0 {
+		return "~"
+	}
 	return fmt.Sprintf("$%.2f", usd)
 }
 
