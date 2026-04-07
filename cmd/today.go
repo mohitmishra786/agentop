@@ -23,6 +23,10 @@ var todayCmd = &cobra.Command{
 }
 
 func runToday(cmd *cobra.Command, args []string) error {
+	if err := ui.Init(); err != nil {
+		return err
+	}
+
 	sessions, err := loadSessions()
 	if err != nil {
 		return err

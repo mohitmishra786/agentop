@@ -2,7 +2,7 @@
 
 *"What gets measured gets managed."* — Peter Drucker
 
-A terminal dashboard for Claude Code sessions. Token usage, cost, and cache efficiency at a glance.
+A terminal dashboard for AI coding assistant sessions. Token usage, cost, and cache efficiency at a glance.
 
 [![Go Version](https://img.shields.io/badge/go-1.25+-00ADD8?style=flat-square)](https://go.dev/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
@@ -12,7 +12,7 @@ A terminal dashboard for Claude Code sessions. Token usage, cost, and cache effi
 
 ## What It Does
 
-Reads `~/.claude/projects/` and shows you what Claude Code is actually doing with your tokens.
+Reads your AI assistant's session data and shows you what it is actually doing with your tokens.
 
 ```
 $ agentop
@@ -88,17 +88,17 @@ agentop config
 
 Three things happen when you run `agentop`.
 
-First, it discovers every JSONL session in `~/.claude/projects/` — including subagent sessions. It handles the real directory structure where files live directly in project hash directories, not in a `sessions/` subfolder.
+First, it discovers every JSONL session file — including subagent sessions. It handles the real directory structure where files live directly in project hash directories.
 
-Second, it parses each session file and deduplicates by message ID. Claude Code streams responses, so the same message appears across multiple lines with zero token counts until the final chunk where `stop_reason` is set. The parser collects all chunks per message and only counts the final one. Sidechain events and tool-type users are filtered out.
+Second, it parses each session file and deduplicates by message ID. AI assistants stream responses, so the same message appears across multiple lines with zero token counts until the final chunk. The parser collects all chunks per message and only counts the final one. Sidechain events and tool-type users are filtered out.
 
-Third, it calculates cost using the embedded pricing table for Opus, Sonnet, and Haiku. For providers that don't report `costUSD` (like GLM), it falls back to token-based calculation. Sessions with no cost data show `~` instead of `$0.00`.
+Third, it calculates cost using the embedded pricing table. For providers that do not report `costUSD`, it falls back to token-based calculation. Sessions with no cost data show `~` instead of `$0.00`.
 
 ## Why This Exists
 
-Claude Code sessions cost money. Real money. A single long session can burn through $40+ in tokens and most of it goes to cache reads that you didn't know were happening.
+AI coding assistant sessions cost money. Real money. A single long session can burn through $40+ in tokens and most of it goes to cache reads that you did not know were happening.
 
-The Claude UI shows you a chat log. It does not show you token breakdowns. It does not show you cache efficiency. It does not tell you that your first session of the day is paying a 3x premium for cold-start cache creation.
+The assistant UI shows you a chat log. It does not show you token breakdowns. It does not show you cache efficiency. It does not tell you that your first session of the day is paying a premium for cold-start cache creation.
 
 **agentop** makes the invisible visible. You see which sessions are efficient, which ones are burning cash, and which models you are actually using. The anomaly detector (`agentop doctor`) flags sessions with poor cache efficiency, high cost for few messages, and model mismatches.
 
@@ -106,9 +106,18 @@ The Claude UI shows you a chat log. It does not show you token breakdowns. It do
 
 *"The first principle is that you must not fool yourself — and you are the easiest person to fool."* — Richard Feynman
 
-Most developers run Claude Code for weeks without checking what it costs. The token counts are buried in JSONL files. The cache efficiency is invisible. The billing windows are opaque.
+Most developers run AI coding assistants for weeks without checking what it costs. The token counts are buried in JSONL files. The cache efficiency is invisible. The billing windows are opaque.
 
 This tool exists because transparency is the first step toward optimization. You cannot improve what you cannot measure.
+
+## Roadmap
+
+- [x] Claude Code support
+- [ ] Codex CLI support
+- [ ] OpenCode support
+- [ ] Custom provider plugins
+- [ ] Budget alerts
+- [ ] Team/organization dashboards
 
 ## Contributing
 
@@ -131,7 +140,7 @@ internal/ui/      — Terminal UI (bubbletea/lipgloss)
 testdata/         — Sample session files
 ```
 
-To add support for a new model, update `assets/pricing.json` and `internal/pricing/pricing.json`. To add a new command, create a file in `cmd/` and register it in `cmd/root.go`.
+To add support for a new model, update `internal/pricing/pricing.json`. To add a new command, create a file in `cmd/` and register it in `cmd/root.go`. To add a new provider, create a new package under `internal/` and wire it into the aggregator.
 
 Run tests before submitting a PR:
 
@@ -141,7 +150,7 @@ make test
 
 ## Security
 
-- This tool reads your local Claude Code data. Nothing leaves your machine.
+- This tool reads your local session data. Nothing leaves your machine.
 - No network calls are made. No telemetry. No analytics.
 - The binary is a single Go binary with no runtime dependencies.
 - If you find a security issue, please open a private issue or email the maintainer.

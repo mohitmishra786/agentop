@@ -4,8 +4,16 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime/debug"
+	"strconv"
+	"time"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	Version   = ""
+	CommitSHA = ""
 )
 
 var (
@@ -19,6 +27,7 @@ var (
 	noColor   bool
 	watch     bool
 	refresh   int
+	themeOpt  string
 )
 
 var rootCmd = &cobra.Command{
@@ -45,6 +54,9 @@ func init() {
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colors")
 	rootCmd.PersistentFlags().BoolVarP(&watch, "watch", "w", false, "Live refresh mode")
 	rootCmd.PersistentFlags().IntVar(&refresh, "refresh", 5, "Refresh interval in seconds (--watch mode)")
+	rootCmd.PersistentFlags().StringVar(&themeOpt, "theme", defaultThemeName(), "Color themes: dark, light, ansi")
+
+	rootCmd.Version = printVersion()
 
 	rootCmd.AddCommand(todayCmd, dailyCmd, monthlyCmd, sessionCmd, blocksCmd, doctorCmd, configCmd)
 }
@@ -55,18 +67,54 @@ func Execute() {
 	}
 }
 
-var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
-)
-
-func SetVersionInfo(v, c, d string) {
-	version = v
-	commit = c
-	date = d
+func SetVersionInfo(v, c string) {
+	Version = v
+	CommitSHA = c
 }
 
-func getVersionInfo() string {
-	return fmt.Sprintf("agentop %s (commit: %s, built: %s)", version, commit, date)
+func printVersion() string {
+	info, ok := debug.ReadBuildInfo()
+	var buildTime time.Time
+	var modified bool
+	if ok {
+		if len(Version) == 0 {
+			vs := info.Main.Version
+			if vs != "" && vs != "(devel)" {
+				Version = vs
+			}
+		}
+
+		for _, setting := range info.Settings {
+			switch setting.Key {
+			case "vcs.revision":
+				if len(CommitSHA) == 0 {
+					CommitSHA = setting.Value
+					if len(CommitSHA) > 12 {
+						CommitSHA = CommitSHA[:12]
+					}
+				}
+			case "vcs.time":
+				buildTime, _ = time.Parse(time.RFC3339, setting.Value)
+			case "vcs.modified":
+				modified, _ = strconv.ParseBool(setting.Value)
+			}
+		}
+	}
+
+	if Version == "" || Version == "(devel)" {
+		Version = "(built from source)"
+	}
+
+	ver := fmt.Sprintf("agentop %s", Version)
+	if len(CommitSHA) > 0 {
+		if modified {
+			CommitSHA += "+modified"
+		}
+		ver += fmt.Sprintf(" (%s)", CommitSHA)
+	}
+	if !buildTime.IsZero() {
+		ver += fmt.Sprintf(" (built on %s)", buildTime.Format("2006-01-02"))
+	}
+
+	return ver
 }

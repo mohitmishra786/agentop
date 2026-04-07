@@ -11,7 +11,6 @@ type Model struct {
 	termWidth  int
 	termHeight int
 	spinner    spinner.Model
-	loading    bool
 	err        error
 }
 
@@ -23,7 +22,6 @@ func NewModel(sessions []*aggregator.SessionStats) Model {
 	return Model{
 		sessions: sessions,
 		spinner:  s,
-		loading:  false,
 	}
 }
 
@@ -53,10 +51,8 @@ func (m Model) View() string {
 	if m.err != nil {
 		return StyleRed.Render("Error: " + m.err.Error())
 	}
-
 	if m.termWidth == 0 {
 		m.termWidth = 120
 	}
-
 	return RenderToday(m.sessions, m.termWidth)
 }

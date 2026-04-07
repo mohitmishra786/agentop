@@ -1,0 +1,86 @@
+.TH AGENTOP 1 "April 2026" "agentop" "User Commands"
+.SH NAME
+agentop \- Terminal dashboard for Claude Code sessions
+.SH SYNOPSIS
+.B agentop
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+.B agentop
+reads ~/.claude/projects/ and shows token usage, cost, and cache efficiency
+in a duf-style terminal dashboard.
+.SH OPTIONS
+.TP
+.BI "\-\-claude-dir" " DIR"
+Path to Claude data directory (default: ~/.claude)
+.TP
+.BI "\-\-since" " DATE"
+Date filter: "today", "7d", "30d", or "2026-04-01" (default: today)
+.TP
+.BI "\-\-until" " DATE"
+End date filter
+.TP
+.BI "\-\-project" " PATH"
+Filter by project path (partial match)
+.TP
+.BI "\-\-model" " MODEL"
+Filter by model: opus, sonnet, haiku
+.TP
+.B \-\-json
+Output as JSON
+.TP
+.B \-\-compact
+Force compact layout
+.TP
+.B \-\-no-color
+Disable colors
+.TP
+.BR \-w ", " \-\-watch
+Live refresh mode
+.TP
+.BI "\-\-refresh" " SECS"
+Refresh interval in seconds (default: 5)
+.TP
+.B \-h, \-\-help
+Show help
+.TP
+.B \-v, \-\-version
+Show version
+.SH COMMANDS
+.TP
+.B today
+Show today's sessions (default)
+.TP
+.B daily
+Show daily session reports
+.TP
+.B monthly
+Show monthly session summaries
+.TP
+.B session
+Deep-dive into a single session
+.TP
+.B blocks
+Show 5-hour billing window report
+.TP
+.B doctor
+Anomaly detection and insights
+.TP
+.B config
+Show effective config and pricing
+.SH EXAMPLES
+.TP
+.B agentop
+Show today's sessions
+.TP
+.B agentop --since 7d
+Show last 7 days
+.TP
+.B agentop --watch
+Live refresh mode
+.TP
+.B agentop doctor
+Run anomaly detection
+.SH AUTHOR
+Mohit Mishra <chessman786@gmail.com>
+.SH LICENSE
+MIT

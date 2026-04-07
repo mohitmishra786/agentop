@@ -1,4 +1,7 @@
-version: 1.2.0
+version: 2
+
+env:
+  - CGO_ENABLED=0
 
 before:
   hooks:
@@ -6,44 +9,79 @@ before:
 
 builds:
   - binary: agentop
-    env:
-      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags: -s -w -X github.com/agentop-dev/agentop/cmd.Version={{ .Version }} -X github.com/agentop-dev/agentop/cmd.CommitSHA={{ .Commit }}
     goos:
-      - darwin
       - linux
+      - darwin
       - windows
     goarch:
       - amd64
       - arm64
-    ldflags:
-      - -s -w
-      - -X main.version={{.Version}}
-      - -X main.commit={{.Commit}}
-      - -X main.date={{.Date}}
+      - 386
+    ignore:
+      - goos: windows
+        goarch: arm64
 
 archives:
-  - format: tar.gz
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else }}{{ .Arch }}{{ end }}
-    format_overrides:
+  - format_overrides:
       - goos: windows
-        format: zip
+        formats: ['zip']
+    name_template: >-
+      {{- .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end -}}
+    files:
+      - agentop.1
+      - LICENSE
+      - README.md
+
+nfpms:
+  - vendor: mohitmishra786
+    homepage: "https://github.com/mohitmishra786/agentop"
+    maintainer: "Mohit Mishra <mohitmishra786687@gmail.com>"
+    description: "Terminal dashboard for Claude Code sessions"
+    license: MIT
+    formats:
+      - apk
+      - deb
+      - rpm
+    bindir: /usr/bin
+
+brews:
+  - repository:
+      owner: mohitmishra786
+      name: homebrew-tap
+    commit_author:
+      name: "Mohit Mishra"
+      email: "chessman786@gmail.com"
+    homepage: "https://github.com/mohitmishra786/agentop"
+    description: "Terminal dashboard for Claude Code sessions"
+    license: "MIT"
+    skip_upload: auto
+    test: |
+      system "#{bin}/agentop --version"
+    install: |
+      bin.install "agentop"
+      man1.install "agentop.1"
+
+signs:
+  - artifacts: checksum
 
 checksum:
-  name_template: checksums.txt
+  name_template: "checksums.txt"
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ .Tag }}-next"
 
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-      - '^ci:'
-      - Merge pull request
-      - Merge branch
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
