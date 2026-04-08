@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"math"
 
 	"github.com/charmbracelet/lipgloss"
 )
@@ -147,11 +146,7 @@ func ThresholdBadge(value float64, thresholds struct{ Yellow, Red float64 }) str
 }
 
 // ProgressRing renders a circular progress indicator
-func ProgressRing(percent float64, radius int) string {
-	if radius < 1 {
-		radius = 1
-	}
-
+func ProgressRing(percent float64) string {
 	segments := []string{
 		"█", "▓", "▒", "░",
 	}
@@ -192,10 +187,4 @@ func repeat(s string, count int) string {
 		result += s
 	}
 	return result
-}
-
-// Round to n decimal places
-func round(x float64, n int) float64 {
-	pow := math.Pow(10, float64(n))
-	return math.Round(x*pow) / pow
 }
