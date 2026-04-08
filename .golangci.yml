@@ -7,8 +7,6 @@ linters:
     - revive
     - staticcheck
     - unused
-    - gosimple
-    - ineffassign
   exclusions:
     generated: lax
     presets:
