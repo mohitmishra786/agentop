@@ -30,6 +30,16 @@ $ agentop
 ╰──────────────────────────────────────────────────────────────────────╯
 ```
 
+## Features
+
+- **Multiple Layouts**: Default panel view or duf-style table layout with `--layout table`
+- **Interactive Watch Mode**: Keyboard navigation (↑/↓), sort cycling (s), help (?), status bar
+- **Color Themes**: Auto-detects terminal theme (dark/light), supports ansi mode
+- **Visual Indicators**: Progress bars, sparklines, trend indicators, threshold badges
+- **Smart Filtering**: By date, project, model, cache efficiency
+- **Anomaly Detection**: Flags cold starts, high-cost sessions, cache inefficiencies
+- **Multi-OS Support**: Linux, FreeBSD, OpenBSD, macOS, Windows with wide architecture support
+
 ## Install
 
 ### Homebrew (macOS/Linux)
@@ -70,8 +80,11 @@ make build
 ## Usage
 
 ```bash
-# Today's sessions
+# Today's sessions (default layout)
 agentop
+
+# Table layout (duf-style columns)
+agentop --layout table
 
 # Last 7 days
 agentop --since 7d
@@ -82,8 +95,9 @@ agentop --project myapp
 # Filter by model
 agentop --model sonnet
 
-# Live watch mode
+# Interactive watch mode with keyboard navigation
 agentop --watch
+# Press ? for help, ↑/↓ to navigate, s to sort, q to quit
 
 # JSON output
 agentop --json
