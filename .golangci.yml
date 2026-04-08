@@ -1,3 +1,6 @@
+version: "2"
+run:
+  tests: false
 linters:
   enable:
     - gofmt
@@ -7,25 +10,15 @@ linters:
     - unused
     - gosimple
     - ineffassign
-
-linters-settings:
-  govet:
-    enable-all: true
-  revive:
-    severity: warning
-    rules:
-      - name: var-naming
-        severity: warning
-        disabled: false
-      - name: exported
-        severity: warning
-        disabled: false
-
-run:
-  timeout: 5m
-  go: "1.23"
-
+  exclusions:
+    generated: lax
+    presets:
+      - common-false-positives
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
+formatters:
+  enable:
+    - goimports
+  exclusions:
+    generated: lax
