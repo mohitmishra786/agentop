@@ -79,7 +79,8 @@ homebrew_casks:
     skip_upload: auto
 
 signs:
-  - artifacts: checksum
+  - artifacts: null
+    skip: true
 
 checksum:
   name_template: "checksums.txt"
