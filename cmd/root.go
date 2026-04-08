@@ -23,6 +23,7 @@ var (
 	watch     bool
 	refresh   int
 	themeOpt  string
+	layout    string
 )
 
 var rootCmd = &cobra.Command{
@@ -50,6 +51,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&watch, "watch", "w", false, "Live refresh mode")
 	rootCmd.PersistentFlags().IntVar(&refresh, "refresh", 5, "Refresh interval in seconds (--watch mode)")
 	rootCmd.PersistentFlags().StringVar(&themeOpt, "theme", defaultThemeName(), "Color themes: dark, light, ansi")
+	rootCmd.PersistentFlags().StringVar(&layout, "layout", "default", "Layout style: default, table")
 
 	rootCmd.Version = printVersion()
 

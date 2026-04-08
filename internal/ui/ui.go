@@ -350,7 +350,7 @@ func renderAnomalies(sessions []*aggregator.SessionStats) string {
 	var lines []string
 	for _, s := range sessions {
 		if s.CacheEfficiency < 0.15 && s.TotalTokens > 500_000 {
-			lines = append(lines, fmt.Sprintf("⚠  %s: %.0f%% cache — cold start. %s (%d msgs, %s)",
+			lines = append(lines, fmt.Sprintf("[!] %s: %.0f%% cache - cold start. %s (%d msgs, %s)",
 				Truncate(s.Summary, 20),
 				s.CacheEfficiency*100,
 				FormatCostPerMessage(s.CostUSD, s.MessageCount),

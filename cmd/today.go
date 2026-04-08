@@ -47,7 +47,17 @@ func runToday(cmd *cobra.Command, args []string) error {
 		width = 80
 	}
 
-	fmt.Println(ui.RenderToday(sessions, width))
+	var output string
+	if layout == "table" {
+		output = ui.RenderSessionsTable(sessions, ui.TableOptions{
+			Width:        width,
+			ShowProgress: true,
+			Theme:        themeOpt,
+		})
+	} else {
+		output = ui.RenderToday(sessions, width)
+	}
+	fmt.Println(output)
 	return nil
 }
 

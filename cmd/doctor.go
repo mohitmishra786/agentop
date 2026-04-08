@@ -47,7 +47,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(anomalies) == 0 {
-		fmt.Println(ui.StyleGreen.Render("✓ All sessions look healthy. No anomalies detected."))
+		fmt.Println(ui.StyleGreen.Render("[OK] All sessions look healthy. No anomalies detected."))
 		return nil
 	}
 
@@ -55,10 +55,10 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	for _, a := range anomalies {
 		switch a.Severity {
 		case "warn":
-			lines = append(lines, fmt.Sprintf("⚠  WARN  %s (%s)", a.Title, a.ProjectName))
+			lines = append(lines, fmt.Sprintf("[!] WARN  %s (%s)", a.Title, a.ProjectName))
 			lines = append(lines, "     "+a.Detail)
 		case "info":
-			lines = append(lines, fmt.Sprintf("✓  INFO  %s", a.Title))
+			lines = append(lines, fmt.Sprintf("[i] INFO  %s", a.Title))
 			lines = append(lines, "     "+a.Detail)
 		case "tip":
 			lines = append(lines, fmt.Sprintf("ℹ  TIP   %s", a.Title))
