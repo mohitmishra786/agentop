@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 
 linters:
   enable:
@@ -28,10 +28,5 @@ run:
   go: "1.23"
 
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
-  exclude-dirs:
-    - vendor
-  exclude-files:
-    - ".*\\.pb\\.go"

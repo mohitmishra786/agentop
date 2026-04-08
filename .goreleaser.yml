@@ -76,7 +76,7 @@ homebrew_casks:
     license: "MIT"
     manpages:
       - agentop.1
-    skip_upload: auto
+    skip_upload: true
 
 signs:
   - artifacts: none
