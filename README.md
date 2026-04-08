@@ -68,33 +68,53 @@ $ agentop --layout table
 
 ## Install
 
-### Homebrew (macOS/Linux)
+### Package Managers
 
-```bash
-brew tap mohitmishra786/homebrew-tap
-brew install agentop
-```
+#### Linux
+- **Arch Linux**: `pacman -S agentop`
+- **Ubuntu/Debian**: `apt install agentop`
+- **Fedora**: `dnf install agentop`
+- **openSUSE**: `zypper install agentop`
+- **Nix**: `nix-env -iA nixpkgs.agentop`
+- **Void Linux**: `xbps-install -S agentop`
+- **Gentoo**: `app-misc/agentop`
+- **Solus**: `eopkg it agentop`
 
-### Download Release (v0.1.0)
+Available packages: `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL), `.apk` (Alpine)
 
-**[Download v0.1.0](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.0)** - First stable release
+#### BSD
+- **FreeBSD**: `pkg install agentop`
+- **OpenBSD**: `pkg_add agentop`
+
+#### macOS
+- **Homebrew**: `brew install agentop`
+- **MacPorts**: `sudo port selfupdate && sudo port install agentop`
+
+#### Windows
+- **Chocolatey**: `choco install agentop`
+- **Scoop**: `scoop install agentop`
+
+#### Android
+- **Termux**: `pkg install agentop`
+
+### Prebuilt Binaries
+
+**[Download v0.1.0](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.0)**
 
 Prebuilt binaries available for:
-- **Linux**: x86_64, arm64, i386, armv6, armv7, ppc64le
+- **Linux**: x86_64, arm64, i386, armv6, armv7, ppc64le, riscv64
 - **FreeBSD**: x86_64, arm64, i386, armv6, armv7
 - **OpenBSD**: x86_64, arm64, i386, armv6, armv7
 - **macOS**: x86_64 (Intel), arm64 (Apple Silicon)
 - **Windows**: x86_64, i386, arm64
 
-Linux packages also available: `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL), `.apk` (Alpine)
-
-### Go install
+### Go Install
 
 ```bash
 go install github.com/agentop-dev/agentop@v0.1.0
 ```
 
-### Build from source
+### Build from Source
 
 ```bash
 git clone https://github.com/mohitmishra786/agentop.git
