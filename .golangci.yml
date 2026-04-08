@@ -24,7 +24,12 @@ linters-settings:
 run:
   timeout: 5m
   go: "1.23"
+  skip-dirs:
+    - vendor
+  skip-files:
+    - ".*\\.pb\\.go"
 
 issues:
+  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
