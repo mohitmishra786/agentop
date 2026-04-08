@@ -135,13 +135,6 @@ func sessionName(s *aggregator.SessionStats) string {
 	return Truncate(name, 20)
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func max(a, b int) int {
 	if a > b {
 		return a

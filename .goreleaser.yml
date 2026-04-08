@@ -80,7 +80,7 @@ homebrew_casks:
 
 signs:
   - artifacts: null
-    skip: true
+    enabled: false
 
 checksum:
   name_template: "checksums.txt"

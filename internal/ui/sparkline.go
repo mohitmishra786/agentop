@@ -13,9 +13,9 @@ func Sparkline(data []float64, width int, color string) string {
 	}
 
 	min, max := minMax(data)
-	range_ := max - min
-	if range_ == 0 {
-		range_ = 1
+	dataRange := max - min
+	if dataRange == 0 {
+		dataRange = 1
 	}
 
 	bars := []rune{'▁', '▂', '▃', '▄', '▅', '▆', '▇', '█'}
@@ -27,7 +27,7 @@ func Sparkline(data []float64, width int, color string) string {
 			dataIndex = len(data) - 1
 		}
 
-		normalized := (data[dataIndex] - min) / range_
+		normalized := (data[dataIndex] - min) / dataRange
 		barIndex := int(normalized * float64(len(bars)-1))
 		if barIndex < 0 {
 			barIndex = 0
@@ -91,9 +91,9 @@ func MiniSpark(data []float64, width int) string {
 	}
 
 	min, max := minMax(data)
-	range_ := max - min
-	if range_ == 0 {
-		range_ = 1
+	dataRange := max - min
+	if dataRange == 0 {
+		dataRange = 1
 	}
 
 	result := ""
@@ -102,7 +102,7 @@ func MiniSpark(data []float64, width int) string {
 			break
 		}
 
-		normalized := (data[i] - min) / range_
+		normalized := (data[i] - min) / dataRange
 		if normalized < 0.25 {
 			result += "▁"
 		} else if normalized < 0.5 {
@@ -172,15 +172,4 @@ func minMax(data []float64) (float64, float64) {
 		}
 	}
 	return min, max
-}
-
-func repeat(s string, count int) string {
-	if count <= 0 {
-		return ""
-	}
-	result := ""
-	for i := 0; i < count; i++ {
-		result += s
-	}
-	return result
 }

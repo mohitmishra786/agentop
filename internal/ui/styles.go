@@ -20,10 +20,10 @@ type Theme struct {
 	BarEmpty       string // dim:    unused bar space
 
 	// Panel structure
-	Border     string // panel border color
-	HeaderBg   string // header row background
-	HeaderFg   string // header row text
-	RowSep     string // thin row separator line
+	Border   string // panel border color
+	HeaderBg string // header row background
+	HeaderFg string // header row text
+	RowSep   string // thin row separator line
 
 	// Text hierarchy
 	TextPrimary   string // session names, costs — brightest
@@ -86,9 +86,9 @@ func InitTheme(name string) error {
 			// GLM — green (Zhipu AI brand)
 			TagGLMBg: "#1A3A22", TagGLMFg: "#5EC989",
 			// Anthropic models
-			TagOpusBg:   "#2A1A3A", TagOpusFg: "#C090F0",
+			TagOpusBg: "#2A1A3A", TagOpusFg: "#C090F0",
 			TagSonnetBg: "#1A2434", TagSonnetFg: "#70B0E0",
-			TagHaikuBg:  "#1A2A1A", TagHaikuFg: "#70C880",
+			TagHaikuBg: "#1A2A1A", TagHaikuFg: "#70C880",
 			// Unknown
 			TagUnknownBg: "#252525", TagUnknownFg: "#606080",
 		},
@@ -113,9 +113,9 @@ func InitTheme(name string) error {
 			Red:   "#AA2222",
 
 			TagGLMBg: "#C8EED4", TagGLMFg: "#1A5E2A",
-			TagOpusBg:   "#E8D8F8", TagOpusFg: "#5A2090",
+			TagOpusBg: "#E8D8F8", TagOpusFg: "#5A2090",
 			TagSonnetBg: "#D0E4F8", TagSonnetFg: "#1A4A80",
-			TagHaikuBg:  "#D0EED0", TagHaikuFg: "#1A5A1A",
+			TagHaikuBg: "#D0EED0", TagHaikuFg: "#1A5A1A",
 			TagUnknownBg: "#EEEEEE", TagUnknownFg: "#666688",
 		},
 	}
@@ -567,9 +567,9 @@ func RenderSessionRow(s *aggregator.SessionStats, barWidth int, termWidth int) s
 
 	// Token bar
 	bar := TokenBar{
-		Input:       s.InputTokens, Output: s.OutputTokens,
+		Input: s.InputTokens, Output: s.OutputTokens,
 		CacheCreate: s.CacheCreateTokens, CacheRead: s.CacheReadTokens,
-		Width:       barWidth,
+		Width: barWidth,
 	}.Render()
 
 	// Cache efficiency — right-aligned 4 chars + color
@@ -586,7 +586,7 @@ func RenderSessionRow(s *aggregator.SessionStats, barWidth int, termWidth int) s
 	}
 
 	// Cost — right-aligned 6 chars
-	costStr := PadLeft(FormatCostRaw(s.CostUSD), 6)
+	var costStr string
 	if s.CostUSD <= 0 {
 		costStr = PadLeft(StyleDim.Render("~"), 6)
 	} else if s.CostUSD >= 10 {
