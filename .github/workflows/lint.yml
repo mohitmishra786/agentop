@@ -2,14 +2,25 @@ name: lint
 
 on:
   push:
-    pull_request:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
-  lint:
+  golangci:
+    name: lint
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v7
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6.0.0
+        with:
+          go-version: stable
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          only-new-issues: true

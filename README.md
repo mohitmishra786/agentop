@@ -68,45 +68,18 @@ $ agentop --layout table
 
 ## Install
 
-### Package Managers
-
-#### Linux
-- **Arch Linux**: `pacman -S agentop`
-- **Ubuntu/Debian**: `apt install agentop`
-- **Fedora**: `dnf install agentop`
-- **openSUSE**: `zypper install agentop`
-- **Nix**: `nix-env -iA nixpkgs.agentop`
-- **Void Linux**: `xbps-install -S agentop`
-- **Gentoo**: `app-misc/agentop`
-- **Solus**: `eopkg it agentop`
-
-Available packages: `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL), `.apk` (Alpine)
-
-#### BSD
-- **FreeBSD**: `pkg install agentop`
-- **OpenBSD**: `pkg_add agentop`
-
-#### macOS
-- **Homebrew**: `brew install agentop`
-- **MacPorts**: `sudo port selfupdate && sudo port install agentop`
-
-#### Windows
-- **Chocolatey**: `choco install agentop`
-- **Scoop**: `scoop install agentop`
-
-#### Android
-- **Termux**: `pkg install agentop`
-
-### Prebuilt Binaries
+### Prebuilt Binaries (Recommended)
 
 **[Download v0.1.0](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.0)**
 
-Prebuilt binaries available for:
+Available for:
 - **Linux**: x86_64, arm64, i386, armv6, armv7, ppc64le, riscv64
 - **FreeBSD**: x86_64, arm64, i386, armv6, armv7
 - **OpenBSD**: x86_64, arm64, i386, armv6, armv7
 - **macOS**: x86_64 (Intel), arm64 (Apple Silicon)
 - **Windows**: x86_64, i386, arm64
+
+Package formats: `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL), `.apk` (Alpine)
 
 ### Go Install
 
@@ -122,6 +95,18 @@ cd agentop
 git checkout v0.1.0
 make build
 ```
+
+### Package Manager Support (Coming Soon)
+
+We're working on getting agentop into major package managers:
+
+**Linux**: Arch (pacman), Ubuntu/Debian (apt), Fedora (dnf), openSUSE (zypper), Nix, Void, Gentoo, Solus
+**BSD**: FreeBSD (pkg), OpenBSD (pkg_add)
+**macOS**: Homebrew, MacPorts
+**Windows**: Chocolatey, Scoop
+**Android**: Termux
+
+Want to help? Consider packaging agentop for your favorite package manager!
 
 ## Usage
 
