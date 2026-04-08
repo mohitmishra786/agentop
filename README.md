@@ -14,25 +14,51 @@ A terminal dashboard for AI coding assistant sessions. Token usage, cost, and ca
 
 Reads your AI assistant's session data and shows you what it is actually doing with your tokens.
 
-```
+![agentop screenshot](assets/agentop.png)
+
+### Default View
+
+```bash
 $ agentop
 
- total cost   tokens   cache eff
-   $96.97     248.1M      98%
+  total cost        tokens            cache eff         sessions
+$106.39           266.2M            98%               9
 
-╭──────────────────────────────────────────────────────────────────────╮
-│  claude code · 6 sessions                                            │
-│ 02ac7e59  glm                        98%  $33.62  19m                │
-│ 1.3M in · 355k out · 0 cc · 80.8M cr                                 │
-│ ──────────────────────────────────────────────────────────────────── │
-│ 5264f18b  glm                        98%  $43.41  2m                 │
-│ 2.3M in · 262k out · 0 cc · 108.7M cr                                │
-╰──────────────────────────────────────────────────────────────────────╯
+╭─  claude code · 9 sessions  ────────────────────────────────────────╮
+│ █ in █ out █ cc █ cr                                               │
+│ ───────────────────────────────────────────────────────────────────│
+│ Session                 Tokens                Cache  Cost Time     │
+│ ───────────────────────────────────────────────────────────────────│
+│ cfa91ba2  glm            [███████████████████]  98%  $1.89   29m   │
+│ /Users/chessman/Desktop/Pro...  64k in · 36k out · 3.8M cr         │
+│ ───────────────────────────────────────────────────────────────────│
+│ 02ac7e59  glm            [███████████████████]  98% $40.69 23h13m  │
+│ /Users/chessman/Desktop/Pro...  1.6M in · 511k out · 93.8M cr      │
+│   +10 subagents, 0 tokens                                          │
+╰─────────────────────────────────────────────────────────────────────╯
+```
+
+### Table View
+
+```bash
+$ agentop --layout table
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ 9 sessions                                                                   │
+├──────────────────────┬─────────┬───────────────────────┬───────┬────────┬───┤
+│ SESSION              │ MODEL   │ TOKENS                │ CACHE │   COST │ T │
+├──────────────────────┼─────────┼───────────────────────┼───────┼────────┼───┤
+│ cfa91ba2             │ glm-4.7 │ [███████████████████] │   98% │  $1.89 │ 2 │
+│                      │         │ 64k in · 36k out      │       │        │   │
+│ 02ac7e59             │ glm-4.7 │ [███████████████████] │   98% │ $40.69 │ 2 │
+│                      │         │ 1.6M in · 511k out    │       │        │   │
+└──────────────────────┴─────────┴───────────────────────┴───────┴────────┴───┘
 ```
 
 ## Features
 
-- **Multiple Layouts**: Default panel view or duf-style table layout with `--layout table`
+- **Beautiful Visual Design**: Clean interface with semantic colors (teal for cache reads, warm colors for costs)
+- **Multiple Layouts**: Default panel view or table layout with `--layout table`
 - **Interactive Watch Mode**: Keyboard navigation (↑/↓), sort cycling (s), help (?), status bar
 - **Color Themes**: Auto-detects terminal theme (dark/light), supports ansi mode
 - **Visual Indicators**: Progress bars, sparklines, trend indicators, threshold badges
@@ -83,7 +109,7 @@ make build
 # Today's sessions (default layout)
 agentop
 
-# Table layout (duf-style columns)
+# Table layout with clean columns
 agentop --layout table
 
 # Last 7 days

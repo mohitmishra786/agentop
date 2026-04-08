@@ -66,10 +66,9 @@ func TrendIndicator(current, previous float64) string {
 
 // Gauge renders a horizontal gauge/bar
 func Gauge(value, max float64, width int, color string) string {
-	if width <= 0 {
+	if width <= 0 || max == 0 {
 		return ""
 	}
-
 	ratio := value / max
 	if ratio > 1 {
 		ratio = 1
@@ -80,12 +79,9 @@ func Gauge(value, max float64, width int, color string) string {
 	filled := int(ratio * float64(width))
 	empty := width - filled
 
-	style := lipgloss.NewStyle().Foreground(lipgloss.Color(color))
-	bar := style.Render("█")
-
-	return lipgloss.NewStyle().
-		Width(width).
-		Render(repeat(bar, filled) + StyleDim.Render(repeat("░", empty)))
+	filledStr := lipgloss.NewStyle().Background(lipgloss.Color(color)).Width(filled).Render("")
+	emptyStr := lipgloss.NewStyle().Background(lipgloss.Color(theme.BarEmpty)).Width(empty).Render("")
+	return filledStr + emptyStr
 }
 
 // MiniSpark renders a tiny sparkline for compact display
@@ -127,18 +123,18 @@ func ThresholdBadge(value float64, thresholds struct{ Yellow, Red float64 }) str
 	switch {
 	case value >= thresholds.Red:
 		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(theme.BgRed)).
-			Background(lipgloss.Color(theme.Red)).
+			Foreground(lipgloss.Color(theme.Red)).
+			Background(lipgloss.Color("#2d1b1b")).
 			Bold(true)
 	case value >= thresholds.Yellow:
 		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(theme.BgYellow)).
-			Background(lipgloss.Color(theme.Yellow)).
+			Foreground(lipgloss.Color(theme.Amber)).
+			Background(lipgloss.Color("#2d2d1b")).
 			Bold(true)
 	default:
 		style = lipgloss.NewStyle().
-			Foreground(lipgloss.Color(theme.BgGreen)).
-			Background(lipgloss.Color(theme.Green)).
+			Foreground(lipgloss.Color(theme.Green)).
+			Background(lipgloss.Color("#1b2d1b")).
 			Bold(true)
 	}
 

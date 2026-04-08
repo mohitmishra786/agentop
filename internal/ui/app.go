@@ -106,7 +106,7 @@ func (m Model) View() string {
 func (m Model) renderHelp() string {
 	helpStyle := lipgloss.NewStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color(theme.Gray)).
+		BorderForeground(lipgloss.Color(theme.Border)).
 		Padding(1, 2).
 		Width(60)
 
@@ -127,7 +127,7 @@ func (m Model) renderHelp() string {
 
 func (m Model) renderStatusBar() string {
 	statusBar := lipgloss.NewStyle().
-		Foreground(lipgloss.Color(theme.Gray)).
+		Foreground(lipgloss.Color(theme.TextDim)).
 		Background(lipgloss.Color("#222230")).
 		Padding(0, 1)
 

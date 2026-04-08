@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/agentop-dev/agentop/internal/aggregator"
 	"github.com/charmbracelet/lipgloss"
@@ -27,17 +26,14 @@ func RenderSessionsTable(sessions []*aggregator.SessionStats, opts TableOptions)
 	tab := table.NewWriter()
 	tab.SetOutputMirror(nil)
 	tab.SetAllowedRowLength(opts.Width)
-	tab.SetStyle(table.Style{
-		Name:    "StyleDefault",
-		Options: table.Options{DrawBorder: false, SeparateColumns: true, SeparateHeader: true},
-	})
+	tab.SetStyle(table.StyleLight)
 	tab.SetTitle(fmt.Sprintf(" %d sessions ", len(sessions)))
 
 	// Configure columns
 	tab.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, Name: "Session", WidthMax: 25},
 		{Number: 2, Name: "Model", WidthMax: 10, Align: text.AlignLeft},
-		{Number: 3, Name: "Tokens", WidthMax: 30, Align: text.AlignLeft, Transformer: tokenBarTransformer(opts.Width)},
+		{Number: 3, Name: "Tokens", WidthMax: 25, Align: text.AlignLeft, Transformer: tokenBarTransformer(opts.Width)},
 		{Number: 4, Name: "Cache", WidthMax: 6, Align: text.AlignRight, AlignHeader: text.AlignRight, Transformer: cacheTransformer},
 		{Number: 5, Name: "Cost", WidthMax: 8, Align: text.AlignRight, AlignHeader: text.AlignRight, Transformer: costTransformer},
 		{Number: 6, Name: "Time", WidthMax: 6, Align: text.AlignRight, AlignHeader: text.AlignRight, Transformer: timeTransformer},
@@ -63,55 +59,32 @@ func RenderSessionsTable(sessions []*aggregator.SessionStats, opts TableOptions)
 
 func tokenBarTransformer(width int) func(interface{}) string {
 	return func(val interface{}) string {
-		s := val.(*aggregator.SessionStats)
+		s, ok := val.(*aggregator.SessionStats)
+		if !ok {
+			return ""
+		}
 
-		barWidth := min(20, max(10, width/4))
+		barWidth := 20 // Fixed reasonable width
 		total := s.InputTokens + s.OutputTokens + s.CacheCreateTokens + s.CacheReadTokens
 		if total == 0 {
 			return StyleDim.Render("~")
 		}
 
-		segs := []struct {
-			count int64
-			color string
-		}{
-			{s.InputTokens, theme.Blue},
-			{s.OutputTokens, theme.Cyan},
-			{s.CacheCreateTokens, theme.Yellow},
-			{s.CacheReadTokens, theme.Magenta},
-		}
+		// Use the same TokenBar renderer from styles.go for consistency
+		bar := TokenBar{
+			Input:       s.InputTokens,
+			Output:      s.OutputTokens,
+			CacheCreate: s.CacheCreateTokens,
+			CacheRead:   s.CacheReadTokens,
+			Width:       barWidth,
+		}.Render()
 
-		widths := make([]int, len(segs))
-		tw := 0
-		for i, s := range segs {
-			w := int(float64(s.count) / float64(total) * float64(barWidth))
-			widths[i] = w
-			tw += w
-		}
-		if d := barWidth - tw; d != 0 {
-			mi := 0
-			for i := range widths {
-				if widths[i] > widths[mi] {
-					mi = i
-				}
-			}
-			widths[mi] += d
-		}
+		// Subtitle line below bar
+		subtitle := fmt.Sprintf("%s in · %s out",
+			HumanizeTokens(s.InputTokens),
+			HumanizeTokens(s.OutputTokens))
 
-		var parts []string
-		for i, s := range segs {
-			if widths[i] <= 0 {
-				continue
-			}
-			bar := strings.Repeat("|", widths[i])
-			coloredBar := lipgloss.NewStyle().Foreground(lipgloss.Color(s.color)).Render(bar)
-			parts = append(parts, coloredBar)
-		}
-
-		barStr := strings.Join(parts, "")
-		infoStr := fmt.Sprintf("%s in · %s out", HumanizeTokens(s.InputTokens), HumanizeTokens(s.OutputTokens))
-
-		return barStr + " " + StyleDim.Render(infoStr)
+		return bar + "\n" + StyleSecondary.Render(subtitle)
 	}
 }
 
@@ -127,7 +100,7 @@ func cacheTransformer(val interface{}) string {
 	case eff >= 80:
 		style = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.Green)).Bold(true)
 	case eff >= 40:
-		style = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.Yellow)).Bold(true)
+		style = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.Amber)).Bold(true)
 	default:
 		style = lipgloss.NewStyle().Foreground(lipgloss.Color(theme.Red)).Bold(true)
 	}

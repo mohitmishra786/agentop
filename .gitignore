@@ -36,3 +36,6 @@ bin/
 dist/
 *.tar.gz
 *.zip
+
+# Documentation (local only)
+docs/
