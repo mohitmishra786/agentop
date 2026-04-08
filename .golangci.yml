@@ -3,7 +3,6 @@ run:
   tests: false
 linters:
   enable:
-    - gofmt
     - govet
     - revive
     - staticcheck
@@ -19,6 +18,7 @@ issues:
   max-same-issues: 0
 formatters:
   enable:
+    - gofmt
     - goimports
   exclusions:
     generated: lax
