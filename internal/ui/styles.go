@@ -2,40 +2,38 @@ package ui
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/agentop-dev/agentop/internal/aggregator"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/muesli/termenv"
 )
 
 // Theme holds the color palette for all UI elements
 type Theme struct {
-	// Bar segment colors — semantic meaning drives color choice
-	BarInput       string // amber:  you're spending on input
-	BarOutput      string // coral:  you're spending on output (priciest per token)
-	BarCacheCreate string // yellow: one-time cache creation cost
-	BarCacheRead   string // teal:   savings — calm, efficient, good
-	BarEmpty       string // dim:    unused bar space
+	BarInput       string
+	BarOutput      string
+	BarCacheCreate string
+	BarCacheRead   string
+	BarEmpty       string
 
-	// Panel structure
-	Border   string // panel border color
-	HeaderBg string // header row background
-	HeaderFg string // header row text
-	RowSep   string // thin row separator line
+	Border   string
+	HeaderBg string
+	HeaderFg string
+	RowSep   string
 
-	// Text hierarchy
-	TextPrimary   string // session names, costs — brightest
-	TextSecondary string // paths, token breakdowns
-	TextDim       string // separators, labels
+	TextPrimary   string
+	TextSecondary string
+	TextDim       string
 
-	// Status colors (same meaning across all terminals)
 	Green string
 	Amber string
 	Red   string
 
-	// Model tag backgrounds + foregrounds
 	TagGLMBg     string
 	TagGLMFg     string
 	TagOpusBg    string
@@ -60,36 +58,29 @@ func defaultThemeName() string {
 func InitTheme(name string) error {
 	themes := map[string]Theme{
 		"dark": {
-			// Bar segments: warm=cost, cool=savings
-			BarInput:       "#E8A838", // amber
-			BarOutput:      "#D65D3A", // coral/red
-			BarCacheCreate: "#C9A227", // golden yellow
-			BarCacheRead:   "#3A9BB5", // teal — CALM because high cache read = GOOD
-			BarEmpty:       "#2A2A3A", // near-black
+			BarInput:       "#E8A838",
+			BarOutput:      "#D65D3A",
+			BarCacheCreate: "#C9A227",
+			BarCacheRead:   "#3A9BB5",
+			BarEmpty:       "#2A2A3A",
 
-			// Structure
 			Border:   "#3D3D5C",
 			HeaderBg: "#1E1E2E",
 			HeaderFg: "#8888BB",
 			RowSep:   "#2D2D45",
 
-			// Text
 			TextPrimary:   "#DDDDEE",
 			TextSecondary: "#7777AA",
 			TextDim:       "#444466",
 
-			// Status
 			Green: "#73D673",
 			Amber: "#E8A838",
 			Red:   "#E05555",
 
-			// GLM — green (Zhipu AI brand)
 			TagGLMBg: "#1A3A22", TagGLMFg: "#5EC989",
-			// Anthropic models
 			TagOpusBg: "#2A1A3A", TagOpusFg: "#C090F0",
 			TagSonnetBg: "#1A2434", TagSonnetFg: "#70B0E0",
 			TagHaikuBg: "#1A2A1A", TagHaikuFg: "#70C880",
-			// Unknown
 			TagUnknownBg: "#252525", TagUnknownFg: "#606080",
 		},
 		"light": {
@@ -133,7 +124,7 @@ func Init() error {
 }
 
 // ---------------------------------------------------------------------------
-// Lipgloss style vars — initialized by initStyles()
+// Lipgloss style vars
 // ---------------------------------------------------------------------------
 
 var (
@@ -224,7 +215,7 @@ func ModelTag(model string) string {
 }
 
 // ---------------------------------------------------------------------------
-// Cache efficiency color helper
+// Cache efficiency
 // ---------------------------------------------------------------------------
 
 func CacheEfficiencyColor(eff float64) string {
@@ -239,12 +230,9 @@ func CacheEfficiencyColor(eff float64) string {
 }
 
 // ---------------------------------------------------------------------------
-// TokenBar — duf-style solid colored block bar
+// TokenBar — proportional colored bar (duf-style)
 // ---------------------------------------------------------------------------
 
-// TokenBar renders a duf-style token composition bar.
-// Segments: amber=input, coral=output, yellow=cacheCreate, TEAL=cacheRead
-// A 98% teal bar means 98% cache reads = efficient = calm looking.
 type TokenBar struct {
 	Input, Output, CacheCreate, CacheRead int64
 	Width                                 int
@@ -252,16 +240,15 @@ type TokenBar struct {
 
 func (b TokenBar) Render() string {
 	total := b.Input + b.Output + b.CacheCreate + b.CacheRead
-	innerW := b.Width - 2 // subtract 2 for [ and ]
+	innerW := b.Width - 2
 	if innerW <= 0 {
 		innerW = 1
 	}
 
 	if total == 0 || b.Width <= 0 {
-		empty := strings.Repeat("░", innerW)
-		return StyleDim.Render("[") + lipgloss.NewStyle().
-			Foreground(lipgloss.Color(theme.BarEmpty)).
-			Render(empty) + StyleDim.Render("]")
+		return StyleDim.Render("[") +
+			lipgloss.NewStyle().Foreground(lipgloss.Color(theme.BarEmpty)).Render(strings.Repeat("░", innerW)) +
+			StyleDim.Render("]")
 	}
 
 	type seg struct {
@@ -272,25 +259,15 @@ func (b TokenBar) Render() string {
 		{b.Input, theme.BarInput},
 		{b.Output, theme.BarOutput},
 		{b.CacheCreate, theme.BarCacheCreate},
-		{b.CacheRead, theme.BarCacheRead}, // teal — NOT magenta
-	}
-
-	// Count non-zero segments
-	nonZeroSegs := 0
-	for _, s := range segs {
-		if s.count > 0 {
-			nonZeroSegs++
-		}
+		{b.CacheRead, theme.BarCacheRead},
 	}
 
 	widths := make([]int, len(segs))
 	tw := 0
 	for i, s := range segs {
 		if s.count == 0 {
-			widths[i] = 0
 			continue
 		}
-		// Reserve at least 1 for each non-zero segment
 		w := int(float64(s.count) / float64(total) * float64(innerW))
 		if w < 1 {
 			w = 1
@@ -298,54 +275,59 @@ func (b TokenBar) Render() string {
 		widths[i] = w
 		tw += w
 	}
-	// Distribute remainder to largest segments
-	if diff := innerW - tw; diff > 0 {
-		for i := 0; i < diff; i++ {
-			// Find segment with largest count that's not the last one
-			mi := 0
-			maxCount := segs[0].count
-			for j := 1; j < len(segs); j++ {
-				if segs[j].count > maxCount && widths[j] > 0 {
-					mi = j
-					maxCount = segs[j].count
-				}
+
+	// Trim overshoot (minimum-1 enforcement can push tw > innerW)
+	for tw > innerW {
+		mi := 0
+		for j := 1; j < len(segs); j++ {
+			if widths[j] > widths[mi] {
+				mi = j
 			}
-			widths[mi]++
 		}
+		if widths[mi] <= 1 {
+			break
+		}
+		widths[mi]--
+		tw--
+	}
+	// Distribute any remaining space to the largest segment
+	if diff := innerW - tw; diff > 0 {
+		mi := 0
+		for j := 1; j < len(segs); j++ {
+			if segs[j].count > segs[mi].count {
+				mi = j
+			}
+		}
+		widths[mi] += diff
 	}
 
 	var parts []string
 	for i, s := range segs {
-		if widths[i] <= 0 {
-			continue
+		if widths[i] > 0 {
+			parts = append(parts, lipgloss.NewStyle().
+				Foreground(lipgloss.Color(s.color)).
+				Render(strings.Repeat("█", widths[i])))
 		}
-		// Use foreground color with block characters for better visibility
-		bar := strings.Repeat("█", widths[i])
-		parts = append(parts, lipgloss.NewStyle().
-			Foreground(lipgloss.Color(s.color)).
-			Render(bar))
 	}
-
-	bar := strings.Join(parts, "")
-	return StyleDim.Render("[") + bar + StyleDim.Render("]")
+	return StyleDim.Render("[") + strings.Join(parts, "") + StyleDim.Render("]")
 }
 
-// BarLegend returns the one-line color key to show under the panel header
+// BarLegend returns the color key line.
 func BarLegend() string {
 	dot := func(col, label string) string {
-		sq := lipgloss.NewStyle().Foreground(lipgloss.Color(col)).Render("█")
-		return sq + StyleSecondary.Render(label)
+		return lipgloss.NewStyle().Foreground(lipgloss.Color(col)).Render("█") +
+			StyleDim.Render(label)
 	}
 	return strings.Join([]string{
 		dot(theme.BarInput, " in"),
 		dot(theme.BarOutput, " out"),
 		dot(theme.BarCacheCreate, " cc"),
 		dot(theme.BarCacheRead, " cr"),
-	}, " ")
+	}, "  ")
 }
 
 // ---------------------------------------------------------------------------
-// MiniBar — small summary bar for the top summary strip
+// MiniBar — small bar for the summary strip
 // ---------------------------------------------------------------------------
 
 func MiniBar(ratio float64, width int, fillColor string) string {
@@ -359,16 +341,16 @@ func MiniBar(ratio float64, width int, fillColor string) string {
 	if f > width {
 		f = width
 	}
-	e := width - f
 	filled := lipgloss.NewStyle().Background(lipgloss.Color(fillColor)).Width(f).Render("")
-	empty := lipgloss.NewStyle().Background(lipgloss.Color(theme.BarEmpty)).Width(e).Render("")
+	empty := lipgloss.NewStyle().Background(lipgloss.Color(theme.BarEmpty)).Width(width - f).Render("")
 	return filled + empty
 }
 
 // ---------------------------------------------------------------------------
-// Token subtitle line
+// Token subtitles
 // ---------------------------------------------------------------------------
 
+// TokenSubtitle returns plain text (used for width measurement).
 func TokenSubtitle(input, output, cc, cr int64) string {
 	parts := []string{
 		HumanizeTokens(input) + " in",
@@ -378,7 +360,41 @@ func TokenSubtitle(input, output, cc, cr int64) string {
 		parts = append(parts, HumanizeTokens(cc)+" cc")
 	}
 	parts = append(parts, HumanizeTokens(cr)+" cr")
-	return StyleSecondary.Render(strings.Join(parts, " · "))
+	return strings.Join(parts, "  ")
+}
+
+// TokenSubtitleColored renders each metric in its bar-segment color with label.
+func TokenSubtitleColored(input, output, cc, cr int64) string {
+	col := func(color, num, label string) string {
+		return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(true).Render(num) +
+			StyleDim.Render(" "+label)
+	}
+	parts := []string{
+		col(theme.BarInput, HumanizeTokens(input), "in"),
+		col(theme.BarOutput, HumanizeTokens(output), "out"),
+	}
+	if cc > 0 {
+		parts = append(parts, col(theme.BarCacheCreate, HumanizeTokens(cc), "cc"))
+	}
+	parts = append(parts, col(theme.BarCacheRead, HumanizeTokens(cr), "cr"))
+	return strings.Join(parts, StyleDim.Render("  "))
+}
+
+// TokenCompact renders just the colored token values (no labels) for tight columns.
+// Colors match the bar legend in the title so the mapping is self-evident.
+func TokenCompact(input, output, cc, cr int64) string {
+	col := func(color, num string) string {
+		return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(true).Render(num)
+	}
+	parts := []string{
+		col(theme.BarInput, HumanizeTokens(input)),
+		col(theme.BarOutput, HumanizeTokens(output)),
+	}
+	if cc > 0 {
+		parts = append(parts, col(theme.BarCacheCreate, HumanizeTokens(cc)))
+	}
+	parts = append(parts, col(theme.BarCacheRead, HumanizeTokens(cr)))
+	return strings.Join(parts, StyleDim.Render("  "))
 }
 
 // ---------------------------------------------------------------------------
@@ -453,7 +469,7 @@ func Truncate(s string, max int) string {
 }
 
 func PadRight(s string, w int) string {
-	vis := lipgloss.Width(s) // use lipgloss width to handle ANSI escape codes
+	vis := lipgloss.Width(s)
 	if vis >= w {
 		return s
 	}
@@ -472,169 +488,119 @@ func Separator(width int) string {
 	return StyleRowSep.Render(strings.Repeat("─", width))
 }
 
+// abbreviatePath replaces $HOME with ~ and trims to fit maxLen showing the tail.
+func abbreviatePath(path string, maxLen int) string {
+	if path == "" {
+		return ""
+	}
+	if home, err := os.UserHomeDir(); err == nil && home != "" {
+		if strings.HasPrefix(path, home) {
+			path = "~" + path[len(home):]
+		}
+	}
+	if len(path) <= maxLen {
+		return path
+	}
+	tail := path[len(path)-(maxLen-1):]
+	if idx := strings.Index(tail, "/"); idx >= 0 {
+		tail = tail[idx:]
+	}
+	return "…" + tail
+}
+
+// sessionDisplayName returns the best display name for a session (max 22 chars).
+func sessionDisplayName(s *aggregator.SessionStats) string {
+	name := s.Summary
+	if name == "" {
+		if s.ProjectName != "" {
+			name = s.ProjectName
+		} else if len(s.ID) >= 8 {
+			name = s.ID[:8]
+		} else {
+			name = "session"
+		}
+	}
+	return Truncate(name, 22)
+}
+
 // ---------------------------------------------------------------------------
-// Panel wrapper — duf-style rounded border with header
+// Panel — simple bordered box used only for anomalies
 // ---------------------------------------------------------------------------
 
 func Panel(title, content string, width int) string {
-	// Constrain width to fit terminal
 	maxWidth := width
 	if maxWidth > 120 {
 		maxWidth = 120
 	}
 
 	lines := strings.Split(content, "\n")
-	// Process each line to fit within max width
 	var processedLines []string
 	for _, line := range lines {
-		// Calculate actual visual width (accounting for ANSI codes)
-		visWidth := lipgloss.Width(line)
-		if visWidth > maxWidth-4 {
-			// Truncate if too long
+		if lipgloss.Width(line) > maxWidth-4 {
 			processedLines = append(processedLines, Truncate(line, maxWidth-6))
 		} else {
 			processedLines = append(processedLines, line)
 		}
 	}
 
-	// Find max line length for panel sizing
 	maxLen := 0
 	for _, line := range processedLines {
-		visWidth := lipgloss.Width(line)
-		if visWidth > maxLen {
-			maxLen = visWidth
+		if w := lipgloss.Width(line); w > maxLen {
+			maxLen = w
 		}
 	}
 
 	innerWidth := maxLen + 2
-	if innerWidth < len(title)+4 {
-		innerWidth = len(title) + 4
+	titleVisWidth := lipgloss.Width(title)
+	if innerWidth < titleVisWidth+6 {
+		innerWidth = titleVisWidth + 6
 	}
-	if innerWidth > maxWidth-4 {
-		innerWidth = maxWidth - 4
+	if innerWidth > maxWidth-2 {
+		innerWidth = maxWidth - 2
 	}
 
-	// Build duf-style panel
-	var result []string
-	titlePadding := innerWidth - len(title) - 4
+	// StyleHeader has Padding(0,1) so rendered width = titleVisWidth+2
+	// Top total = 2(╭─) + 1( ) + (titleVisWidth+2) + 1( ) + pad + 1(╮) = titleVisWidth+pad+7
+	// Need = innerWidth+2  →  pad = innerWidth - titleVisWidth - 5
+	titlePadding := innerWidth - titleVisWidth - 5
 	if titlePadding < 0 {
 		titlePadding = 0
 	}
-	result = append(result, "╭─ "+StyleHeader.Render(title)+" "+strings.Repeat("─", titlePadding)+"╮")
+	bc := lipgloss.NewStyle().Foreground(lipgloss.Color(theme.Border))
+	top := bc.Render("╭─") + " " + StyleHeader.Render(title) + " " +
+		bc.Render(strings.Repeat("─", titlePadding)+"╮")
 
+	var rows []string
+	rows = append(rows, top)
 	for _, line := range processedLines {
-		visWidth := lipgloss.Width(line)
-		padding := innerWidth - 2 - visWidth
+		padding := innerWidth - 2 - lipgloss.Width(line)
 		if padding < 0 {
 			padding = 0
 		}
-		result = append(result, "│ "+line+strings.Repeat(" ", padding)+"│")
+		rows = append(rows, bc.Render("│")+" "+line+strings.Repeat(" ", padding)+" "+bc.Render("│"))
 	}
-	result = append(result, "╰"+strings.Repeat("─", innerWidth)+"╯")
-
-	return strings.Join(result, "\n")
+	rows = append(rows, bc.Render("╰"+strings.Repeat("─", innerWidth)+"╯"))
+	return strings.Join(rows, "\n")
 }
 
 // ---------------------------------------------------------------------------
-// Session row — duf-style two-line row with proper column layout
+// duf-style table
 // ---------------------------------------------------------------------------
 
-func RenderSessionRow(s *aggregator.SessionStats, barWidth int, termWidth int) string {
-	// ── Line 1: ID + tag | bar | cache% | cost | duration ──────────────────
-
-	// Session identifier (8-char hash or truncated summary)
-	sessionID := s.ID
-	if len(sessionID) >= 8 {
-		sessionID = sessionID[:8]
-	}
-	name := s.Summary
-	if name == "" {
-		name = sessionID
-	}
-	name = Truncate(name, 16) // Shorter to fit better
-	nameStr := StylePrimary.Render(name)
-
-	// Model badge
-	model := s.Model
-	if model == "" {
-		model = "?"
-	}
-	tag := ModelTag(model)
-
-	// Left cell: name + tag, padded to fixed width
-	leftWidth := 24 // Reduced width
-	left := PadRight(nameStr+" "+tag, leftWidth)
-
-	// Token bar
-	bar := TokenBar{
-		Input: s.InputTokens, Output: s.OutputTokens,
-		CacheCreate: s.CacheCreateTokens, CacheRead: s.CacheReadTokens,
-		Width: barWidth,
-	}.Render()
-
-	// Cache efficiency — right-aligned 4 chars + color
-	var cacheStr string
-	if s.TotalTokens == 0 {
-		cacheStr = StyleDim.Render(PadLeft("~", 4))
-	} else {
-		eff := s.CacheEfficiency * 100
-		effStyled := lipgloss.NewStyle().
-			Foreground(lipgloss.Color(CacheEfficiencyColor(s.CacheEfficiency))).
-			Bold(true).
-			Render(fmt.Sprintf("%.0f%%", eff))
-		cacheStr = PadLeft(effStyled, 4)
-	}
-
-	// Cost — right-aligned 6 chars
-	var costStr string
-	if s.CostUSD <= 0 {
-		costStr = PadLeft(StyleDim.Render("~"), 6)
-	} else if s.CostUSD >= 10 {
-		costStr = PadLeft(StyleAmber.Render(fmt.Sprintf("$%.2f", s.CostUSD)), 6)
-	} else {
-		costStr = PadLeft(StylePrimary.Render(fmt.Sprintf("$%.2f", s.CostUSD)), 6)
-	}
-
-	// Duration — right-aligned 5 chars
-	durStr := PadLeft(FormatDuration(s.Duration), 5)
-
-	line1 := left + " " + bar + " " + cacheStr + " " + costStr + " " + durStr
-
-	// ── Line 2: project path + token breakdown (dim) ────────────────────────
-
-	// Project path — truncated, dimmer
-	projectStr := ""
-	if s.ProjectPath != "" {
-		projectStr = StyleSecondary.Render(Truncate(s.ProjectPath, 30))
-	} else if s.ProjectName != "" {
-		projectStr = StyleSecondary.Render(Truncate(s.ProjectName, 30))
-	}
-
-	tokenBreak := TokenSubtitle(s.InputTokens, s.OutputTokens, s.CacheCreateTokens, s.CacheReadTokens)
-
-	// Indent line 2 to align with bar start
-	indent := strings.Repeat(" ", leftWidth+1)
-	line2 := indent + tokenBreak
-	if projectStr != "" {
-		line2 = StyleSecondary.Render(Truncate(s.ProjectPath, 30)) + "  " + tokenBreak
-	}
-
-	// ── Line 3: subagent note (if any) ─────────────────────────────────────
-	line3 := ""
-	if s.SubagentCount > 0 {
-		line3 = StyleDim.Render(
-			fmt.Sprintf("  +%d subagents, %s tokens", s.SubagentCount, HumanizeTokens(s.SubagentTokens)))
-	}
-
-	result := line1 + "\n" + line2
-	if line3 != "" {
-		result += "\n" + line3
-	}
-	return result
+// dufStyle returns a table style with rounded corners and row separators
+// matching duf's clean column-grid aesthetic.
+func dufStyle() table.Style {
+	s := table.StyleRounded
+	s.Options.SeparateRows = true
+	s.Options.SeparateColumns = true
+	s.Options.DrawBorder = true
+	// Dim the border color by embedding it in a no-op; go-pretty uses ANSI for colors
+	// separately, so we just keep the default border chars.
+	return s
 }
 
 // ---------------------------------------------------------------------------
-// Today view — the main output
+// Today view — duf-style grid table
 // ---------------------------------------------------------------------------
 
 func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
@@ -642,80 +608,161 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 		return StyleDim.Render("  No sessions found.")
 	}
 
-	// ── Aggregate summary stats ──────────────────────────────────────────────
-	var totalCost float64
-	var totalTokens int64
-	var totalCacheRead int64
-	var totalCacheCreate int64
-	var totalInput int64
-	var sessCount int
+	// Split active vs empty
+	var active, empty []*aggregator.SessionStats
+	for _, s := range sessions {
+		if s.TotalTokens == 0 {
+			empty = append(empty, s)
+		} else {
+			active = append(active, s)
+		}
+	}
 
+	// Aggregate totals
+	var totalCost float64
+	var totalTokens, totalCacheRead, totalCacheCreate, totalInput int64
 	for _, s := range sessions {
 		totalCost += s.CostUSD
 		totalTokens += s.TotalTokens
 		totalCacheRead += s.CacheReadTokens
 		totalCacheCreate += s.CacheCreateTokens
 		totalInput += s.InputTokens
-		sessCount++
 	}
-
-	// Overall cache efficiency = cache read / (input + cacheCreate + cacheRead)
 	denom := totalInput + totalCacheCreate + totalCacheRead
 	overallCacheEff := 0.0
 	if denom > 0 {
 		overallCacheEff = float64(totalCacheRead) / float64(denom)
 	}
 
-	// ── Summary strip ────────────────────────────────────────────────────────
-	summary := renderSummaryStrip(totalCost, totalTokens, overallCacheEff, sessCount)
+	summary := renderSummaryStrip(totalCost, totalTokens, overallCacheEff, len(sessions))
 
-	// ── Session panel ────────────────────────────────────────────────────────
-	// Use fixed, reasonable column widths
-	leftWidth := 24
-	barWidth := 20 // Fixed, reasonable bar width
-	cacheWidth := 4
-	costWidth := 6
-	timeWidth := 5
+	// ── Build table ───────────────────────────────────────────────────────────
+	tab := table.NewWriter()
+	tab.SetAllowedRowLength(termWidth)
+	tab.SetStyle(dufStyle())
 
-	// Calculate total content width
-	contentWidth := leftWidth + 2 + barWidth + 2 + cacheWidth + 2 + costWidth + 2 + timeWidth
-	maxContentWidth := termWidth - 8 // Leave room for panel borders
-	if contentWidth > maxContentWidth {
-		contentWidth = maxContentWidth
-		// Adjust bar width if needed
-		barWidth = contentWidth - leftWidth - cacheWidth - costWidth - timeWidth - 10
-		if barWidth < 15 {
-			barWidth = 15
+	// Title row: panel name + color legend
+	sessionWord := "sessions"
+	if len(active) == 1 {
+		sessionWord = "session"
+	}
+	emptyHint := ""
+	if len(empty) > 0 {
+		emptyHint = fmt.Sprintf("  +%d empty", len(empty))
+	}
+	panelTitle := fmt.Sprintf(" claude code · %d %s%s   %s ",
+		len(active), sessionWord, emptyHint, BarLegend())
+	tab.SetTitle(panelTitle)
+
+	// 5-column layout matching --layout table:
+	//   SESSION(24) │ MODEL(8) │ TOKENS(bar+breakdown) │ CACHE(6) │ COST(8)
+	//
+	// Overhead for 5 cols: 1(left) + 5×2(pad) + 4×1(sep) + 1(right) = 16 chars
+	const (
+		colWSession = 24
+		colWModel   = 8
+		colWCache   = 6
+		colWCost    = 8
+		colOverhead = 16
+	)
+	// barWidth fills leftover space; TOKENS also shows breakdown on line 2
+	barWidth := termWidth - colOverhead - colWSession - colWModel - colWCache - colWCost
+	if barWidth < 16 {
+		barWidth = 16
+	}
+	if barWidth > 28 {
+		barWidth = 28
+	}
+	// TOKENS column: bar on line 1, labeled breakdown on line 2.
+	// WidthMax = max(barWidth, breakdown_max_width). Breakdown ≤ ~38 chars.
+	colWTokens := barWidth
+	if colWTokens < 38 {
+		colWTokens = 38
+	}
+
+	tab.SetColumnConfigs([]table.ColumnConfig{
+		{Number: 1, WidthMin: colWSession, WidthMax: colWSession},
+		{Number: 2, WidthMin: colWModel, WidthMax: colWModel, Align: text.AlignLeft},
+		{Number: 3, WidthMax: colWTokens, Align: text.AlignLeft},
+		{Number: 4, WidthMin: colWCache, WidthMax: colWCache, Align: text.AlignRight},
+		{Number: 5, WidthMin: colWCost, WidthMax: colWCost, Align: text.AlignRight},
+	})
+
+	tab.AppendHeader(table.Row{
+		StyleColHeader.Render("SESSION"),
+		StyleColHeader.Render("MODEL"),
+		StyleColHeader.Render("TOKENS"),
+		StyleColHeader.Render("CACHE"),
+		StyleColHeader.Render("COST"),
+	})
+
+	if len(active) == 0 {
+		tab.AppendRow(table.Row{StyleDim.Render("No active sessions"), "", "", "", ""})
+	} else {
+		for _, s := range active {
+			// ── SESSION cell ─────────────────────────────────────────────
+			// Line 1: name  Line 2: id + path  [Line 3: branch]  [Line 4: subagents]
+			name := sessionDisplayName(s)
+			shortID := s.ID
+			if len(shortID) > 8 {
+				shortID = shortID[:8]
+			}
+			pathStr := abbreviatePath(s.ProjectPath, 13)
+			meta := StyleDim.Render(shortID)
+			if pathStr != "" {
+				meta += "  " + StyleSecondary.Render(pathStr)
+			}
+			if s.GitBranch != "" && s.GitBranch != "main" && s.GitBranch != "master" {
+				meta += "\n" + StyleDim.Render("⎇ "+Truncate(s.GitBranch, 20))
+			}
+			if s.SubagentCount > 0 {
+				noun := "subagents"
+				if s.SubagentCount == 1 {
+					noun = "subagent"
+				}
+				meta += "\n" + StyleDim.Render(fmt.Sprintf("↳ %d %s", s.SubagentCount, noun))
+			}
+			sessionCell := StylePrimary.Render(name) + "\n" + meta
+
+			// ── MODEL cell ───────────────────────────────────────────────
+			modelCell := ModelTag(s.Model)
+
+			// ── TOKENS cell ──────────────────────────────────────────────
+			// Line 1: colored bar
+			// Line 2: labeled colored token breakdown (in/out/cc/cr)
+			bar := TokenBar{
+				Input:       s.InputTokens,
+				Output:      s.OutputTokens,
+				CacheCreate: s.CacheCreateTokens,
+				CacheRead:   s.CacheReadTokens,
+				Width:       barWidth,
+			}.Render()
+			tokensCell := bar + "\n" +
+				TokenSubtitleColored(s.InputTokens, s.OutputTokens, s.CacheCreateTokens, s.CacheReadTokens)
+
+			// ── CACHE cell ───────────────────────────────────────────────
+			var cacheCell string
+			if s.TotalTokens == 0 {
+				cacheCell = StyleDim.Render("~")
+			} else {
+				eff := s.CacheEfficiency * 100
+				cacheCell = lipgloss.NewStyle().
+					Foreground(lipgloss.Color(CacheEfficiencyColor(s.CacheEfficiency))).
+					Bold(true).
+					Render(fmt.Sprintf("%.0f%%", eff))
+			}
+
+			// ── COST cell ────────────────────────────────────────────────
+			// Line 1: cost  Line 2: duration
+			costCell := FormatCost(s.CostUSD) + "\n" + StyleSecondary.Render(FormatDuration(s.Duration))
+
+			tab.AppendRow(table.Row{sessionCell, modelCell, tokensCell, cacheCell, costCell})
 		}
 	}
 
-	headerCols := PadRight(StyleColHeader.Render("Session"), leftWidth) +
-		PadRight(StyleColHeader.Render("Tokens"), barWidth+2) +
-		PadLeft(StyleColHeader.Render("Cache"), cacheWidth) +
-		PadLeft(StyleColHeader.Render("Cost"), costWidth) +
-		PadLeft(StyleColHeader.Render("Time"), timeWidth)
+	sessionPanel := tab.Render()
 
-	var rowParts []string
-	// Add legend + column headers before rows
-	rowParts = append(rowParts, BarLegend())
-	rowParts = append(rowParts, StyleRowSep.Render(strings.Repeat("─", contentWidth)))
-	rowParts = append(rowParts, headerCols)
-	rowParts = append(rowParts, StyleRowSep.Render(strings.Repeat("─", contentWidth)))
-
-	for i, s := range sessions {
-		rowParts = append(rowParts, RenderSessionRow(s, barWidth, termWidth))
-		if i < len(sessions)-1 {
-			rowParts = append(rowParts, StyleRowSep.Render(strings.Repeat("─", contentWidth)))
-		}
-	}
-
-	sessionContent := strings.Join(rowParts, "\n")
-	panelTitle := fmt.Sprintf("claude code · %d sessions", len(sessions))
-	sessionPanel := Panel(panelTitle, sessionContent, termWidth-2)
-
-	// ── Anomalies panel (only if issues found) ───────────────────────────────
-	anomalies := renderAnomalies(sessions)
-
+	anomalies := renderAnomalies(active)
 	output := summary + "\n\n" + sessionPanel
 	if anomalies != "" {
 		output += "\n\n" + anomalies
@@ -723,25 +770,21 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 	return output
 }
 
-// renderSummaryStrip — the 4-metric cards at the top
+// ---------------------------------------------------------------------------
+// Summary strip — 4 metric cards
+// ---------------------------------------------------------------------------
+
 func renderSummaryStrip(totalCost float64, totalTokens int64, cacheEff float64, sessCount int) string {
-	// Normalize ratios for mini bars
-	// Cost bar: scale to $100 as "full"
 	costRatio := totalCost / 100.0
 	if costRatio > 1 {
 		costRatio = 1
 	}
-
-	// Tokens bar: scale to 1B as "full"
 	tokenRatio := float64(totalTokens) / 1_000_000_000.0
 	if tokenRatio > 1 {
 		tokenRatio = 1
 	}
 
-	// Cache efficiency: direct ratio
-	cacheRatio := cacheEff
-
-	cardWidth := 18
+	cardWidth := 20
 	miniW := cardWidth - 2
 
 	card := func(label, value, valColor string, ratio float64, barColor string) string {
@@ -755,7 +798,6 @@ func renderSummaryStrip(totalCost float64, totalTokens int64, cacheEff float64, 
 	if totalCost > 0 {
 		costVal = fmt.Sprintf("$%.2f", totalCost)
 	}
-
 	cacheColor := theme.Red
 	if cacheEff >= 0.80 {
 		cacheColor = theme.Green
@@ -766,18 +808,20 @@ func renderSummaryStrip(totalCost float64, totalTokens int64, cacheEff float64, 
 	cards := []string{
 		card("  total cost", costVal, theme.Amber, costRatio, theme.BarInput),
 		card("  tokens", HumanizeTokens(totalTokens), "#4A90D9", tokenRatio, "#4A90D9"),
-		card("  cache eff", fmt.Sprintf("%.0f%%", cacheEff*100), cacheColor, cacheRatio, cacheColor),
+		card("  cache eff", fmt.Sprintf("%.0f%%", cacheEff*100), cacheColor, cacheEff, cacheColor),
 		card("  sessions", fmt.Sprintf("%d", sessCount), theme.TextPrimary, float64(sessCount)/20.0, theme.TextSecondary),
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, cards...)
 }
 
-// renderAnomalies — anomaly panel, only shown if issues exist
+// ---------------------------------------------------------------------------
+// Anomaly panel
+// ---------------------------------------------------------------------------
+
 func renderAnomalies(sessions []*aggregator.SessionStats) string {
 	var lines []string
 	for _, s := range sessions {
-		// Cold start / low cache on non-trivial session
 		if s.CacheEfficiency < 0.15 && s.TotalTokens > 500_000 {
 			name := s.ID
 			if len(name) > 8 {
@@ -787,7 +831,6 @@ func renderAnomalies(sessions []*aggregator.SessionStats) string {
 				StyleSecondary.Render(fmt.Sprintf(": %.0f%% cache · %d msgs · %s",
 					s.CacheEfficiency*100, s.MessageCount, FormatCostRaw(s.CostUSD))))
 		}
-		// Heavy model, short session
 		model := strings.ToLower(s.Model)
 		if strings.Contains(model, "opus") && s.MessageCount < 5 && s.CostUSD > 1.0 {
 			name := s.ID
@@ -795,8 +838,7 @@ func renderAnomalies(sessions []*aggregator.SessionStats) string {
 				name = name[:8]
 			}
 			lines = append(lines, StyleAmber.Render("⚠ ")+StylePrimary.Render(name)+
-				StyleSecondary.Render(": opus used for "+fmt.Sprintf("%d", s.MessageCount)+
-					"-message session · consider sonnet"))
+				StyleSecondary.Render(": opus on a "+fmt.Sprintf("%d", s.MessageCount)+"-msg session · consider sonnet"))
 		}
 	}
 	if len(lines) == 0 {
