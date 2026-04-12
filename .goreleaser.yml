@@ -64,19 +64,46 @@ nfpms:
       - rpm
     bindir: /usr/bin
 
-homebrew_casks:
+# Homebrew formula — auto-pushed to mohitmishra786/homebrew-tap on every release
+brews:
   - repository:
       owner: mohitmishra786
       name: homebrew-tap
+      branch: main
+      token: "{{ .Env.GITHUB_TOKEN }}"
     commit_author:
       name: "Mohit Mishra"
       email: "mohitmishra786687@gmail.com"
     homepage: "https://github.com/mohitmishra786/agentop"
-    description: "Terminal dashboard for AI coding assistant sessions"
+    description: "Terminal dashboard for AI coding assistant sessions — token usage, cost, and cache efficiency"
     license: "MIT"
-    manpages:
-      - agentop.1
-    skip_upload: true
+    install: |
+      bin.install "agentop"
+      man1.install "agentop.1"
+    test: |
+      assert_match version.to_s, shell_output("#{bin}/agentop --version")
+
+# AUR binary package — requires AUR_SSH_PRIVATE_KEY secret in GitHub Actions
+# To enable: add your AUR SSH private key as AUR_SSH_PRIVATE_KEY secret,
+# then uncomment the block below.
+#
+# aurs:
+#   - name: agentop-bin
+#     homepage: "https://github.com/mohitmishra786/agentop"
+#     description: "Terminal dashboard for AI coding assistant sessions"
+#     maintainers:
+#       - "Mohit Mishra <mohitmishra786687@gmail.com>"
+#     license: "MIT"
+#     private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
+#     git_url: "ssh://aur@aur.archlinux.org/agentop-bin.git"
+#     provides:
+#       - agentop
+#     conflicts:
+#       - agentop
+#     package: |-
+#       install -Dm755 agentop "${pkgdir}/usr/bin/agentop"
+#       install -Dm644 agentop.1 "${pkgdir}/usr/share/man/man1/agentop.1"
+#       install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
 signs:
   - artifacts: none
