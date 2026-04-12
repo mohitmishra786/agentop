@@ -18,73 +18,76 @@ Reads your AI assistant's session data and shows you what it is actually doing w
 
 ### Default View
 
-```bash
-$ agentop
+```
+  total cost          tokens              cache eff           sessions
+$38.74              61.5M               93%                 10
 
-  total cost        tokens            cache eff         sessions
-$106.39           266.2M            98%               9
-
-╭─  claude code · 9 sessions  ────────────────────────────────────────╮
-│ █ in █ out █ cc █ cr                                               │
-│ ───────────────────────────────────────────────────────────────────│
-│ Session                 Tokens                Cache  Cost Time     │
-│ ───────────────────────────────────────────────────────────────────│
-│ cfa91ba2  glm            [███████████████████]  98%  $1.89   29m   │
-│ /Users/chessman/Desktop/Pro...  64k in · 36k out · 3.8M cr         │
-│ ───────────────────────────────────────────────────────────────────│
-│ 02ac7e59  glm            [███████████████████]  98% $40.69 23h13m  │
-│ /Users/chessman/Desktop/Pro...  1.6M in · 511k out · 93.8M cr      │
-│   +10 subagents, 0 tokens                                          │
-╰─────────────────────────────────────────────────────────────────────╯
+╭─────────────────────────────────────────────────────────────────────────────────────╮
+│ claude code · 2 sessions  +8 empty   █ in  █ out  █ cc  █ cr                        │
+├──────────────────────────┬──────────┬────────────────────────────────────┬────────┬──────────┤
+│ SESSION                  │ MODEL    │ TOKENS                             │ CACHE  │ COST     │
+├──────────────────────────┼──────────┼────────────────────────────────────┼────────┼──────────┤
+│ agentop                  │  sonnet  │ [██████████████████████████]       │    93% │    $8.05 │
+│ 89ab341f …/agentop       │          │ 2k in  155k out  721k cc  10.1M cr │        │    9h36m │
+│ ↳ 3 subagents            │          │                                    │        │          │
+├──────────────────────────┼──────────┼────────────────────────────────────┼────────┼──────────┤
+│ build-distributed-s...   │  sonnet  │ [██████████████████████████]       │    93% │   $30.68 │
+│ aa0a95ca …uted-systems   │          │ 5k in  257k out  3.4M cc  46.9M cr │        │      N/A │
+│ ⎇ fix/task-1-1-weak...   │          │                                    │        │          │
+╰──────────────────────────┴──────────┴────────────────────────────────────┴────────┴──────────╯
 ```
 
 ### Table View
 
-```bash
+```
 $ agentop --layout table
 
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ 9 sessions                                                                   │
-├──────────────────────┬─────────┬───────────────────────┬───────┬────────┬───┤
-│ SESSION              │ MODEL   │ TOKENS                │ CACHE │   COST │ T │
-├──────────────────────┼─────────┼───────────────────────┼───────┼────────┼───┤
-│ cfa91ba2             │ glm-4.7 │ [███████████████████] │   98% │  $1.89 │ 2 │
-│                      │         │ 64k in · 36k out      │       │        │   │
-│ 02ac7e59             │ glm-4.7 │ [███████████████████] │   98% │ $40.69 │ 2 │
-│                      │         │ 1.6M in · 511k out    │       │        │   │
-└──────────────────────┴─────────┴───────────────────────┴───────┴────────┴───┘
+┌──────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 2 sessions  (+8 empty hidden)                                                                │
+├──────────────────────┬──────────┬──────────────────────┬───────┬──────────────────────────────┬────────┬───────┤
+│ SESSION              │ MODEL    │ TOKENS               │ CACHE │ IN / OUT / CC / CR           │   COST │  TIME │
+├──────────────────────┼──────────┼──────────────────────┼───────┼──────────────────────────────┼────────┼───────┤
+│ agentop              │  sonnet  │ [██████████████████] │   93% │ 2k in  155k out  721k cc  10M │  $8.05 │ 9h36m │
+├──────────────────────┼──────────┼──────────────────────┼───────┼──────────────────────────────┼────────┼───────┤
+│ build-distributed... │  sonnet  │ [██████████████████] │   93% │ 5k in  257k out  3.4M  46.9M │ $30.68 │   N/A │
+└──────────────────────┴──────────┴──────────────────────┴───────┴──────────────────────────────┴────────┴───────┘
 ```
 
 ## Features
 
-- **Beautiful Visual Design**: Clean interface with semantic colors (teal for cache reads, warm colors for costs)
-- **Multiple Layouts**: Default panel view or table layout with `--layout table`
-- **Interactive Watch Mode**: Keyboard navigation (↑/↓), sort cycling (s), help (?), status bar
+- **duf-style grid layout**: Clean column-separated table with session, model, token bar, cache efficiency, and cost
+- **Color-coded token bar**: Amber=input, coral=output, yellow=cache-create, teal=cache-read — matches the breakdown
+- **Empty session filtering**: Zero-token sessions are hidden with a count shown in the title
+- **Multiple Layouts**: Default panel view or compact table layout with `--layout table`
+- **Interactive Watch Mode**: Keyboard navigation (↑/↓), sort cycling (s), help (?)
 - **Color Themes**: Auto-detects terminal theme (dark/light), supports ansi mode
-- **Visual Indicators**: Progress bars, sparklines, trend indicators, threshold badges
-- **Smart Filtering**: By date, project, model, cache efficiency
+- **Smart Filtering**: By date, project, model
 - **Anomaly Detection**: Flags cold starts, high-cost sessions, cache inefficiencies
-- **Multi-OS Support**: Linux, FreeBSD, OpenBSD, macOS, Windows with wide architecture support
+- **Multi-OS Support**: Linux, FreeBSD, OpenBSD, macOS, Windows — wide architecture coverage
 
 ## Install
 
-### Prebuilt Binaries (Recommended)
+### Homebrew (macOS / Linux)
 
-**[Download v0.1.0](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.0)**
+```bash
+brew tap mohitmishra786/tap
+brew install agentop
+```
+
+### Prebuilt Binaries
+
+**[Download v0.1.1](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.1)**
 
 Available for:
-- **Linux**: x86_64, arm64, i386, armv6, armv7, ppc64le, riscv64
-- **FreeBSD**: x86_64, arm64, i386, armv6, armv7
-- **OpenBSD**: x86_64, arm64, i386, armv6, armv7
+- **Linux**: x86_64, arm64, i386, armv6, armv7, ppc64le — `.deb`, `.rpm`, `.apk` packages included
+- **FreeBSD / OpenBSD**: x86_64, arm64, i386
 - **macOS**: x86_64 (Intel), arm64 (Apple Silicon)
 - **Windows**: x86_64, i386, arm64
-
-Package formats: `.deb` (Debian/Ubuntu), `.rpm` (Fedora/RHEL), `.apk` (Alpine)
 
 ### Go Install
 
 ```bash
-go install github.com/agentop-dev/agentop@v0.1.0
+go install github.com/mohitmishra786/agentop@latest
 ```
 
 ### Build from Source
@@ -92,21 +95,24 @@ go install github.com/agentop-dev/agentop@v0.1.0
 ```bash
 git clone https://github.com/mohitmishra786/agentop.git
 cd agentop
-git checkout v0.1.0
 make build
+./bin/agentop
 ```
 
-### Package Manager Support (Coming Soon)
+### Package Managers (Coming Soon)
 
-We're working on getting agentop into major package managers:
+| Platform | Manager | Status |
+|----------|---------|--------|
+| macOS | **Homebrew** | Available — `brew install mohitmishra786/tap/agentop` |
+| Linux | Arch (AUR) | In progress |
+| Linux | Nix / nixpkgs | In progress |
+| Linux | Debian/Ubuntu (apt) | In progress |
+| Windows | Scoop | In progress |
+| Windows | Chocolatey | Planned |
+| BSD | FreeBSD (pkg) | Planned |
+| Android | Termux | Planned |
 
-**Linux**: Arch (pacman), Ubuntu/Debian (apt), Fedora (dnf), openSUSE (zypper), Nix, Void, Gentoo, Solus
-**BSD**: FreeBSD (pkg), OpenBSD (pkg_add)
-**macOS**: Homebrew, MacPorts
-**Windows**: Chocolatey, Scoop
-**Android**: Termux
-
-Want to help? Consider packaging agentop for your favorite package manager!
+Want to help? Packaging agentop for your favorite package manager is a great contribution — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Usage
 
@@ -114,7 +120,7 @@ Want to help? Consider packaging agentop for your favorite package manager!
 # Today's sessions (default layout)
 agentop
 
-# Table layout with clean columns
+# Table layout with all columns
 agentop --layout table
 
 # Last 7 days
@@ -126,29 +132,26 @@ agentop --project myapp
 # Filter by model
 agentop --model sonnet
 
-# Interactive watch mode with keyboard navigation
+# Interactive watch mode with live refresh
 agentop --watch
-# Press ? for help, ↑/↓ to navigate, s to sort, q to quit
 
-# JSON output
+# JSON output for scripting
 agentop --json
 
-# Anomaly detection
+# Anomaly detection (poor cache, high cost, model mismatches)
 agentop doctor
 
-# Deep-dive a session
+# Deep-dive a specific session
 agentop session <session-id>
 
-# Daily breakdown
+# Daily / monthly breakdowns
 agentop daily
-
-# Monthly breakdown
 agentop monthly
 
 # 5-hour billing windows
 agentop blocks
 
-# Show config and pricing
+# Show pricing table and config
 agentop config
 ```
 
@@ -156,40 +159,32 @@ agentop config
 
 Three things happen when you run `agentop`.
 
-First, it discovers every JSONL session file — including subagent sessions. It handles the real directory structure where files live directly in project hash directories.
+**Discovery**: finds every JSONL session file under `~/.claude/projects/`, including subagent sessions nested inside session directories.
 
-Second, it parses each session file and deduplicates by message ID. AI assistants stream responses, so the same message appears across multiple lines with zero token counts until the final chunk. The parser collects all chunks per message and only counts the final one. Sidechain events and tool-type users are filtered out.
+**Parsing + deduplication**: AI assistants stream responses, so the same message appears across multiple JSONL lines with zero token counts until the final chunk. The parser collects all chunks per message ID and only counts the final one. Sidechain events and tool-type users are filtered out.
 
-Third, it calculates cost using the embedded pricing table. For providers that do not report `costUSD`, it falls back to token-based calculation. Sessions with no cost data show `~` instead of `$0.00`.
+**Cost calculation**: uses the embedded pricing table (`internal/pricing/pricing.json`). For sessions that do not report `costUSD`, it falls back to token-based calculation. Sessions with no cost data show `~` instead of `$0.00`.
 
 ## Why This Exists
 
-AI coding assistant sessions cost money. Real money. A single long session can burn through $40+ in tokens and most of it goes to cache reads that you did not know were happening.
+AI coding assistant sessions cost money. Real money. A single long session can burn through $30+ in tokens — most of it in cache reads you did not know were happening.
 
-The assistant UI shows you a chat log. It does not show you token breakdowns. It does not show you cache efficiency. It does not tell you that your first session of the day is paying a premium for cold-start cache creation.
+The assistant UI shows you a chat log. It does not show you token breakdowns, cache efficiency, or which sessions are burning cash on cold-start cache creation.
 
-**agentop** makes the invisible visible. You see which sessions are efficient, which ones are burning cash, and which models you are actually using. The anomaly detector (`agentop doctor`) flags sessions with poor cache efficiency, high cost for few messages, and model mismatches.
-
-## Philosophy
-
-*"The first principle is that you must not fool yourself — and you are the easiest person to fool."* — Richard Feynman
-
-Most developers run AI coding assistants for weeks without checking what it costs. The token counts are buried in JSONL files. The cache efficiency is invisible. The billing windows are opaque.
-
-This tool exists because transparency is the first step toward optimization. You cannot improve what you cannot measure.
+**agentop** makes the invisible visible. The anomaly detector (`agentop doctor`) flags sessions with poor cache efficiency, high cost for few messages, and model mismatches.
 
 ## Roadmap
 
 - [x] Claude Code support
+- [x] duf-style grid UI with column separators
+- [x] Homebrew distribution
+- [ ] AUR / Nix / Scoop packages
 - [ ] Codex CLI support
 - [ ] OpenCode support
-- [ ] Custom provider plugins
 - [ ] Budget alerts
 - [ ] Team/organization dashboards
 
 ## Contributing
-
-Contributions are welcome. Here is how to get started:
 
 ```bash
 git clone https://github.com/mohitmishra786/agentop.git
@@ -197,31 +192,23 @@ cd agentop
 make test
 ```
 
-The codebase is organized by layer:
-
 ```
 cmd/              — CLI commands (cobra)
 internal/claude/  — JSONL parsing and session discovery
 internal/aggregator/ — Token aggregation and stats
-internal/pricing/ — Model pricing engine
-internal/ui/      — Terminal UI (bubbletea/lipgloss)
+internal/pricing/ — Model pricing engine (update pricing.json to add models)
+internal/ui/      — Terminal UI (bubbletea/lipgloss/go-pretty)
 testdata/         — Sample session files
 ```
 
-To add support for a new model, update `internal/pricing/pricing.json`. To add a new command, create a file in `cmd/` and register it in `cmd/root.go`. To add a new provider, create a new package under `internal/` and wire it into the aggregator.
-
-Run tests before submitting a PR:
-
-```bash
-make test
-```
+To add a new model: update `internal/pricing/pricing.json`.  
+To add a new command: create `cmd/<name>.go` and register it in `cmd/root.go`.
 
 ## Security
 
-- This tool reads your local session data. Nothing leaves your machine.
-- No network calls are made. No telemetry. No analytics.
-- The binary is a single Go binary with no runtime dependencies.
-- If you find a security issue, please open a private issue or email the maintainer.
+- Reads local session data only. Nothing leaves your machine.
+- No network calls. No telemetry. No analytics.
+- Single Go binary, no runtime dependencies.
 
 ---
 
