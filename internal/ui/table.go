@@ -165,11 +165,6 @@ func tableSessionName(s *aggregator.SessionStats) string {
 	return Truncate(name, 20)
 }
 
-// sessionName is kept for compatibility with other call sites.
-func sessionName(s *aggregator.SessionStats) string {
-	return tableSessionName(s)
-}
-
 func max(a, b int) int {
 	if a > b {
 		return a
