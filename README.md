@@ -74,21 +74,36 @@ brew tap mohitmishra786/tap
 brew install agentop
 ```
 
-### Prebuilt Binaries
+### Arch Linux (AUR)
 
-**[Download v0.1.1](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.1)**
+```bash
+yay -S agentop-bin
+# or: paru -S agentop-bin
+```
 
-Available for:
-- **Linux**: x86_64, arm64, i386, armv6, armv7, ppc64le — `.deb`, `.rpm`, `.apk` packages included
-- **FreeBSD / OpenBSD**: x86_64, arm64, i386
-- **macOS**: x86_64 (Intel), arm64 (Apple Silicon)
-- **Windows**: x86_64, i386, arm64
+### Scoop (Windows)
+
+```powershell
+scoop bucket add mohitmishra786 https://github.com/mohitmishra786/scoop-bucket
+scoop install mohitmishra786/agentop
+```
 
 ### Go Install
 
 ```bash
 go install github.com/mohitmishra786/agentop@latest
 ```
+
+### Prebuilt Binaries
+
+**[Download v0.1.1](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.1)**
+
+| Platform | Format |
+|----------|--------|
+| Linux (x86_64, arm64, i386, armv6/7, ppc64le) | `.tar.gz`, `.deb`, `.rpm`, `.apk` |
+| macOS (Intel + Apple Silicon) | `.tar.gz` |
+| Windows (x86_64, arm64, i386) | `.zip` |
+| FreeBSD / OpenBSD | `.tar.gz` |
 
 ### Build from Source
 
@@ -99,20 +114,22 @@ make build
 ./bin/agentop
 ```
 
-### Package Managers (Coming Soon)
+### More Package Managers
 
-| Platform | Manager | Status |
-|----------|---------|--------|
-| macOS | **Homebrew** | Available — `brew install mohitmishra786/tap/agentop` |
-| Linux | Arch (AUR) | In progress |
-| Linux | Nix / nixpkgs | In progress |
-| Linux | Debian/Ubuntu (apt) | In progress |
-| Windows | Scoop | In progress |
+| Platform | Manager | Install |
+|----------|---------|---------|
+| macOS / Linux | Homebrew | `brew install mohitmishra786/tap/agentop` |
+| Linux | Arch AUR | `yay -S agentop-bin` |
+| Windows | Scoop | see above |
+| Linux | Nix | PR open in nixpkgs |
+| Linux | Alpine (apk) | APKBUILD submitted |
+| Linux | Fedora/RHEL | `.rpm` on releases page |
+| Linux | Debian/Ubuntu | `.deb` on releases page |
 | Windows | Chocolatey | Planned |
-| BSD | FreeBSD (pkg) | Planned |
+| BSD | FreeBSD/OpenBSD | `.tar.gz` on releases page |
 | Android | Termux | Planned |
 
-Want to help? Packaging agentop for your favorite package manager is a great contribution — see [CONTRIBUTING.md](CONTRIBUTING.md).
+Want to help package agentop for your favourite distro? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Usage
 
