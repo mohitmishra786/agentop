@@ -88,6 +88,28 @@ scoop bucket add mohitmishra786 https://github.com/mohitmishra786/scoop-bucket
 scoop install mohitmishra786/agentop
 ```
 
+### Fedora / RHEL (COPR)
+
+```bash
+dnf copr enable chessman/agentop
+dnf install agentop
+```
+
+### NixOS / Nix
+
+```bash
+# Once merged into nixpkgs:
+nix-env -iA nixpkgs.agentop
+# or in flakes:
+nix profile install nixpkgs#agentop
+```
+
+> PR under review: [NixOS/nixpkgs#509351](https://github.com/NixOS/nixpkgs/pull/509351)
+
+### Alpine Linux
+
+> APKBUILD under review: [alpine/aports!100647](https://gitlab.alpinelinux.org/alpine/aports/-/merge_requests/100647)
+
 ### Go Install
 
 ```bash
@@ -114,20 +136,20 @@ make build
 ./bin/agentop
 ```
 
-### More Package Managers
+### Package Manager Summary
 
-| Platform | Manager | Install |
-|----------|---------|---------|
-| macOS / Linux | Homebrew | `brew install mohitmishra786/tap/agentop` |
-| Linux | Arch AUR | `yay -S agentop-bin` |
-| Windows | Scoop | see above |
-| Linux | Nix | PR open in nixpkgs |
-| Linux | Alpine (apk) | APKBUILD submitted |
-| Linux | Fedora/RHEL | `.rpm` on releases page |
-| Linux | Debian/Ubuntu | `.deb` on releases page |
-| Windows | Chocolatey | Planned |
-| BSD | FreeBSD/OpenBSD | `.tar.gz` on releases page |
-| Android | Termux | Planned |
+| Platform | Manager | Status | Install |
+|----------|---------|--------|---------|
+| macOS / Linux | Homebrew | ✅ Live | `brew install mohitmishra786/tap/agentop` |
+| Linux | Arch AUR | ✅ Live | `yay -S agentop-bin` |
+| Windows | Scoop | ✅ Live | see above |
+| Linux | Fedora COPR | ✅ Live | `dnf copr enable chessman/agentop` |
+| Linux | Nix | 🔄 PR open | [NixOS/nixpkgs#509351](https://github.com/NixOS/nixpkgs/pull/509351) |
+| Linux | Alpine (apk) | 🔄 MR open | [aports!100647](https://gitlab.alpinelinux.org/alpine/aports/-/merge_requests/100647) |
+| Linux | Debian/Ubuntu | `.deb` on releases page | — |
+| BSD | FreeBSD/OpenBSD | `.tar.gz` on releases page | — |
+| Windows | Chocolatey | Planned | — |
+| Android | Termux | Planned | — |
 
 Want to help package agentop for your favourite distro? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -195,7 +217,10 @@ The assistant UI shows you a chat log. It does not show you token breakdowns, ca
 - [x] Claude Code support
 - [x] Clean-style grid UI with column separators
 - [x] Homebrew distribution
-- [ ] AUR / Nix / Scoop packages
+- [x] AUR package (`agentop-bin`)
+- [x] Scoop bucket (Windows)
+- [x] Fedora COPR (`chessman/agentop`)
+- [ ] Nix / Alpine packages (PRs open)
 - [ ] Codex CLI support
 - [ ] OpenCode support
 - [ ] Budget alerts
