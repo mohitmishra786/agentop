@@ -83,27 +83,25 @@ brews:
     test: |
       assert_match version.to_s, shell_output("#{bin}/agentop --version")
 
-# AUR binary package — requires AUR_SSH_PRIVATE_KEY secret in GitHub Actions
-# To enable: add your AUR SSH private key as AUR_SSH_PRIVATE_KEY secret,
-# then uncomment the block below.
-#
-# aurs:
-#   - name: agentop-bin
-#     homepage: "https://github.com/mohitmishra786/agentop"
-#     description: "Terminal dashboard for AI coding assistant sessions"
-#     maintainers:
-#       - "Mohit Mishra <mohitmishra786687@gmail.com>"
-#     license: "MIT"
-#     private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
-#     git_url: "ssh://aur@aur.archlinux.org/agentop-bin.git"
-#     provides:
-#       - agentop
-#     conflicts:
-#       - agentop
-#     package: |-
-#       install -Dm755 agentop "${pkgdir}/usr/bin/agentop"
-#       install -Dm644 agentop.1 "${pkgdir}/usr/share/man/man1/agentop.1"
-#       install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+# AUR binary package — auto-publishes on every release via goreleaser
+# Requires AUR_SSH_PRIVATE_KEY secret set in GitHub Actions settings
+aurs:
+  - name: agentop-bin
+    homepage: "https://github.com/mohitmishra786/agentop"
+    description: "Terminal dashboard for AI coding assistant sessions"
+    maintainers:
+      - "Mohit Mishra <mohitmishra786687@gmail.com>"
+    license: "MIT"
+    private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
+    git_url: "ssh://aur@aur.archlinux.org/agentop-bin.git"
+    provides:
+      - agentop
+    conflicts:
+      - agentop
+    package: |-
+      install -Dm755 agentop "${pkgdir}/usr/bin/agentop"
+      install -Dm644 agentop.1 "${pkgdir}/usr/share/man/man1/agentop.1"
+      install -Dm644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
 signs:
   - artifacts: none
