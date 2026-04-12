@@ -140,12 +140,12 @@ make build
 
 | Platform | Manager | Status | Install |
 |----------|---------|--------|---------|
-| macOS / Linux | Homebrew | ✅ Live | `brew install mohitmishra786/tap/agentop` |
-| Linux | Arch AUR | ✅ Live | `yay -S agentop-bin` |
-| Windows | Scoop | ✅ Live | see above |
-| Linux | Fedora COPR | ✅ Live | `dnf copr enable chessman/agentop` |
-| Linux | Nix | 🔄 PR open | [NixOS/nixpkgs#509351](https://github.com/NixOS/nixpkgs/pull/509351) |
-| Linux | Alpine (apk) | 🔄 MR open | [aports!100647](https://gitlab.alpinelinux.org/alpine/aports/-/merge_requests/100647) |
+| macOS / Linux | Homebrew | Live | `brew install mohitmishra786/tap/agentop` |
+| Linux | Arch AUR | Live | `yay -S agentop-bin` |
+| Windows | Scoop | Live | see above |
+| Linux | Fedora COPR | Live | `dnf copr enable chessman/agentop` |
+| Linux | Nix | PR open | [NixOS/nixpkgs#509351](https://github.com/NixOS/nixpkgs/pull/509351) |
+| Linux | Alpine (apk) | MR open | [aports!100647](https://gitlab.alpinelinux.org/alpine/aports/-/merge_requests/100647) |
 | Linux | Debian/Ubuntu | `.deb` on releases page | — |
 | BSD | FreeBSD/OpenBSD | `.tar.gz` on releases page | — |
 | Windows | Chocolatey | Planned | — |
