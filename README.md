@@ -55,7 +55,7 @@ $ agentop --layout table
 
 ## Features
 
-- **duf-style grid layout**: Clean column-separated table with session, model, token bar, cache efficiency, and cost
+- **Clean-style grid layout**: Clean column-separated table with session, model, token bar, cache efficiency, and cost
 - **Color-coded token bar**: Amber=input, coral=output, yellow=cache-create, teal=cache-read — matches the breakdown
 - **Empty session filtering**: Zero-token sessions are hidden with a count shown in the title
 - **Multiple Layouts**: Default panel view or compact table layout with `--layout table`
@@ -176,7 +176,7 @@ The assistant UI shows you a chat log. It does not show you token breakdowns, ca
 ## Roadmap
 
 - [x] Claude Code support
-- [x] duf-style grid UI with column separators
+- [x] Clean-style grid UI with column separators
 - [x] Homebrew distribution
 - [ ] AUR / Nix / Scoop packages
 - [ ] Codex CLI support
