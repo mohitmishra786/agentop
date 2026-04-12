@@ -1,0 +1,19 @@
+Source: agentop
+Section: utils
+Priority: optional
+Maintainer: Mohit Mishra <mohitmishra786687@gmail.com>
+Build-Depends: debhelper-compat (= 13), golang-go (>= 1.23~)
+Standards-Version: 4.6.2
+Homepage: https://github.com/mohitmishra786/agentop
+Vcs-Browser: https://github.com/mohitmishra786/agentop
+Vcs-Git: https://github.com/mohitmishra786/agentop.git
+Rules-Requires-Root: no
+
+Package: agentop
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: terminal dashboard for AI coding assistant sessions
+ agentop reads session data from ~/.claude/projects/ and displays
+ token usage, cost, and cache efficiency in a clean terminal dashboard.
+ Supports Claude Code with duf-style grid layout, color-coded token
+ composition bars, and anomaly detection for inefficient sessions.

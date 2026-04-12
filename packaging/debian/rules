@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+export CGO_ENABLED = 0
+export GOFLAGS = -trimpath
+export LDFLAGS = -s -w
+
+%:
+	dh $@ --buildsystem=golang --with=golang
+
+override_dh_auto_build:
+	go build -ldflags "-s -w -X main.Version=$(VERSION)" -o agentop .
+
+override_dh_auto_install:
+	install -Dm755 agentop debian/agentop/usr/bin/agentop
+	install -Dm644 agentop.1 debian/agentop/usr/share/man/man1/agentop.1
