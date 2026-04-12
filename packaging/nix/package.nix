@@ -1,11 +1,3 @@
-# nixpkgs derivation for agentop
-# Submit to: https://github.com/NixOS/nixpkgs
-# Path in nixpkgs: pkgs/by-name/ag/agentop/package.nix
-#
-# To get the vendorHash:
-#   1. Set vendorHash to lib.fakeHash
-#   2. Run: nix-build -A agentop (it will fail with the correct hash)
-#   3. Replace lib.fakeHash with the actual hash
 {
   lib,
   buildGoModule,
@@ -19,10 +11,10 @@ buildGoModule rec {
     owner = "mohitmishra786";
     repo = "agentop";
     rev = "v${version}";
-    hash = "sha256-aXMxjtEjBQUy+81zQHqM83NQKe1BjuE1UMzAlY2WAMI=";
+    hash = "sha256-7Wm9Y4M3saVRnRKZlfIlHbL5xTbVBms9BiwvBtblqlY=";
   };
 
-  vendorHash = null;
+  vendorHash = "sha256-xGmv9sg+MsAR3dpjBr4LlHoLTQig8MsfkwuimJoE/ow=";
 
   ldflags = [
     "-s"
@@ -34,7 +26,7 @@ buildGoModule rec {
     description = "Terminal dashboard for AI coding assistant sessions — token usage, cost, and cache efficiency";
     homepage = "https://github.com/mohitmishra786/agentop";
     license = lib.licenses.mit;
-    maintainers = [ ];
+    maintainers = with lib.maintainers; [ ];
     mainProgram = "agentop";
   };
 }
