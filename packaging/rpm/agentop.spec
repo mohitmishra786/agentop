@@ -1,3 +1,6 @@
+# Disable debugsource package — binary is stripped (-s linker flag)
+%global debug_package %{nil}
+
 Name:           agentop
 Version:        0.1.1
 Release:        1%{?dist}
@@ -41,5 +44,5 @@ go test ./...
 %{_mandir}/man1/%{name}.1*
 
 %changelog
-* Sun Apr 13 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 0.1.1-1
+* Mon Apr 13 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 0.1.1-1
 - Initial package
