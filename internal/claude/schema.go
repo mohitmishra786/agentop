@@ -28,6 +28,9 @@ type RawEvent struct {
 	GitBranch        string          `json:"gitBranch,omitempty"`
 	IsSnapshotUpdate bool            `json:"isSnapshotUpdate,omitempty"`
 	Snapshot         *FileSnapshot   `json:"snapshot,omitempty"`
+	// system event fields
+	DurationMs int64  `json:"durationMs,omitempty"`
+	Subtype    string `json:"subtype,omitempty"`
 }
 
 type RawMessage struct {
@@ -41,11 +44,20 @@ type RawMessage struct {
 	StopSequence string    `json:"stop_sequence,omitempty"`
 }
 
+// Usage holds per-message token counts returned by the API.
 type Usage struct {
-	InputTokens              int `json:"input_tokens"`
-	OutputTokens             int `json:"output_tokens"`
-	CacheCreationInputTokens int `json:"cache_creation_input_tokens"`
-	CacheReadInputTokens     int `json:"cache_read_input_tokens"`
+	InputTokens              int         `json:"input_tokens"`
+	OutputTokens             int         `json:"output_tokens"`
+	CacheCreationInputTokens int         `json:"cache_creation_input_tokens"`
+	CacheReadInputTokens     int         `json:"cache_read_input_tokens"`
+	CacheCreation            *CacheTiers `json:"cache_creation,omitempty"`
+	ServiceTier              string      `json:"service_tier,omitempty"`
+}
+
+// CacheTiers breaks down cache-creation tokens by TTL bucket (5-minute vs 1-hour).
+type CacheTiers struct {
+	Ephemeral5m int `json:"ephemeral_5m_input_tokens"`
+	Ephemeral1h int `json:"ephemeral_1h_input_tokens"`
 }
 
 type Content struct {

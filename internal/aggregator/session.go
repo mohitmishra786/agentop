@@ -18,6 +18,7 @@ type SessionStats struct {
 	GitBranch   string
 	Model       string
 	AllModels   []string
+	Entrypoint  string // "cli", "vscode", "jetbrains", etc.
 
 	StartedAt time.Time
 	EndedAt   time.Time
@@ -28,6 +29,10 @@ type SessionStats struct {
 	CacheCreateTokens int64
 	CacheReadTokens   int64
 	TotalTokens       int64
+
+	// Cache tier breakdown (5-min vs 1-hour cache)
+	Cache5mTokens int64
+	Cache1hTokens int64
 
 	SubagentTokens int64
 	SubagentCount  int
@@ -94,6 +99,9 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 			}
 			if s.GitBranch == "" && e.GitBranch != "" {
 				s.GitBranch = e.GitBranch
+			}
+			if s.Entrypoint == "" && e.Entrypoint != "" {
+				s.Entrypoint = e.Entrypoint
 			}
 
 		case "assistant":
@@ -162,6 +170,10 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 		s.OutputTokens += int64(usage.OutputTokens)
 		s.CacheCreateTokens += int64(usage.CacheCreationInputTokens)
 		s.CacheReadTokens += int64(usage.CacheReadInputTokens)
+		if usage.CacheCreation != nil {
+			s.Cache5mTokens += int64(usage.CacheCreation.Ephemeral5m)
+			s.Cache1hTokens += int64(usage.CacheCreation.Ephemeral1h)
+		}
 
 		s.CostUSD += entry.costUSD
 
