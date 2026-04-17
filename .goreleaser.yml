@@ -70,7 +70,7 @@ brews:
       owner: mohitmishra786
       name: homebrew-tap
       branch: main
-      token: "{{ .Env.GITHUB_TOKEN }}"
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     commit_author:
       name: "Mohit Mishra"
       email: "mohitmishra786687@gmail.com"
