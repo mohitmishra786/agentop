@@ -418,12 +418,6 @@ func wrapText(text string, maxW int) []string {
 	return lines
 }
 
-func label(a Anomaly) string {
-	if a.ProjectName != "" {
-		return fmt.Sprintf("%s  (%s)", a.Title, a.ProjectName)
-	}
-	return a.Title
-}
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
