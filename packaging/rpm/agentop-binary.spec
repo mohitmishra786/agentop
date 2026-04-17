@@ -1,11 +1,10 @@
-# Binary-only RPM for EPEL/RHEL 9 and other distros where Go ≥ 1.25 is not
-# available. Packages the pre-built binary produced by GoReleaser instead of
-# building from source. Used by the chessman/agentop COPR project for
-# epel-9-x86_64 and epel-9-aarch64 chroots.
+# Binary-only RPM for all COPR chroots (Fedora + EPEL 9 / RHEL 9).
+# Downloads the pre-built GoReleaser tarball at build time — no Go toolchain needed.
+# Each architecture downloads its own tarball via the Source0 URL.
 #
 # To build locally:
-#   rpmbuild -bb --define "_sourcedir ." agentop-binary.spec
-#   (download the tarball first: see Source0 URL below)
+#   spectool -g -R agentop-binary.spec   # downloads tarball
+#   rpmbuild -bb agentop-binary.spec
 
 %global debug_package %{nil}
 
