@@ -11,9 +11,8 @@ conflicts=('agentop')
 source_x86_64=("agentop-${pkgver}-x86_64.tar.gz::https://github.com/mohitmishra786/agentop/releases/download/v${pkgver}/agentop_${pkgver}_linux_x86_64.tar.gz")
 source_aarch64=("agentop-${pkgver}-aarch64.tar.gz::https://github.com/mohitmishra786/agentop/releases/download/v${pkgver}/agentop_${pkgver}_linux_arm64.tar.gz")
 
-# TODO: update after v0.1.2 release — get hashes from checksums.txt in the GitHub release
-sha256sums_x86_64=('SKIP')
-sha256sums_aarch64=('SKIP')
+sha256sums_x86_64=('601050dc2dea9396b4b49812a6a8ead5a804d35bd9b84f6e2163e1931b804da8')
+sha256sums_aarch64=('80bf672bc3805e3b25a836bbbfc118f34d2eeb9ec8cbeeefaa05d8a6ee1c11ab')
 
 package() {
   install -Dm755 agentop "$pkgdir/usr/bin/agentop"

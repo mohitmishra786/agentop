@@ -31,6 +31,5 @@ package() {
 }
 
 sha512sums="
-SKIP  agentop-0.1.2.tar.gz
+72c1797af9e39a466ac04f7263a724098453fd48dd8cf068238295c345e819954b2f36c53c155e63d23ddf53952b3cd184110da2a2b81b05050df88699866759  agentop-0.1.2.tar.gz
 "
-# NOTE: run `abuild checksum` after the v0.1.2 tag is pushed to fill in the real sha512sum.

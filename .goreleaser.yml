@@ -71,6 +71,7 @@ brews:
       name: homebrew-tap
       branch: main
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    directory: Formula
     commit_author:
       name: "Mohit Mishra"
       email: "mohitmishra786687@gmail.com"

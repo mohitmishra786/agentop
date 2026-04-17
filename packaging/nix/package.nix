@@ -11,8 +11,7 @@ buildGoModule rec {
     owner = "mohitmishra786";
     repo = "agentop";
     rev = "v${version}";
-    # TODO: run `nix-prefetch-url` after v0.1.2 tag is pushed to get the real hash
-    hash = "sha256-0000000000000000000000000000000000000000000000000000";
+    hash = "sha256-lJEWh6SRVekOFsKsuQE88VEoskQAvHm1rPtMq1RQbho=";
   };
 
   # TODO: run `gomod2nix` or `nix build` and copy the vendorHash from the error
