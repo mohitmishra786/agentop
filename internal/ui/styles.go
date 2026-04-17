@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -183,8 +184,44 @@ func initStyles() {
 // Model tags
 // ---------------------------------------------------------------------------
 
+// modelVersion extracts the version string from a Claude model ID.
+// "claude-opus-4-6" → "4.6", "claude-haiku-4-5-20251001" → "4.5".
+func modelVersion(model string) string {
+	parts := strings.Split(strings.ToLower(model), "-")
+	for i, p := range parts {
+		if p == "opus" || p == "sonnet" || p == "haiku" {
+			if i+2 < len(parts) && isDigitStr(parts[i+1]) && isDigitStr(parts[i+2]) {
+				return parts[i+1] + "." + parts[i+2]
+			}
+			break
+		}
+	}
+	return ""
+}
+
+func isDigitStr(s string) bool {
+	if len(s) == 0 {
+		return false
+	}
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// ModelTag returns a coloured badge that includes the version when available.
+// e.g. "claude-sonnet-4-6" → " sonnet 4.6 ", "claude-opus-4-7" → " opus 4.7 ".
 func ModelTag(model string) string {
 	ml := strings.ToLower(model)
+	ver := modelVersion(model)
+	label := func(family string) string {
+		if ver != "" {
+			return family + " " + ver
+		}
+		return family
+	}
 	switch {
 	case strings.HasPrefix(ml, "glm"):
 		return lipgloss.NewStyle().
@@ -195,23 +232,28 @@ func ModelTag(model string) string {
 		return lipgloss.NewStyle().
 			Background(lipgloss.Color(theme.TagOpusBg)).
 			Foreground(lipgloss.Color(theme.TagOpusFg)).
-			Padding(0, 1).Render("opus")
+			Padding(0, 1).Render(label("opus"))
 	case strings.Contains(ml, "sonnet"):
 		return lipgloss.NewStyle().
 			Background(lipgloss.Color(theme.TagSonnetBg)).
 			Foreground(lipgloss.Color(theme.TagSonnetFg)).
-			Padding(0, 1).Render("sonnet")
+			Padding(0, 1).Render(label("sonnet"))
 	case strings.Contains(ml, "haiku"):
 		return lipgloss.NewStyle().
 			Background(lipgloss.Color(theme.TagHaikuBg)).
 			Foreground(lipgloss.Color(theme.TagHaikuFg)).
-			Padding(0, 1).Render("haiku")
+			Padding(0, 1).Render(label("haiku"))
 	default:
 		return lipgloss.NewStyle().
 			Background(lipgloss.Color(theme.TagUnknownBg)).
 			Foreground(lipgloss.Color(theme.TagUnknownFg)).
 			Padding(0, 1).Render("?")
 	}
+}
+
+// ModelCell delegates to ModelTag (version is now embedded in the badge).
+func ModelCell(model string) string {
+	return ModelTag(model)
 }
 
 // ---------------------------------------------------------------------------
@@ -498,6 +540,8 @@ func abbreviatePath(path string, maxLen int) string {
 			path = "~" + path[len(home):]
 		}
 	}
+	// Normalise to forward slashes for display (handles Windows paths).
+	path = filepath.ToSlash(path)
 	if len(path) <= maxLen {
 		return path
 	}
@@ -660,7 +704,7 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 	// Overhead for 5 cols: 1(left) + 5×2(pad) + 4×1(sep) + 1(right) = 16 chars
 	const (
 		colWSession = 24
-		colWModel   = 8
+		colWModel   = 12
 		colWCache   = 6
 		colWCost    = 8
 		colOverhead = 16
@@ -697,7 +741,11 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 	})
 
 	if len(active) == 0 {
-		tab.AppendRow(table.Row{StyleDim.Render("No active sessions"), "", "", "", ""})
+		msg := "No active sessions"
+		if len(empty) > 0 {
+			msg = fmt.Sprintf("No sessions with token data  (%d found with 0 tokens — sessions may still be initializing or use --since 7d)", len(empty))
+		}
+		tab.AppendRow(table.Row{StyleDim.Render(msg), "", "", "", ""})
 	} else {
 		for _, s := range active {
 			// ── SESSION cell ─────────────────────────────────────────────
@@ -725,7 +773,7 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 			sessionCell := StylePrimary.Render(name) + "\n" + meta
 
 			// ── MODEL cell ───────────────────────────────────────────────
-			modelCell := ModelTag(s.Model)
+			modelCell := ModelCell(s.Model)
 
 			// ── TOKENS cell ──────────────────────────────────────────────
 			// Line 1: colored bar

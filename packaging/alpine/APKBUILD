@@ -1,22 +1,21 @@
 # Contributor: Mohit Mishra <mohitmishra786687@gmail.com>
 # Maintainer: Mohit Mishra <mohitmishra786687@gmail.com>
 pkgname=agentop
-pkgver=0.1.1
+pkgver=0.1.2
 pkgrel=0
-pkgdesc="Terminal dashboard for AI coding assistant sessions — token usage, cost, and cache efficiency"
+pkgdesc="Terminal dashboard for AI coding assistant sessions"
 url="https://github.com/mohitmishra786/agentop"
 arch="all"
 license="MIT"
 makedepends="go"
 source="$pkgname-$pkgver.tar.gz::https://github.com/mohitmishra786/$pkgname/archive/refs/tags/v$pkgver.tar.gz"
-builddir="$srcdir/$pkgname-$pkgver"
+
+export GOCACHE="${GOCACHE:-"$srcdir/go-cache"}"
+export GOTMPDIR="${GOTMPDIR:-"$srcdir"}"
+export GOMODCACHE="${GOMODCACHE:-"$srcdir/go"}"
 
 build() {
-	go build \
-		-trimpath \
-		-ldflags "-s -w -X main.Version=$pkgver" \
-		-o "$pkgname" \
-		.
+	go build -v -trimpath -ldflags "-s -w -X main.Version=$pkgver"
 }
 
 check() {
@@ -24,11 +23,14 @@ check() {
 }
 
 package() {
-	install -Dm755 "$builddir/$pkgname" "$pkgdir/usr/bin/$pkgname"
-	install -Dm644 "$builddir/$pkgname.1" "$pkgdir/usr/share/man/man1/$pkgname.1"
-	install -Dm644 "$builddir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+	install -Dm755 $pkgname -t "$pkgdir"/usr/bin/
+	install -Dm644 $pkgname.1 \
+		"$pkgdir"/usr/share/man/man1/$pkgname.1
+	install -Dm644 LICENSE \
+		"$pkgdir"/usr/share/licenses/$pkgname/LICENSE
 }
 
 sha512sums="
-PLACEHOLDER_RUN_abuild_checksum_TO_FILL_THIS  $pkgname-$pkgver.tar.gz
+SKIP  agentop-0.1.2.tar.gz
 "
+# NOTE: run `abuild checksum` after the v0.1.2 tag is pushed to fill in the real sha512sum.

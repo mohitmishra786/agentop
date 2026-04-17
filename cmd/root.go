@@ -37,8 +37,7 @@ cost, and cache efficiency in a duf-style terminal dashboard.`,
 }
 
 func init() {
-	home, _ := os.UserHomeDir()
-	defaultDir := filepath.Join(home, ".claude")
+	defaultDir := findClaudeDir()
 
 	rootCmd.PersistentFlags().StringVar(&claudeDir, "claude-dir", defaultDir, "Path to AI assistant data directory")
 	rootCmd.PersistentFlags().StringVar(&since, "since", "today", `Date filter: "today", "7d", "30d", or "2026-04-01"`)
@@ -56,6 +55,41 @@ func init() {
 	rootCmd.Version = printVersion()
 
 	rootCmd.AddCommand(todayCmd, dailyCmd, monthlyCmd, sessionCmd, blocksCmd, doctorCmd, configCmd)
+}
+
+// findClaudeDir returns the first existing .claude directory from a list of
+// candidate locations. On Windows, Claude Code may place data under
+// %APPDATA%\Claude or %LOCALAPPDATA%\Claude in addition to the standard
+// %USERPROFILE%\.claude path.
+func findClaudeDir() string {
+	var candidates []string
+
+	if home, err := os.UserHomeDir(); err == nil {
+		candidates = append(candidates, filepath.Join(home, ".claude"))
+	}
+
+	// Windows-specific fallbacks (%APPDATA% and %LOCALAPPDATA%)
+	if appData := os.Getenv("APPDATA"); appData != "" {
+		candidates = append(candidates, filepath.Join(appData, "Claude"))
+		candidates = append(candidates, filepath.Join(appData, ".claude"))
+	}
+	if localAppData := os.Getenv("LOCALAPPDATA"); localAppData != "" {
+		candidates = append(candidates, filepath.Join(localAppData, "Claude"))
+		candidates = append(candidates, filepath.Join(localAppData, ".claude"))
+	}
+
+	for _, dir := range candidates {
+		projectsDir := filepath.Join(dir, "projects")
+		if info, err := os.Stat(projectsDir); err == nil && info.IsDir() {
+			return dir
+		}
+	}
+
+	// Fall back to the first candidate (standard ~/.claude) even if it doesn't exist yet
+	if len(candidates) > 0 {
+		return candidates[0]
+	}
+	return ".claude"
 }
 
 func Execute() {

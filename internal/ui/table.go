@@ -34,7 +34,11 @@ func RenderSessionsTable(sessions []*aggregator.SessionStats, opts TableOptions)
 	}
 
 	if len(active) == 0 {
-		return StyleDim.Render(fmt.Sprintf("No active sessions. (%d empty hidden)", len(empty)))
+		msg := "No sessions with token data"
+		if len(empty) > 0 {
+			msg = fmt.Sprintf("No sessions with token data  (%d found with 0 tokens — try --since 7d or check agentop doctor)", len(empty))
+		}
+		return StyleDim.Render(msg)
 	}
 
 	tab := table.NewWriter()
@@ -56,7 +60,7 @@ func RenderSessionsTable(sessions []*aggregator.SessionStats, opts TableOptions)
 	// Pass *SessionStats for every column so transformers have full context.
 	tab.SetColumnConfigs([]table.ColumnConfig{
 		{Number: 1, Name: "Session", WidthMax: 22, Align: text.AlignLeft},
-		{Number: 2, Name: "Model", WidthMax: 8, Align: text.AlignLeft, Transformer: modelTransformer},
+		{Number: 2, Name: "Model", WidthMax: 12, Align: text.AlignLeft, Transformer: modelTransformer},
 		{Number: 3, Name: "Tokens", WidthMax: 22, Align: text.AlignLeft, Transformer: tokenBarTransformer(opts.Width)},
 		{Number: 4, Name: "Cache", WidthMax: 6, Align: text.AlignRight, AlignHeader: text.AlignRight, Transformer: cacheTransformer},
 		{Number: 5, Name: "in / out / cc / cr", WidthMax: 38, Align: text.AlignLeft, Transformer: breakdownTransformer},
@@ -78,7 +82,7 @@ func modelTransformer(val interface{}) string {
 	if !ok {
 		return ""
 	}
-	return ModelTag(s.Model)
+	return ModelCell(s.Model)
 }
 
 func tokenBarTransformer(width int) func(interface{}) string {

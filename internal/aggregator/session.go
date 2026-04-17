@@ -1,6 +1,7 @@
 package aggregator
 
 import (
+	"encoding/json"
 	"path/filepath"
 	"sort"
 	"time"
@@ -8,6 +9,16 @@ import (
 	"github.com/agentop-dev/agentop/internal/claude"
 	"github.com/agentop-dev/agentop/internal/pricing"
 )
+
+// TurnStat holds per-assistant-turn token metrics for cache, context-growth,
+// and model-routing analysis.
+type TurnStat struct {
+	InputTokens  int64
+	OutputTokens int64
+	CacheCreate  int64
+	CacheRead    int64
+	Model        string
+}
 
 type SessionStats struct {
 	ID          string
@@ -48,6 +59,15 @@ type SessionStats struct {
 	CostPerMessage  float64
 	BurnRate        float64
 	WasCompacted    bool
+
+	// Per-turn data for cache, context-growth, and model-routing analysis.
+	// Ordered by turn index (first assistant response = index 0).
+	Turns            []TurnStat
+	Turn1CacheCreate int64          // cache_creation tokens on turn 1 (cold-start tax)
+	FilesRead        map[string]int // Read tool file_path → invocation count
+	// MaxToolResultBytes is the largest tool_result payload seen (bytes).
+	// Divide by ~4 for a rough token estimate.
+	MaxToolResultBytes int64
 }
 
 func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer pricing.Pricer) *SessionStats {
@@ -57,6 +77,7 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 
 	s := &SessionStats{
 		ToolCalls: make(map[string]int),
+		FilesRead: make(map[string]int),
 	}
 
 	s.ID = events[0].SessionID
@@ -69,8 +90,10 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 		usage      *claude.Usage
 		stopReason string
 		costUSD    float64
+		turnIndex  int // insertion order for per-turn slice
 	}
 	assistantMap := make(map[string]assistantEntry)
+	var turnCounter int
 
 	var firstTime, lastTime time.Time
 
@@ -125,7 +148,9 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 					usage:      e.Message.Usage,
 					stopReason: stopReason,
 					costUSD:    e.CostUSD,
+					turnIndex:  turnCounter,
 				}
+				turnCounter++
 			} else {
 				if stopReason != "" {
 					existing.stopReason = stopReason
@@ -146,6 +171,21 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 			if e.ToolName != "" {
 				s.ToolCalls[e.ToolName]++
 			}
+			// Parse file path for Read invocations.
+			if e.Type == "tool" && e.ToolName == "Read" && len(e.ToolInput) > 0 {
+				var inp struct {
+					FilePath string `json:"file_path"`
+				}
+				if json.Unmarshal(e.ToolInput, &inp) == nil && inp.FilePath != "" {
+					s.FilesRead[inp.FilePath]++
+				}
+			}
+			// Track largest tool result as a token-bloat proxy.
+			if e.Type == "tool_result" {
+				if sz := int64(len(e.ToolResult)); sz > s.MaxToolResultBytes {
+					s.MaxToolResultBytes = sz
+				}
+			}
 
 		case "summary":
 			if s.Summary == "" {
@@ -154,7 +194,16 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 		}
 	}
 
+	// Sort assistant entries by insertion order so per-turn slice is chronological.
+	sortedEntries := make([]assistantEntry, 0, len(assistantMap))
 	for _, entry := range assistantMap {
+		sortedEntries = append(sortedEntries, entry)
+	}
+	sort.Slice(sortedEntries, func(i, j int) bool {
+		return sortedEntries[i].turnIndex < sortedEntries[j].turnIndex
+	})
+
+	for _, entry := range sortedEntries {
 		if entry.stopReason == "" {
 			continue
 		}
@@ -183,6 +232,19 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 		existing.CacheCreationInputTokens += usage.CacheCreationInputTokens
 		existing.CacheReadInputTokens += usage.CacheReadInputTokens
 		modelTokens[model] = existing
+
+		// Build chronological per-turn slice.
+		s.Turns = append(s.Turns, TurnStat{
+			InputTokens:  int64(usage.InputTokens),
+			OutputTokens: int64(usage.OutputTokens),
+			CacheCreate:  int64(usage.CacheCreationInputTokens),
+			CacheRead:    int64(usage.CacheReadInputTokens),
+			Model:        model,
+		})
+	}
+
+	if len(s.Turns) > 0 {
+		s.Turn1CacheCreate = s.Turns[0].CacheCreate
 	}
 
 	s.TotalTokens = s.InputTokens + s.OutputTokens + s.CacheCreateTokens + s.CacheReadTokens

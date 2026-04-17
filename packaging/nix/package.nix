@@ -5,16 +5,18 @@
 }:
 buildGoModule rec {
   pname = "agentop";
-  version = "0.1.1";
+  version = "0.1.2";
 
   src = fetchFromGitHub {
     owner = "mohitmishra786";
     repo = "agentop";
     rev = "v${version}";
-    hash = "sha256-7Wm9Y4M3saVRnRKZlfIlHbL5xTbVBms9BiwvBtblqlY=";
+    # TODO: run `nix-prefetch-url` after v0.1.2 tag is pushed to get the real hash
+    hash = "sha256-0000000000000000000000000000000000000000000000000000";
   };
 
-  vendorHash = "sha256-xGmv9sg+MsAR3dpjBr4LlHoLTQig8MsfkwuimJoE/ow=";
+  # TODO: run `gomod2nix` or `nix build` and copy the vendorHash from the error
+  vendorHash = "sha256-0000000000000000000000000000000000000000000000000000";
 
   ldflags = [
     "-s"

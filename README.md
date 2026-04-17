@@ -27,13 +27,13 @@ $38.74              61.5M               93%                 10
 ├──────────────────────────┬──────────┬────────────────────────────────────┬────────┬──────────┤
 │ SESSION                  │ MODEL    │ TOKENS                             │ CACHE  │ COST     │
 ├──────────────────────────┼──────────┼────────────────────────────────────┼────────┼──────────┤
-│ agentop                  │  sonnet  │ [██████████████████████████]       │    93% │    $8.05 │
-│ 89ab341f …/agentop       │          │ 2k in  155k out  721k cc  10.1M cr │        │    9h36m │
-│ ↳ 3 subagents            │          │                                    │        │          │
-├──────────────────────────┼──────────┼────────────────────────────────────┼────────┼──────────┤
-│ build-distributed-s...   │  sonnet  │ [██████████████████████████]       │    93% │   $30.68 │
-│ aa0a95ca …uted-systems   │          │ 5k in  257k out  3.4M cc  46.9M cr │        │      N/A │
-│ ⎇ fix/task-1-1-weak...   │          │                                    │        │          │
+│ agentop                  │  sonnet 4.6  │ [██████████████████████████]       │    93% │    $8.05 │
+│ 89ab341f …/agentop       │              │ 2k in  155k out  721k cc  10.1M cr │        │    9h36m │
+│ ↳ 3 subagents            │              │                                    │        │          │
+├──────────────────────────┼──────────────┼────────────────────────────────────┼────────┼──────────┤
+│ build-distributed-s...   │  sonnet 4.6  │ [██████████████████████████]       │    93% │   $30.68 │
+│ aa0a95ca …uted-systems   │              │ 5k in  257k out  3.4M cc  46.9M cr │        │      N/A │
+│ ⎇ fix/task-1-1-weak...   │              │                                    │        │          │
 ╰──────────────────────────┴──────────┴────────────────────────────────────┴────────┴──────────╯
 ```
 
@@ -47,9 +47,9 @@ $ agentop --layout table
 ├──────────────────────┬──────────┬──────────────────────┬───────┬──────────────────────────────┬────────┬───────┤
 │ SESSION              │ MODEL    │ TOKENS               │ CACHE │ IN / OUT / CC / CR           │   COST │  TIME │
 ├──────────────────────┼──────────┼──────────────────────┼───────┼──────────────────────────────┼────────┼───────┤
-│ agentop              │  sonnet  │ [██████████████████] │   93% │ 2k in  155k out  721k cc  10M │  $8.05 │ 9h36m │
-├──────────────────────┼──────────┼──────────────────────┼───────┼──────────────────────────────┼────────┼───────┤
-│ build-distributed... │  sonnet  │ [██████████████████] │   93% │ 5k in  257k out  3.4M  46.9M │ $30.68 │   N/A │
+│ agentop              │  sonnet 4.6  │ [██████████████████] │   93% │ 2k in  155k out  721k cc  10M │  $8.05 │ 9h36m │
+├──────────────────────┼──────────────┼──────────────────────┼───────┼──────────────────────────────┼────────┼───────┤
+│ build-distributed... │  sonnet 4.6  │ [██████████████████] │   93% │ 5k in  257k out  3.4M  46.9M │ $30.68 │   N/A │
 └──────────────────────┴──────────┴──────────────────────┴───────┴──────────────────────────────┴────────┴───────┘
 ```
 
@@ -88,12 +88,14 @@ scoop bucket add mohitmishra786 https://github.com/mohitmishra786/scoop-bucket
 scoop install mohitmishra786/agentop
 ```
 
-### Fedora / RHEL (COPR)
+### Fedora / RHEL / EPEL 9 (COPR)
 
 ```bash
 dnf copr enable chessman/agentop
 dnf install agentop
 ```
+
+> Supports Fedora (latest), RHEL 9, and EPEL 9. The COPR project builds from source on Fedora and uses prebuilt binaries on RHEL/EPEL 9 (where Go 1.25 is unavailable).
 
 ### NixOS / Nix
 
@@ -118,7 +120,7 @@ go install github.com/mohitmishra786/agentop@latest
 
 ### Prebuilt Binaries
 
-**[Download v0.1.1](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.1)**
+**[Download v0.1.2](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.2)**
 
 | Platform | Format |
 |----------|--------|
@@ -143,7 +145,7 @@ make build
 | macOS / Linux | Homebrew | Live | `brew install mohitmishra786/tap/agentop` |
 | Linux | Arch AUR | Live | `yay -S agentop-bin` |
 | Windows | Scoop | Live | see above |
-| Linux | Fedora COPR | Live | `dnf copr enable chessman/agentop` |
+| Linux | Fedora / RHEL 9 / EPEL 9 COPR | Live | `dnf copr enable chessman/agentop` |
 | Linux | Nix | PR open | [NixOS/nixpkgs#509351](https://github.com/NixOS/nixpkgs/pull/509351) |
 | Linux | Alpine (apk) | MR open | [aports!100647](https://gitlab.alpinelinux.org/alpine/aports/-/merge_requests/100647) |
 | Linux | Debian/Ubuntu | `.deb` on releases page | — |
@@ -180,7 +182,10 @@ agentop --json
 # Anomaly detection (poor cache, high cost, model mismatches)
 agentop doctor
 
-# Deep-dive a specific session
+# Per-session deep-dive with full anomaly detail
+agentop doctor <session-id>
+
+# Deep-dive a specific session's raw data
 agentop session <session-id>
 
 # Daily / monthly breakdowns
@@ -210,7 +215,7 @@ AI coding assistant sessions cost money. Real money. A single long session can b
 
 The assistant UI shows you a chat log. It does not show you token breakdowns, cache efficiency, or which sessions are burning cash on cold-start cache creation.
 
-**agentop** makes the invisible visible. The anomaly detector (`agentop doctor`) flags sessions with poor cache efficiency, high cost for few messages, and model mismatches.
+**agentop** makes the invisible visible. The anomaly detector (`agentop doctor`) flags sessions with poor cache efficiency, context bloat, model mismatches, and subagent cost — and `agentop doctor <session-id>` gives a full per-session breakdown.
 
 ## Roadmap
 
@@ -219,7 +224,10 @@ The assistant UI shows you a chat log. It does not show you token breakdowns, ca
 - [x] Homebrew distribution
 - [x] AUR package (`agentop-bin`)
 - [x] Scoop bucket (Windows)
-- [x] Fedora COPR (`chessman/agentop`)
+- [x] Fedora / RHEL 9 COPR (`chessman/agentop`)
+- [x] Per-session doctor view (`agentop doctor <session-id>`)
+- [x] Full model version in badge (sonnet 4.6, opus 4.7, etc.)
+- [x] Windows path detection
 - [ ] Nix / Alpine packages (PRs open)
 - [ ] Codex CLI support
 - [ ] OpenCode support
