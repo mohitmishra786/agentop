@@ -14,13 +14,12 @@ buildGoModule rec {
     hash = "sha256-lJEWh6SRVekOFsKsuQE88VEoskQAvHm1rPtMq1RQbho=";
   };
 
-  # TODO: run `gomod2nix` or `nix build` and copy the vendorHash from the error
-  vendorHash = "sha256-0000000000000000000000000000000000000000000000000000";
+  vendorHash = "sha256-AR1IpxAlwRK1uH3iBXMstIZJ/eIV9yeSYtYY2Q29rLg=";
 
   ldflags = [
     "-s"
     "-w"
-    "-X main.Version=${version}"
+    "-X github.com/agentop-dev/agentop/cmd.Version=${version}"
   ];
 
   meta = {

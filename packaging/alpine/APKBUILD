@@ -15,7 +15,7 @@ export GOTMPDIR="${GOTMPDIR:-"$srcdir"}"
 export GOMODCACHE="${GOMODCACHE:-"$srcdir/go"}"
 
 build() {
-	go build -v -trimpath -ldflags "-s -w -X main.Version=$pkgver"
+	go build -v -trimpath -ldflags "-s -w -X github.com/agentop-dev/agentop/cmd.Version=$pkgver"
 }
 
 check() {
