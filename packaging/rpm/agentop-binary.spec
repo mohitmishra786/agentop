@@ -1,22 +1,10 @@
-# Binary-only RPM for all COPR chroots (Fedora + EPEL 9 / RHEL 9).
-# Downloads the pre-built GoReleaser tarball at build time — no Go toolchain needed.
-# Each architecture downloads its own tarball via the Source0 URL.
-#
-# To build locally:
-#   spectool -g -R agentop-binary.spec   # downloads tarball
-#   rpmbuild -bb agentop-binary.spec
+# Binary-only RPM for all COPR chroots (Fedora 43/44/rawhide + EPEL 9 / RHEL 9).
+# No Source0 — the correct architecture tarball is downloaded at build time in %prep.
+# This avoids the single-SRPM / multi-arch source problem entirely.
 
 %global debug_package %{nil}
 
-Name:           agentop
-Version:        0.1.2
-Release:        1%{?dist}
-Summary:        Terminal dashboard for AI coding assistant sessions
-
-License:        MIT
-URL:            https://github.com/mohitmishra786/agentop
-
-# Map RPM %_arch to GoReleaser archive arch names.
+# Map RPM build arch to GoReleaser archive naming.
 %ifarch x86_64
 %global binary_arch x86_64
 %endif
@@ -27,37 +15,46 @@ URL:            https://github.com/mohitmishra786/agentop
 %global binary_arch i386
 %endif
 
-# The pre-built tarball produced by GoReleaser — no Go toolchain required.
-Source0: https://github.com/mohitmishra786/%{name}/releases/download/v%{version}/%{name}_%{version}_linux_%{binary_arch}.tar.gz
+Name:           agentop
+Version:        0.1.2
+Release:        1%{?dist}
+Summary:        Terminal dashboard for AI coding assistant sessions
+License:        MIT
+URL:            https://github.com/mohitmishra786/agentop
 
-# Explicitly list supported architectures so COPR skips unsupported chroots.
-ExclusiveArch: x86_64 aarch64 i386 i686
+ExclusiveArch:  x86_64 aarch64 i386 i686
 
-# Runtime — agentop is a fully static binary (CGO_ENABLED=0).
-Requires: /bin/sh
+BuildRequires:  curl
+BuildRequires:  tar
 
 %description
 agentop reads AI assistant session data from ~/.claude/projects/ and shows
 token usage, cost, and cache efficiency in a clean terminal dashboard.
-Supports Claude Code sessions with a duf-style grid layout, color-coded
-token bars, anomaly detection, and multi-view subcommands (today, daily,
-monthly, blocks, session, doctor).
+Supports Claude Code sessions with duf-style grid layout, color-coded token
+bars, anomaly detection, and multi-view subcommands (today, daily, monthly,
+blocks, session, doctor).
 
 %prep
-# GoReleaser tarballs wrap contents in a directory named after the archive.
-%setup -q -n %{name}_%{version}_linux_%{binary_arch}
+# Download the pre-built GoReleaser archive for this build architecture.
+curl -fL \
+  "https://github.com/mohitmishra786/agentop/releases/download/v%{version}/agentop_%{version}_linux_%{binary_arch}.tar.gz" \
+  -o "%{_builddir}/agentop.tar.gz"
+tar -xzf "%{_builddir}/agentop.tar.gz" -C "%{_builddir}"
+
+%build
+# Nothing to compile — pre-built static binary.
 
 %install
-install -Dpm 0755 %{name} %{buildroot}%{_bindir}/%{name}
-# Man page is included in the GoReleaser archive.
-install -Dpm 0644 %{name}.1 %{buildroot}%{_mandir}/man1/%{name}.1
+cd "%{_builddir}/agentop_%{version}_linux_%{binary_arch}"
+install -Dpm 0755 agentop    %{buildroot}%{_bindir}/agentop
+install -Dpm 0644 agentop.1  %{buildroot}%{_mandir}/man1/agentop.1
+install -Dpm 0644 LICENSE    %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 
 %files
-%license LICENSE
-%doc README.md
-%{_bindir}/%{name}
-%{_mandir}/man1/%{name}.1*
+%{_bindir}/agentop
+%{_mandir}/man1/agentop.1*
+%{_datadir}/licenses/%{name}/LICENSE
 
 %changelog
 * Fri Apr 18 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 0.1.2-1
-- Binary-only package for EPEL/RHEL 9 compatibility (no Go toolchain required)
+- Binary-only package for all COPR chroots; curl-downloads arch tarball at build time
