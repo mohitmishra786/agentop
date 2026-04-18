@@ -99,14 +99,21 @@ dnf install agentop
 
 ### NixOS / Nix
 
+Install directly via the flake (no nixpkgs PR required):
+
 ```bash
-# Once merged into nixpkgs:
-nix-env -iA nixpkgs.agentop
-# or in flakes:
-nix profile install nixpkgs#agentop
+# Run without installing
+nix run github:mohitmishra786/agentop
+
+# Install to profile
+nix profile install github:mohitmishra786/agentop
 ```
 
-> PR under review: [NixOS/nixpkgs#509351](https://github.com/NixOS/nixpkgs/pull/509351)
+Or add to your `flake.nix`:
+
+```nix
+inputs.agentop.url = "github:mohitmishra786/agentop";
+```
 
 ### Alpine Linux
 
@@ -146,7 +153,7 @@ make build
 | Linux | Arch AUR | Live | `yay -S agentop-bin` |
 | Windows | Scoop | Live | see above |
 | Linux | Fedora / RHEL 9 / EPEL 9 COPR | Live | `dnf copr enable chessman/agentop` |
-| Linux | Nix | PR open | [NixOS/nixpkgs#509351](https://github.com/NixOS/nixpkgs/pull/509351) |
+| macOS / Linux | Nix flake | Live | `nix run github:mohitmishra786/agentop` |
 | Linux | Alpine (apk) | MR open | [aports!100647](https://gitlab.alpinelinux.org/alpine/aports/-/merge_requests/100647) |
 | Linux | Debian/Ubuntu | `.deb` on releases page | — |
 | BSD | FreeBSD/OpenBSD | `.tar.gz` on releases page | — |
@@ -228,7 +235,8 @@ The assistant UI shows you a chat log. It does not show you token breakdowns, ca
 - [x] Per-session doctor view (`agentop doctor <session-id>`)
 - [x] Full model version in badge (sonnet 4.6, opus 4.7, etc.)
 - [x] Windows path detection
-- [ ] Nix / Alpine packages (PRs open)
+- [x] Nix flake (`nix run github:mohitmishra786/agentop`)
+- [ ] Alpine apk (MR open)
 - [ ] Codex CLI support
 - [ ] OpenCode support
 - [ ] Budget alerts
