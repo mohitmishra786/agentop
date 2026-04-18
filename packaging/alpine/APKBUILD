@@ -8,7 +8,8 @@ url="https://github.com/mohitmishra786/agentop"
 arch="all"
 license="MIT"
 makedepends="go"
-source="$pkgname-$pkgver.tar.gz::https://github.com/mohitmishra786/$pkgname/archive/refs/tags/v$pkgver.tar.gz"
+options="net" # required for downloading Go modules at build time
+source="agentop-$pkgver.tar.gz::https://github.com/mohitmishra786/agentop/archive/refs/tags/v$pkgver.tar.gz"
 
 export GOCACHE="${GOCACHE:-"$srcdir/go-cache"}"
 export GOTMPDIR="${GOTMPDIR:-"$srcdir"}"
