@@ -1,8 +1,9 @@
 # Binary-only RPM for all COPR chroots (Fedora 43/44/rawhide + EPEL 9 / RHEL 9).
-# No Source0 — the correct architecture tarball is downloaded at build time in %prep.
-# This avoids the single-SRPM / multi-arch source problem entirely.
+# No Source0 — downloads the correct arch tarball at build time in %prep.
+# GoReleaser archives have files at the root (no wrapper dir), extracted to %{_tmppath}.
 
 %global debug_package %{nil}
+%global agentop_src   %{_tmppath}/agentop-bin-%{version}
 
 # Map RPM build arch to GoReleaser archive naming.
 %ifarch x86_64
@@ -35,20 +36,22 @@ bars, anomaly detection, and multi-view subcommands (today, daily, monthly,
 blocks, session, doctor).
 
 %prep
-# Download the pre-built GoReleaser archive for this build architecture.
+mkdir -p %{agentop_src}
 curl -fL \
   "https://github.com/mohitmishra786/agentop/releases/download/v%{version}/agentop_%{version}_linux_%{binary_arch}.tar.gz" \
-  -o "%{_builddir}/agentop.tar.gz"
-tar -xzf "%{_builddir}/agentop.tar.gz" -C "%{_builddir}"
+  -o "%{agentop_src}/agentop.tar.gz"
+tar -xzf "%{agentop_src}/agentop.tar.gz" -C "%{agentop_src}/"
 
 %build
-# Nothing to compile — pre-built static binary.
+# Pre-built static binary — nothing to compile.
 
 %install
-cd "%{_builddir}/agentop_%{version}_linux_%{binary_arch}"
-install -Dpm 0755 agentop    %{buildroot}%{_bindir}/agentop
-install -Dpm 0644 agentop.1  %{buildroot}%{_mandir}/man1/agentop.1
-install -Dpm 0644 LICENSE    %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
+install -Dpm 0755 "%{agentop_src}/agentop"    %{buildroot}%{_bindir}/agentop
+install -Dpm 0644 "%{agentop_src}/agentop.1"  %{buildroot}%{_mandir}/man1/agentop.1
+install -Dpm 0644 "%{agentop_src}/LICENSE"    %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
+
+%clean
+rm -rf "%{agentop_src}"
 
 %files
 %{_bindir}/agentop
@@ -57,4 +60,4 @@ install -Dpm 0644 LICENSE    %{buildroot}%{_datadir}/licenses/%{name}/LICENSE
 
 %changelog
 * Fri Apr 18 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 0.1.2-1
-- Binary-only package for all COPR chroots; curl-downloads arch tarball at build time
+- Binary-only package; curl-downloads arch tarball at build time, works on Fedora and EPEL 9
