@@ -17,6 +17,10 @@ import (
 	geminiAdapter "github.com/agentop-dev/agentop/internal/adapter/gemini"
 	kiroAdapter "github.com/agentop-dev/agentop/internal/adapter/kiro"
 	opencodeAdapter "github.com/agentop-dev/agentop/internal/adapter/opencode"
+	cursorAdapter "github.com/agentop-dev/agentop/internal/adapter/cursor"
+	continueAdapter "github.com/agentop-dev/agentop/internal/adapter/continueadapter"
+	jetbrainsAdapter "github.com/agentop-dev/agentop/internal/adapter/jetbrains"
+	windsurfAdapter "github.com/agentop-dev/agentop/internal/adapter/windsurf"
 )
 
 var (
@@ -45,6 +49,10 @@ func init() {
 	registry.Register(&geminiAdapter.Adapter{})
 	registry.Register(&kiroAdapter.Adapter{})
 	registry.Register(&opencodeAdapter.Adapter{})
+	registry.Register(&cursorAdapter.Adapter{})
+	registry.Register(&continueAdapter.Adapter{})
+	registry.Register(&jetbrainsAdapter.Adapter{})
+	registry.Register(&windsurfAdapter.Adapter{})
 }
 
 var rootCmd = &cobra.Command{
