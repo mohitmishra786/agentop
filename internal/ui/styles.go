@@ -260,9 +260,10 @@ func modelVersion(model string) string {
 	}
 	// "grok-composer-2.5-fast" → "2.5"
 	if strings.Contains(ml, "grok") {
-		for i, p := range parts {
-			if i > 0 && isDigitStr(p) && i+1 < len(parts) && isDigitStr(parts[i+1]) {
-				return p + "." + parts[i+1]
+		for _, p := range parts {
+			// "2.5" split by "." → ["2","5"]
+			if sub := strings.Split(p, "."); len(sub) == 2 && isDigitStr(sub[0]) && isDigitStr(sub[1]) {
+				return sub[0] + "." + sub[1]
 			}
 		}
 	}
