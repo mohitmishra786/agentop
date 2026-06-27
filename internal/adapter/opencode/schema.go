@@ -1,21 +1,7 @@
 package opencode
 
-type openCodeSession struct {
-	ID        string
-	Directory string
-	CreatedAt string
-}
-
-type openCodeMessage struct {
-	ID        string
-	SessionID string
-	Role      string
-	Content   string
-	Data      string
-	CreatedAt string
-}
-
 type messageData struct {
+	Role       string     `json:"role"`
 	Tokens     *tokensData `json:"tokens"`
 	Cost       float64     `json:"cost"`
 	ModelID    string      `json:"modelID"`

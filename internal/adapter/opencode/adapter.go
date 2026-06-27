@@ -36,7 +36,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	}
 	defer func() { _ = db.Close() }()
 
-	rows, err := db.Query("SELECT id, directory, created_at FROM sessions ORDER BY created_at DESC")
+	rows, err := db.Query("SELECT id, directory, time_created FROM session ORDER BY time_created DESC")
 	if err != nil {
 		return nil, err
 	}
@@ -44,13 +44,14 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 
 	var files []adapter.SessionFile
 	for rows.Next() {
-		var id, directory, createdAt string
-		if err := rows.Scan(&id, &directory, &createdAt); err != nil {
+		var id, directory string
+		var timeCreated int64
+		if err := rows.Scan(&id, &directory, &timeCreated); err != nil {
 			continue
 		}
 
 		encodedPath := dbPath + "#" + id
-		modTime, _ := time.Parse(time.RFC3339, createdAt)
+		modTime := time.UnixMilli(timeCreated)
 
 		files = append(files, adapter.SessionFile{
 			Path:        encodedPath,

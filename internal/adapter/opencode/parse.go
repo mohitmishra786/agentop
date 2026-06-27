@@ -38,18 +38,19 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 	}
 	defer func() { _ = db.Close() }()
 
-	var dir, createdAt string
+	var dir string
+	var timeCreated int64
 	err = db.QueryRow(
-		"SELECT directory, created_at FROM sessions WHERE id = ?", sid,
-	).Scan(&dir, &createdAt)
+		"SELECT directory, time_created FROM session WHERE id = ?", sid,
+	).Scan(&dir, &timeCreated)
 	if err != nil {
 		return nil, err
 	}
 
-	createdAtTime, _ := time.Parse(time.RFC3339, createdAt)
+	createdAtTime := time.UnixMilli(timeCreated)
 
 	rows, err := db.Query(
-		"SELECT id, role, content, data, created_at FROM messages WHERE session_id = ? ORDER BY created_at ASC",
+		"SELECT id, time_created, data FROM message WHERE session_id = ? ORDER BY time_created ASC",
 		sid,
 	)
 	if err != nil {
@@ -59,12 +60,14 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 
 	var events []adapter.Event
 	for rows.Next() {
-		var id, role, content, dataStr, msgCreatedAt string
-		if err := rows.Scan(&id, &role, &content, &dataStr, &msgCreatedAt); err != nil {
+		var id string
+		var msgTime int64
+		var dataStr string
+		if err := rows.Scan(&id, &msgTime, &dataStr); err != nil {
 			continue
 		}
 
-		ts, _ := time.Parse(time.RFC3339, msgCreatedAt)
+		ts := time.UnixMilli(msgTime)
 
 		var data messageData
 		if dataStr != "" {
@@ -72,8 +75,9 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 		}
 
 		msg := &adapter.Message{
-			ID:   id,
-			Role: role,
+			ID:         id,
+			Role:       data.Role,
+			StopReason: "end_turn",
 		}
 
 		if data.ModelID != "" {
@@ -96,14 +100,8 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 			msg.Usage = usage
 		}
 
-		if content != "" {
-			msg.Content = []adapter.Content{
-				{Type: "text", Text: content},
-			}
-		}
-
 		evt := adapter.Event{
-			Type:      mapRole(role),
+			Type:      mapRole(data.Role),
 			SessionID: sid,
 			UUID:      id,
 			Timestamp: ts,
