@@ -67,6 +67,8 @@ type Theme struct {
 	TagContinueFg  string
 	TagWindsurfBg  string
 	TagWindsurfFg  string
+	TagGrokBg      string
+	TagGrokFg      string
 }
 
 var theme Theme
@@ -116,6 +118,7 @@ func InitTheme(name string) error {
 			TagJetBrainsBg: "#2A1A2A", TagJetBrainsFg: "#D080B0",
 			TagContinueBg: "#1A221A", TagContinueFg: "#70B070",
 			TagWindsurfBg: "#222A1A", TagWindsurfFg: "#A0C060",
+			TagGrokBg: "#1A1A2A", TagGrokFg: "#C0C0E0",
 		},
 		"light": {
 			BarInput:       "#D4891A",
@@ -153,6 +156,7 @@ func InitTheme(name string) error {
 			TagJetBrainsBg: "#F0D0E0", TagJetBrainsFg: "#802060",
 			TagContinueBg: "#C8E0C8", TagContinueFg: "#206020",
 			TagWindsurfBg: "#E8F0C8", TagWindsurfFg: "#506010",
+			TagGrokBg: "#D0D0E8", TagGrokFg: "#303060",
 		},
 	}
 	t, ok := themes[name]
@@ -312,6 +316,7 @@ func AgentTag(agentID string) string {
 		"jetbrains": {theme.TagJetBrainsBg, theme.TagJetBrainsFg, "jetbrains"},
 		"continue":  {theme.TagContinueBg, theme.TagContinueFg, "continue"},
 		"windsurf":  {theme.TagWindsurfBg, theme.TagWindsurfFg, "windsurf"},
+		"grok":      {theme.TagGrokBg, theme.TagGrokFg, "grok"},
 	}
 	b, ok := badges[agentID]
 	if !ok {

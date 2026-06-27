@@ -21,6 +21,7 @@ import (
 	continueAdapter "github.com/agentop-dev/agentop/internal/adapter/continueadapter"
 	jetbrainsAdapter "github.com/agentop-dev/agentop/internal/adapter/jetbrains"
 	windsurfAdapter "github.com/agentop-dev/agentop/internal/adapter/windsurf"
+	grokAdapter "github.com/agentop-dev/agentop/internal/adapter/grok"
 )
 
 var (
@@ -53,6 +54,7 @@ func init() {
 	registry.Register(&continueAdapter.Adapter{})
 	registry.Register(&jetbrainsAdapter.Adapter{})
 	registry.Register(&windsurfAdapter.Adapter{})
+	registry.Register(&grokAdapter.Adapter{})
 }
 
 var rootCmd = &cobra.Command{

@@ -23,6 +23,7 @@ const (
 	AgentContinue  AgentID = "continue"
 	AgentWindsurf  AgentID = "windsurf"
 	AgentDevin     AgentID = "devin"
+	AgentGrok      AgentID = "grok"
 )
 
 // TokenSource indicates whether token counts come directly from the agent's data

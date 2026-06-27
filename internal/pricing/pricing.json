@@ -63,6 +63,16 @@
         "command-a":        { "input": 2.50,  "output": 10.00, "cacheCreate": 1.25,  "cacheRead": 0.25 },
         "command-r":        { "input": 0.50,  "output": 1.50,  "cacheCreate": 0.25,  "cacheRead": 0.05 }
       }
+    },
+    "xai": {
+      "fallback": "grok-4.3",
+      "models": {
+        "grok-4.3":                 { "input": 1.25, "output": 2.50 },
+        "grok-4.3-latest":          { "input": 1.25, "output": 2.50 },
+        "grok-4.20":                { "input": 1.25, "output": 2.50 },
+        "grok-4.20-0309-reasoning": { "input": 1.25, "output": 2.50 },
+        "grok-composer-2.5-fast":   { "input": 1.25, "output": 2.50 }
+      }
     }
   }
 }
