@@ -34,13 +34,13 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	rows, err := db.Query("SELECT id, directory, created_at FROM sessions ORDER BY created_at DESC")
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var files []adapter.SessionFile
 	for rows.Next() {

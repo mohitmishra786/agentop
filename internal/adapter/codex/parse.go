@@ -19,7 +19,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, maxLineBytes), maxLineBytes)
@@ -101,7 +101,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 			case "function_call_output":
 				var content string
 				if p.Content != nil {
-					json.Unmarshal(p.Content, &content)
+					_ = json.Unmarshal(p.Content, &content)
 				}
 				events = append(events, adapter.Event{
 					Type:        "tool_result",

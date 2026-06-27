@@ -14,7 +14,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	var sess continueSession
 	if err := json.NewDecoder(f).Decode(&sess); err != nil {
