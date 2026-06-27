@@ -1,0 +1,13 @@
+name: "CodeQL config"
+
+queries:
+  - uses: security-and-quality
+
+paths:
+  - "**/*.go"
+  - "**/internal/**"
+  - cmd/
+
+paths-ignore:
+  - "**/*_test.go"
+  - "**/testdata/**"
