@@ -2,9 +2,10 @@ package pricing
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 
-	"github.com/agentop-dev/agentop/internal/claude"
+	"github.com/agentop-dev/agentop/internal/adapter"
 )
 
 type ModelPrice struct {
@@ -14,9 +15,16 @@ type ModelPrice struct {
 	CacheRead   float64 `json:"cacheRead"`
 }
 
+type ProviderPricing struct {
+	Fallback string                `json:"fallback"`
+	Models   map[string]ModelPrice `json:"models"`
+}
+
 type PricingDB struct {
-	Version string                `json:"version"`
-	Models  map[string]ModelPrice `json:"models"`
+	Version          string                     `json:"version"`
+	FallbackModel    string                     `json:"FallbackModel"`
+	FallbackProvider string                     `json:"FallbackProvider"`
+	Providers        map[string]ProviderPricing `json:"providers"`
 }
 
 var db *PricingDB
@@ -29,18 +37,88 @@ func init() {
 }
 
 func Get(model string) ModelPrice {
-	if p, ok := db.Models[model]; ok {
-		return p
-	}
-
 	modelLower := strings.ToLower(model)
-	for name, price := range db.Models {
-		if strings.HasPrefix(modelLower, strings.ToLower(name)) {
-			return price
+
+	for _, provider := range db.Providers {
+		if p, ok := provider.Models[modelLower]; ok {
+			return p
 		}
 	}
 
-	return db.Models["claude-sonnet-4-6"]
+	for _, provider := range db.Providers {
+		bestMatch := ""
+		for name := range provider.Models {
+			nl := strings.ToLower(name)
+			if strings.HasPrefix(modelLower, nl) {
+				if len(nl) > len(bestMatch) {
+					bestMatch = name
+				}
+			}
+		}
+		if bestMatch != "" {
+			return provider.Models[bestMatch]
+		}
+	}
+
+	return getFallbackPrice()
+}
+
+func getFallbackPrice() ModelPrice {
+	fb, ok := db.Providers[db.FallbackProvider]
+	if ok {
+		if p, ok := fb.Models[db.FallbackModel]; ok {
+			return p
+		}
+		if fb.Fallback != "" {
+			if p, ok := fb.Models[fb.Fallback]; ok {
+				return p
+			}
+		}
+	}
+	for _, provider := range db.Providers {
+		for _, price := range provider.Models {
+			return price
+		}
+	}
+	return ModelPrice{}
+}
+
+func ProviderForModel(model string) string {
+	modelLower := strings.ToLower(model)
+
+	for providerName, provider := range db.Providers {
+		for name := range provider.Models {
+			if strings.ToLower(name) == modelLower {
+				return providerName
+			}
+		}
+	}
+
+	providers := make([]string, 0, len(db.Providers))
+	for providerName, provider := range db.Providers {
+		for name := range provider.Models {
+			nl := strings.ToLower(name)
+			if strings.HasPrefix(modelLower, nl) {
+				providers = append(providers, providerName)
+				break
+			}
+		}
+	}
+	if len(providers) > 0 {
+		sort.Strings(providers)
+		return providers[0]
+	}
+
+	return db.FallbackProvider
+}
+
+func ListProviders() []string {
+	providers := make([]string, 0, len(db.Providers))
+	for name := range db.Providers {
+		providers = append(providers, name)
+	}
+	sort.Strings(providers)
+	return providers
 }
 
 func GetDB() *PricingDB {
@@ -48,12 +126,12 @@ func GetDB() *PricingDB {
 }
 
 type Pricer interface {
-	Calculate(u claude.Usage, model string) float64
+	Calculate(u adapter.Usage, model string) float64
 }
 
 type DefaultPricer struct{}
 
-func (DefaultPricer) Calculate(u claude.Usage, model string) float64 {
+func (DefaultPricer) Calculate(u adapter.Usage, model string) float64 {
 	p := Get(model)
 	return float64(u.InputTokens)*p.Input/1e6 +
 		float64(u.OutputTokens)*p.Output/1e6 +

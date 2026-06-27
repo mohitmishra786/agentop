@@ -21,13 +21,22 @@ func runConfig(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 	fmt.Printf("Claude data dir: %s\n", claudeDir)
 	fmt.Printf("Pricing version: %s\n", db.Version)
-	fmt.Printf("Models in pricing table: %d\n", len(db.Models))
+	fmt.Printf("Providers: %d\n", len(db.Providers))
 	fmt.Println()
 
 	fmt.Println("Model pricing (USD per 1M tokens):")
-	for name, p := range db.Models {
-		fmt.Printf("  %-25s  in: $%-7.2f  out: $%-7.2f  cc: $%-7.2f  cr: $%-7.2f\n",
-			name, p.Input, p.Output, p.CacheCreate, p.CacheRead)
+	modelCount := 0
+	for _, prov := range db.Providers {
+		modelCount += len(prov.Models)
+	}
+	fmt.Printf("  Total models: %d\n\n", modelCount)
+
+	for provName, prov := range db.Providers {
+		fmt.Printf("  ── %s ──\n", provName)
+		for name, p := range prov.Models {
+			fmt.Printf("    %-25s  in: $%-7.2f  out: $%-7.2f  cc: $%-7.2f  cr: $%-7.2f\n",
+				name, p.Input, p.Output, p.CacheCreate, p.CacheRead)
+		}
 	}
 
 	fmt.Println()
