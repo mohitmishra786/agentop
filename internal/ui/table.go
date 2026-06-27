@@ -112,7 +112,7 @@ func breakdownTransformer(val interface{}) string {
 	if s.TotalTokens == 0 {
 		return StyleDim.Render("~")
 	}
-	return TokenSubtitleColored(s.InputTokens, s.OutputTokens, s.CacheCreateTokens, s.CacheReadTokens)
+	return TokenSubtitleColored(s.InputTokens, s.OutputTokens, s.CacheCreateTokens, s.CacheReadTokens, s.TokenSource)
 }
 
 func cacheTransformer(val interface{}) string {
@@ -156,6 +156,10 @@ func timeTransformer(val interface{}) string {
 }
 
 func tableSessionName(s *aggregator.SessionStats) string {
+	agentBadge := ""
+	if string(s.AgentID) != "" {
+		agentBadge = AgentTag(string(s.AgentID)) + " "
+	}
 	name := s.Summary
 	if name == "" {
 		if s.ProjectName != "" {
@@ -166,7 +170,7 @@ func tableSessionName(s *aggregator.SessionStats) string {
 			name = "session"
 		}
 	}
-	return Truncate(name, 20)
+	return agentBadge + Truncate(name, 20)
 }
 
 func max(a, b int) int {

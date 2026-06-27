@@ -6,6 +6,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/agentop-dev/agentop/internal/adapter"
 	"github.com/agentop-dev/agentop/internal/claude"
 	"github.com/agentop-dev/agentop/internal/pricing"
 )
@@ -68,6 +69,9 @@ type SessionStats struct {
 	// MaxToolResultBytes is the largest tool_result payload seen (bytes).
 	// Divide by ~4 for a rough token estimate.
 	MaxToolResultBytes int64
+
+	AgentID    adapter.AgentID
+	TokenSource adapter.TokenSource
 }
 
 func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer pricing.Pricer) *SessionStats {
@@ -81,6 +85,15 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	}
 
 	s.ID = events[0].SessionID
+	s.AgentID = events[0].AgentID
+
+	// Determine overall token source: if any event has estimated tokens, mark as estimated.
+	for _, e := range events {
+		if e.TokenSrc == adapter.TokenEstimated {
+			s.TokenSource = adapter.TokenEstimated
+			break
+		}
+	}
 
 	modelTokens := make(map[string]claude.Usage)
 

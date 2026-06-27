@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/agentop-dev/agentop/internal/adapter"
 	"github.com/agentop-dev/agentop/internal/aggregator"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/jedib0t/go-pretty/v6/table"
@@ -45,6 +46,27 @@ type Theme struct {
 	TagHaikuFg   string
 	TagUnknownBg string
 	TagUnknownFg string
+
+	TagClaudeBg  string
+	TagClaudeFg  string
+	TagCodexBg   string
+	TagCodexFg   string
+	TagCursorBg  string
+	TagCursorFg  string
+	TagCopilotBg string
+	TagCopilotFg string
+	TagGeminiBg  string
+	TagGeminiFg  string
+	TagKiroBg    string
+	TagKiroFg    string
+	TagOpenCodeBg  string
+	TagOpenCodeFg  string
+	TagJetBrainsBg string
+	TagJetBrainsFg string
+	TagContinueBg  string
+	TagContinueFg  string
+	TagWindsurfBg  string
+	TagWindsurfFg  string
 }
 
 var theme Theme
@@ -83,6 +105,17 @@ func InitTheme(name string) error {
 			TagSonnetBg: "#1A2434", TagSonnetFg: "#70B0E0",
 			TagHaikuBg: "#1A2A1A", TagHaikuFg: "#70C880",
 			TagUnknownBg: "#252525", TagUnknownFg: "#606080",
+
+			TagClaudeBg: "#1A1A3A", TagClaudeFg: "#9090E0",
+			TagCodexBg: "#2A1A1A", TagCodexFg: "#E08060",
+			TagCursorBg: "#1A2A2A", TagCursorFg: "#60C0B0",
+			TagCopilotBg: "#221A2A", TagCopilotFg: "#B080D0",
+			TagGeminiBg: "#1A2A1A", TagGeminiFg: "#80C880",
+			TagKiroBg: "#2A2A1A", TagKiroFg: "#C8B860",
+			TagOpenCodeBg: "#1A1A2A", TagOpenCodeFg: "#8080D0",
+			TagJetBrainsBg: "#2A1A2A", TagJetBrainsFg: "#D080B0",
+			TagContinueBg: "#1A221A", TagContinueFg: "#70B070",
+			TagWindsurfBg: "#222A1A", TagWindsurfFg: "#A0C060",
 		},
 		"light": {
 			BarInput:       "#D4891A",
@@ -109,6 +142,17 @@ func InitTheme(name string) error {
 			TagSonnetBg: "#D0E4F8", TagSonnetFg: "#1A4A80",
 			TagHaikuBg: "#D0EED0", TagHaikuFg: "#1A5A1A",
 			TagUnknownBg: "#EEEEEE", TagUnknownFg: "#666688",
+
+			TagClaudeBg: "#D0D0F0", TagClaudeFg: "#202080",
+			TagCodexBg: "#F0D0C0", TagCodexFg: "#803020",
+			TagCursorBg: "#C0E8E0", TagCursorFg: "#106050",
+			TagCopilotBg: "#E0D0F0", TagCopilotFg: "#603080",
+			TagGeminiBg: "#C8E8C8", TagGeminiFg: "#106010",
+			TagKiroBg: "#F0F0C8", TagKiroFg: "#606010",
+			TagOpenCodeBg: "#D0D0F0", TagOpenCodeFg: "#3030A0",
+			TagJetBrainsBg: "#F0D0E0", TagJetBrainsFg: "#802060",
+			TagContinueBg: "#C8E0C8", TagContinueFg: "#206020",
+			TagWindsurfBg: "#E8F0C8", TagWindsurfFg: "#506010",
 		},
 	}
 	t, ok := themes[name]
@@ -251,9 +295,58 @@ func ModelTag(model string) string {
 	}
 }
 
+// AgentTag returns a coloured badge for the AI coding assistant that produced the session.
+func AgentTag(agentID string) string {
+	type agentBadge struct {
+		bg, fg string
+		label  string
+	}
+	badges := map[string]agentBadge{
+		"claude":    {theme.TagClaudeBg, theme.TagClaudeFg, "claude"},
+		"codex":     {theme.TagCodexBg, theme.TagCodexFg, "codex"},
+		"cursor":    {theme.TagCursorBg, theme.TagCursorFg, "cursor"},
+		"copilot":   {theme.TagCopilotBg, theme.TagCopilotFg, "copilot"},
+		"gemini":    {theme.TagGeminiBg, theme.TagGeminiFg, "gemini"},
+		"kiro":      {theme.TagKiroBg, theme.TagKiroFg, "kiro"},
+		"opencode":  {theme.TagOpenCodeBg, theme.TagOpenCodeFg, "opencode"},
+		"jetbrains": {theme.TagJetBrainsBg, theme.TagJetBrainsFg, "jetbrains"},
+		"continue":  {theme.TagContinueBg, theme.TagContinueFg, "continue"},
+		"windsurf":  {theme.TagWindsurfBg, theme.TagWindsurfFg, "windsurf"},
+	}
+	b, ok := badges[agentID]
+	if !ok {
+		return lipgloss.NewStyle().
+			Background(lipgloss.Color(theme.TagUnknownBg)).
+			Foreground(lipgloss.Color(theme.TagUnknownFg)).
+			Padding(0, 1).Render("?")
+	}
+	return lipgloss.NewStyle().
+		Background(lipgloss.Color(b.bg)).
+		Foreground(lipgloss.Color(b.fg)).
+		Padding(0, 1).Render(b.label)
+}
+
 // ModelCell delegates to ModelTag (version is now embedded in the badge).
 func ModelCell(model string) string {
 	return ModelTag(model)
+}
+
+// TokenTilde returns "~" suffix if tokens are estimated, empty otherwise.
+// Use it alongside token values to indicate estimated counts.
+func TokenTilde(src adapter.TokenSource) string {
+	if src == adapter.TokenEstimated {
+		return StyleDim.Render("~")
+	}
+	return ""
+}
+
+// FormatTokenWithSource formats a token count with optional ~ suffix.
+func FormatTokenWithSource(n int64, src adapter.TokenSource) string {
+	suffix := ""
+	if n > 0 && src == adapter.TokenEstimated {
+		suffix = "~"
+	}
+	return HumanizeTokens(n) + suffix
 }
 
 // ---------------------------------------------------------------------------
@@ -406,36 +499,49 @@ func TokenSubtitle(input, output, cc, cr int64) string {
 }
 
 // TokenSubtitleColored renders each metric in its bar-segment color with label.
-func TokenSubtitleColored(input, output, cc, cr int64) string {
+// If src is TokenEstimated, token values get a ~ suffix.
+func TokenSubtitleColored(input, output, cc, cr int64, src adapter.TokenSource) string {
 	col := func(color, num, label string) string {
 		return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(true).Render(num) +
 			StyleDim.Render(" "+label)
 	}
+	tilde := func(n int64) string {
+		if n > 0 && src == adapter.TokenEstimated {
+			return StyleDim.Render("~")
+		}
+		return ""
+	}
 	parts := []string{
-		col(theme.BarInput, HumanizeTokens(input), "in"),
-		col(theme.BarOutput, HumanizeTokens(output), "out"),
+		col(theme.BarInput, HumanizeTokens(input)+tilde(input), "in"),
+		col(theme.BarOutput, HumanizeTokens(output)+tilde(output), "out"),
 	}
 	if cc > 0 {
-		parts = append(parts, col(theme.BarCacheCreate, HumanizeTokens(cc), "cc"))
+		parts = append(parts, col(theme.BarCacheCreate, HumanizeTokens(cc)+tilde(cc), "cc"))
 	}
-	parts = append(parts, col(theme.BarCacheRead, HumanizeTokens(cr), "cr"))
+	parts = append(parts, col(theme.BarCacheRead, HumanizeTokens(cr)+tilde(cr), "cr"))
 	return strings.Join(parts, StyleDim.Render("  "))
 }
 
 // TokenCompact renders just the colored token values (no labels) for tight columns.
 // Colors match the bar legend in the title so the mapping is self-evident.
-func TokenCompact(input, output, cc, cr int64) string {
+func TokenCompact(input, output, cc, cr int64, src adapter.TokenSource) string {
 	col := func(color, num string) string {
 		return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(true).Render(num)
 	}
+	tilde := func(n int64) string {
+		if n > 0 && src == adapter.TokenEstimated {
+			return StyleDim.Render("~")
+		}
+		return ""
+	}
 	parts := []string{
-		col(theme.BarInput, HumanizeTokens(input)),
-		col(theme.BarOutput, HumanizeTokens(output)),
+		col(theme.BarInput, HumanizeTokens(input)+tilde(input)),
+		col(theme.BarOutput, HumanizeTokens(output)+tilde(output)),
 	}
 	if cc > 0 {
-		parts = append(parts, col(theme.BarCacheCreate, HumanizeTokens(cc)))
+		parts = append(parts, col(theme.BarCacheCreate, HumanizeTokens(cc)+tilde(cc)))
 	}
-	parts = append(parts, col(theme.BarCacheRead, HumanizeTokens(cr)))
+	parts = append(parts, col(theme.BarCacheRead, HumanizeTokens(cr)+tilde(cr)))
 	return strings.Join(parts, StyleDim.Render("  "))
 }
 
@@ -694,8 +800,21 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 	if len(empty) > 0 {
 		emptyHint = fmt.Sprintf("  +%d empty", len(empty))
 	}
-	panelTitle := fmt.Sprintf(" claude code · %d %s%s   %s ",
-		len(active), sessionWord, emptyHint, BarLegend())
+	// Detect unique agent IDs among sessions.
+	agentLabel := "all agents"
+	agentIDs := map[string]bool{}
+	for _, s := range sessions {
+		if string(s.AgentID) != "" {
+			agentIDs[string(s.AgentID)] = true
+		}
+	}
+	if len(agentIDs) == 1 {
+		for id := range agentIDs {
+			agentLabel = AgentTag(id)
+		}
+	}
+	panelTitle := fmt.Sprintf(" %s · %d %s%s   %s ",
+		agentLabel, len(active), sessionWord, emptyHint, BarLegend())
 	tab.SetTitle(panelTitle)
 
 	// 5-column layout matching --layout table:
@@ -749,7 +868,11 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 	} else {
 		for _, s := range active {
 			// ── SESSION cell ─────────────────────────────────────────────
-			// Line 1: name  Line 2: id + path  [Line 3: branch]  [Line 4: subagents]
+			// Line 1: agent badge + name  Line 2: id + path  [Line 3: branch]  [Line 4: subagents]
+			agentBadge := ""
+			if string(s.AgentID) != "" {
+				agentBadge = AgentTag(string(s.AgentID)) + " "
+			}
 			name := sessionDisplayName(s)
 			shortID := s.ID
 			if len(shortID) > 8 {
@@ -770,7 +893,7 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 				}
 				meta += "\n" + StyleDim.Render(fmt.Sprintf("↳ %d %s", s.SubagentCount, noun))
 			}
-			sessionCell := StylePrimary.Render(name) + "\n" + meta
+			sessionCell := agentBadge + StylePrimary.Render(name) + "\n" + meta
 
 			// ── MODEL cell ───────────────────────────────────────────────
 			modelCell := ModelCell(s.Model)
@@ -786,7 +909,7 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 				Width:       barWidth,
 			}.Render()
 			tokensCell := bar + "\n" +
-				TokenSubtitleColored(s.InputTokens, s.OutputTokens, s.CacheCreateTokens, s.CacheReadTokens)
+				TokenSubtitleColored(s.InputTokens, s.OutputTokens, s.CacheCreateTokens, s.CacheReadTokens, s.TokenSource)
 
 			// ── CACHE cell ───────────────────────────────────────────────
 			var cacheCell string
