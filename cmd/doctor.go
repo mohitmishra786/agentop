@@ -418,7 +418,6 @@ func wrapText(text string, maxW int) []string {
 	return lines
 }
 
-
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 var pricer = pricing.DefaultPricer{}

@@ -8,7 +8,6 @@ import (
 	"golang.org/x/term"
 
 	"github.com/agentop-dev/agentop/internal/aggregator"
-	"github.com/agentop-dev/agentop/internal/claude"
 	"github.com/agentop-dev/agentop/internal/pricing"
 	"github.com/agentop-dev/agentop/internal/ui"
 )
@@ -23,10 +22,8 @@ var sessionCmd = &cobra.Command{
 func runSession(cmd *cobra.Command, args []string) error {
 	sessionID := args[0]
 
-	files, err := claude.Discover(claudeDir)
-	if err != nil {
-		return err
-	}
+	agentIDs := resolveAgentIDs()
+	files := registry.DiscoverSelected(agentIDs)
 
 	pricer := pricing.DefaultPricer{}
 
@@ -35,12 +32,17 @@ func runSession(cmd *cobra.Command, args []string) error {
 			continue
 		}
 
-		events, err := claude.ParseSession(f.Path)
+		ad := registry.Get(f.AgentID)
+		if ad == nil {
+			continue
+		}
+
+		result, err := ad.ParseSession(f.Path)
 		if err != nil {
 			return fmt.Errorf("parsing session: %w", err)
 		}
 
-		stats := aggregator.AggregateSession(events, nil, pricer)
+		stats := aggregator.AggregateSession(result.Events, result.Meta, pricer)
 		if stats == nil {
 			return fmt.Errorf("no data for session %s", sessionID)
 		}

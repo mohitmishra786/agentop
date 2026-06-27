@@ -11,14 +11,13 @@ import (
 	"golang.org/x/term"
 
 	"github.com/agentop-dev/agentop/internal/aggregator"
-	"github.com/agentop-dev/agentop/internal/claude"
 	"github.com/agentop-dev/agentop/internal/pricing"
 	"github.com/agentop-dev/agentop/internal/ui"
 )
 
 var todayCmd = &cobra.Command{
 	Use:   "today",
-	Short: "Show today's Claude Code sessions",
+	Short: "Show today's AI coding assistant sessions",
 	RunE:  runToday,
 }
 
@@ -62,21 +61,24 @@ func runToday(cmd *cobra.Command, args []string) error {
 }
 
 func loadSessions() ([]*aggregator.SessionStats, error) {
-	files, err := claude.Discover(claudeDir)
-	if err != nil {
-		return nil, err
-	}
+	agentIDs := resolveAgentIDs()
+	files := registry.DiscoverSelected(agentIDs)
 
 	pricer := pricing.DefaultPricer{}
 	var sessions []*aggregator.SessionStats
 
 	for _, f := range files {
-		events, err := claude.ParseSession(f.Path)
+		ad := registry.Get(f.AgentID)
+		if ad == nil {
+			continue
+		}
+
+		result, err := ad.ParseSession(f.Path)
 		if err != nil {
 			continue
 		}
 
-		stats := aggregator.AggregateSession(events, nil, pricer)
+		stats := aggregator.AggregateSession(result.Events, result.Meta, pricer)
 		if stats == nil {
 			continue
 		}

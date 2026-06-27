@@ -39,3 +39,9 @@ dist/
 
 # Documentation (local only)
 docs/
+
+# Root-level binary (go build .)
+agentop
+
+# Session logs
+session-*.md

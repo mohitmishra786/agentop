@@ -9,28 +9,46 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/agentop-dev/agentop/internal/adapter"
+	claudeAdapter "github.com/agentop-dev/agentop/internal/adapter/claude"
 )
 
 var (
-	claudeDir string
-	since     string
-	until     string
-	project   string
-	model     string
-	jsonOut   bool
-	compact   bool
-	noColor   bool
-	watch     bool
-	refresh   int
-	themeOpt  string
-	layout    string
+	claudeDir  string
+	since      string
+	until      string
+	project    string
+	model      string
+	agentFlag  string
+	listAgents bool
+	jsonOut    bool
+	compact    bool
+	noColor    bool
+	watch      bool
+	refresh    int
+	themeOpt   string
+	layout     string
+
+	registry = adapter.NewRegistry()
 )
+
+func init() {
+	registry.Register(&claudeAdapter.Adapter{})
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "agentop",
 	Short: "Terminal dashboard for AI coding assistant sessions",
 	Long: `agentop reads AI assistant session data and shows token usage,
 cost, and cache efficiency in a duf-style terminal dashboard.`,
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if listAgents {
+			fmt.Print(registry.ListAgentsText())
+			return fmt.Errorf("__list_agents__")
+		}
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runToday(cmd, args)
 	},
@@ -51,10 +69,16 @@ func init() {
 	rootCmd.PersistentFlags().IntVar(&refresh, "refresh", 5, "Refresh interval in seconds (--watch mode)")
 	rootCmd.PersistentFlags().StringVar(&themeOpt, "theme", defaultThemeName(), "Color themes: dark, light, ansi")
 	rootCmd.PersistentFlags().StringVar(&layout, "layout", "default", "Layout style: default, table")
+	rootCmd.PersistentFlags().StringVar(&agentFlag, "agent", "all", `Agent(s) to query: "all", or comma-separated IDs like "claude,codex"`)
+	rootCmd.PersistentFlags().BoolVar(&listAgents, "list-agents", false, "List all registered agents and their availability")
 
 	rootCmd.Version = printVersion()
 
 	rootCmd.AddCommand(todayCmd, dailyCmd, monthlyCmd, sessionCmd, blocksCmd, doctorCmd, configCmd)
+}
+
+func resolveAgentIDs() []adapter.AgentID {
+	return adapter.ParseAgentFlag(agentFlag, registry)
 }
 
 // findClaudeDir returns the first existing .claude directory from a list of
@@ -93,8 +117,13 @@ func findClaudeDir() string {
 }
 
 func Execute() {
+	rootCmd.SilenceUsage = true
+	rootCmd.SilenceErrors = true
 	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
+		if err.Error() != "__list_agents__" {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 	}
 }
 

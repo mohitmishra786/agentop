@@ -41,6 +41,7 @@ Data flows through four distinct layers:
 
 - **Message deduplication**: Streamed messages produce multiple JSONL lines with the same `messageId`. Only the final chunk (identified by specific fields) should be counted to avoid inflating token totals. See `internal/aggregator/session.go`.
 - **Pricing fallback**: When `usage.cost` is missing from the JSONL (older sessions), cost is calculated from token counts using `internal/pricing/`. When present, it reports both the recorded cost and a recalculated cost.
+- **Windsurf acquired by Devin (July 2025):** Cognition (Devin) acquired Codeium (Windsurf). In June 2026 Windsurf was relaunched as Devin Desktop. The .pb encrypted protobuf format is still in use under the Devin brand. The adapter should be named `internal/adapter/windsurf/` for backward compatibility.
 - **No tests for UI layer** — only `internal/aggregator` and `internal/pricing` have unit tests; testdata lives in `testdata/sessions/`.
 - **Adding a new model**: Update `internal/pricing/pricing.json` with rates (USD per million tokens).
 - **Adding a new command**: Create `cmd/<name>.go`, define a `cobra.Command`, and register it in `cmd/root.go`'s `init()`.
