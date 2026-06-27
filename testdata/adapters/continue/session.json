@@ -1,0 +1,1 @@
+{"sessionId":"continue-session-1","title":"test session","workspaceDirectory":"/test/project","messages":[{"role":"user","content":"hello","model":""},{"role":"assistant","content":"hi","model":"claude-sonnet-4-6"},{"role":"user","content":"next","model":""}],"usage":{"promptTokens":8000,"completionTokens":1500,"cachedTokens":2000,"cacheWriteTokens":5000,"totalCost":0.12}}

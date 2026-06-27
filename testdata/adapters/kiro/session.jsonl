@@ -1,0 +1,1 @@
+{"type":"chat","sessionId":"kiro-session-1","conversation":[{"role":"user","content":"hello"},{"role":"assistant","content":"hi there","model":"claude-sonnet-4-6"}],"createdAt":"2026-06-28T10:00:00Z"}

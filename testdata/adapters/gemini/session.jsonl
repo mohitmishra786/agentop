@@ -1,0 +1,1 @@
+{"uuid":"gemini-session-1","type":"turn","timestamp":"2026-06-28T10:00:00Z","metadata":{"model":"gemini-2.5-flash-001","content":"hello there","token_totals":{"input":6000,"output":1000,"cached":2000}},"isSidechain":false,"cwd":"/test/project"}

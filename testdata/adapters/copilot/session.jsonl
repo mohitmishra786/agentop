@@ -1,0 +1,4 @@
+{"type":"session.start","sessionId":"copilot-session-1","time":"2026-06-28T10:00:00Z"}
+{"type":"user.message","sessionId":"copilot-session-1","time":"2026-06-28T10:00:01Z","content":"hello"}
+{"type":"assistant.message","sessionId":"copilot-session-1","time":"2026-06-28T10:00:05Z","content":"hi"}
+{"type":"session.shutdown","sessionId":"copilot-session-1","time":"2026-06-28T10:10:00Z","inputTokens":8000,"outputTokens":1500}
