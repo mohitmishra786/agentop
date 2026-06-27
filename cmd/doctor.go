@@ -477,6 +477,7 @@ func detectAnomalies(sessions []*aggregator.SessionStats) []Anomaly {
 	}
 
 	anomalies = append(anomalies, checkResumeOpportunity(sessions)...)
+	anomalies = append(anomalies, checkBudget(sessions)...)
 
 	anomalies = append(anomalies, Anomaly{
 		Severity: "tip",
@@ -937,6 +938,58 @@ func checkResumeOpportunity(sessions []*aggregator.SessionStats) []Anomaly {
 					prev.ID),
 			})
 		}
+	}
+
+	return out
+}
+
+// checkBudget reports spending against the configured monthly budget.
+func checkBudget(sessions []*aggregator.SessionStats) []Anomaly {
+	var out []Anomaly
+
+	// Load budget config
+	cfg := loadBudgetConfig()
+	if cfg.MonthlyLimit <= 0 {
+		return out
+	}
+
+	// Sum costs for this month
+	now := time.Now()
+	currentMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	var totalCost float64
+	for _, s := range sessions {
+		if !s.StartedAt.IsZero() && s.StartedAt.After(currentMonth) {
+			totalCost += s.CostUSD
+		}
+	}
+
+	if totalCost <= 0 {
+		return out
+	}
+
+	pct := totalCost / cfg.MonthlyLimit
+	if pct < cfg.WarnAt {
+		return out
+	}
+
+	detail := fmt.Sprintf(
+		"$%.2f of $%.2f monthly limit used (%.0f%%). ",
+		totalCost, cfg.MonthlyLimit, pct*100)
+
+	if pct >= 1.0 {
+		out = append(out, Anomaly{
+			Severity: "crit",
+			Code:     "BUDGET_EXCEEDED",
+			Title:    fmt.Sprintf("Monthly budget exceeded — $%.2f of $%.2f", totalCost, cfg.MonthlyLimit),
+			Detail:   detail + "You have exceeded your monthly spending limit. Consider using a more efficient model or reducing usage.",
+		})
+	} else {
+		out = append(out, Anomaly{
+			Severity: "warn",
+			Code:     "BUDGET_APPROACHING",
+			Title:    fmt.Sprintf("Monthly budget at %.0f%% — $%.2f of $%.2f", pct*100, totalCost, cfg.MonthlyLimit),
+			Detail:   detail + "Consider adjusting your budget or usage patterns. Run 'agentop budget' for details.",
+		})
 	}
 
 	return out
