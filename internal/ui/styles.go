@@ -69,6 +69,8 @@ type Theme struct {
 	TagWindsurfFg  string
 	TagGrokBg      string
 	TagGrokFg      string
+	TagDeepseekBg  string
+	TagDeepseekFg  string
 }
 
 var theme Theme
@@ -119,6 +121,7 @@ func InitTheme(name string) error {
 			TagContinueBg: "#1A221A", TagContinueFg: "#70B070",
 			TagWindsurfBg: "#222A1A", TagWindsurfFg: "#A0C060",
 			TagGrokBg: "#1A1A2A", TagGrokFg: "#C0C0E0",
+			TagDeepseekBg: "#1A221A", TagDeepseekFg: "#80C080",
 		},
 		"light": {
 			BarInput:       "#D4891A",
@@ -157,6 +160,7 @@ func InitTheme(name string) error {
 			TagContinueBg: "#C8E0C8", TagContinueFg: "#206020",
 			TagWindsurfBg: "#E8F0C8", TagWindsurfFg: "#506010",
 			TagGrokBg: "#D0D0E8", TagGrokFg: "#303060",
+			TagDeepseekBg: "#C8E8C8", TagDeepseekFg: "#106010",
 		},
 	}
 	t, ok := themes[name]
@@ -235,13 +239,31 @@ func initStyles() {
 // modelVersion extracts the version string from a Claude model ID.
 // "claude-opus-4-6" → "4.6", "claude-haiku-4-5-20251001" → "4.5".
 func modelVersion(model string) string {
-	parts := strings.Split(strings.ToLower(model), "-")
+	ml := strings.ToLower(model)
+	parts := strings.Split(ml, "-")
 	for i, p := range parts {
-		if p == "opus" || p == "sonnet" || p == "haiku" {
+		switch p {
+		case "opus", "sonnet", "haiku":
 			if i+2 < len(parts) && isDigitStr(parts[i+1]) && isDigitStr(parts[i+2]) {
 				return parts[i+1] + "." + parts[i+2]
 			}
-			break
+			return ""
+		}
+	}
+	// "deepseek-v4-flash-free" → "v4"
+	if strings.Contains(ml, "deepseek") {
+		for _, p := range parts {
+			if p == "v4" || p == "v5" || p == "v3" {
+				return p
+			}
+		}
+	}
+	// "grok-composer-2.5-fast" → "2.5"
+	if strings.Contains(ml, "grok") {
+		for i, p := range parts {
+			if i > 0 && isDigitStr(p) && i+1 < len(parts) && isDigitStr(parts[i+1]) {
+				return p + "." + parts[i+1]
+			}
 		}
 	}
 	return ""
@@ -291,6 +313,16 @@ func ModelTag(model string) string {
 			Background(lipgloss.Color(theme.TagHaikuBg)).
 			Foreground(lipgloss.Color(theme.TagHaikuFg)).
 			Padding(0, 1).Render(label("haiku"))
+	case strings.Contains(ml, "deepseek"):
+		return lipgloss.NewStyle().
+			Background(lipgloss.Color(theme.TagDeepseekBg)).
+			Foreground(lipgloss.Color(theme.TagDeepseekFg)).
+			Padding(0, 1).Render(label("deepseek"))
+	case strings.Contains(ml, "grok"):
+		return lipgloss.NewStyle().
+			Background(lipgloss.Color(theme.TagGrokBg)).
+			Foreground(lipgloss.Color(theme.TagGrokFg)).
+			Padding(0, 1).Render(label("grok"))
 	default:
 		return lipgloss.NewStyle().
 			Background(lipgloss.Color(theme.TagUnknownBg)).
