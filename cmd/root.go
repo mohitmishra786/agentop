@@ -92,7 +92,7 @@ func init() {
 
 	rootCmd.Version = printVersion()
 
-	rootCmd.AddCommand(todayCmd, dailyCmd, monthlyCmd, sessionCmd, blocksCmd, doctorCmd, configCmd)
+	rootCmd.AddCommand(todayCmd, dailyCmd, monthlyCmd, sessionCmd, blocksCmd, doctorCmd, configCmd, mcpCmd, budgetCmd)
 }
 
 func resolveAgentIDs() []adapter.AgentID {
