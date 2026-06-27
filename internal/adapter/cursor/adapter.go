@@ -34,13 +34,13 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	rows, err := db.Query("SELECT [key] FROM cursorDiskKV WHERE [key] LIKE 'composer.%'")
 	if err != nil {
 		return nil, nil
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var files []adapter.SessionFile
 	for rows.Next() {

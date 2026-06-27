@@ -1,19 +1,50 @@
 version: 2
 updates:
+  # ── Go modules: weekly on Monday, grouped by semver ─────────────────
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    commit-message:
+      prefix: "deps"
+    labels:
+      - "dependencies"
+    open-pull-requests-limit: 10
+    groups:
+      go-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      go-major:
+        applies-to: version-updates
+        update-types:
+          - "major"
+
+  # ── GitHub Actions: weekly on Monday, grouped ──────────────────────
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
     commit-message:
       prefix: "ci"
     labels:
       - "dependencies"
       - "github-actions"
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "deps"
-    labels:
-      - "dependencies"
+    open-pull-requests-limit: 5
+    groups:
+      actions-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+      actions-major:
+        applies-to: version-updates
+        update-types:
+          - "major"

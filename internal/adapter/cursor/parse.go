@@ -37,7 +37,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	var rawValue []byte
 	err = db.QueryRow(

@@ -20,7 +20,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, maxLineBytes), maxLineBytes)
@@ -75,7 +75,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 
 		case "user.message_rendered":
 			var d messageRenderedData
-			json.Unmarshal(re.Data, &d)
+			_ = json.Unmarshal(re.Data, &d)
 			if d.Model != "" {
 				currentModel = d.Model
 			}
@@ -98,7 +98,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 
 		case "assistant.message":
 			var d assistantMessageData
-			json.Unmarshal(re.Data, &d)
+			_ = json.Unmarshal(re.Data, &d)
 			if d.Model != "" {
 				currentModel = d.Model
 			} else if d.ToolCallID != "" && currentModel == "" {

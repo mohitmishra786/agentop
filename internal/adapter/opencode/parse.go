@@ -36,7 +36,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
+	defer func() { _ = db.Close() }()
 
 	var dir, createdAt string
 	err = db.QueryRow(
@@ -55,7 +55,7 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 
 	var events []adapter.Event
 	for rows.Next() {

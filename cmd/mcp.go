@@ -117,7 +117,7 @@ func runMCP(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				continue
 			}
-			fmt.Fprintln(os.Stdout, string(data))
+			_, _ = fmt.Fprintln(os.Stdout, string(data))
 		}
 	}
 
