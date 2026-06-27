@@ -931,10 +931,16 @@ func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 		}
 	}
 
+	// Per-agent breakdown bar (shown only when multiple agents are present)
+	agentBreakdown := ""
+	if len(agentIDs) > 1 {
+		agentBreakdown = "\n" + renderAgentBreakdown(sessions)
+	}
+
 	sessionPanel := tab.Render()
 
 	anomalies := renderAnomalies(active)
-	output := summary + "\n\n" + sessionPanel
+	output := summary + agentBreakdown + "\n\n" + sessionPanel
 	if anomalies != "" {
 		output += "\n\n" + anomalies
 	}
@@ -984,6 +990,77 @@ func renderSummaryStrip(totalCost float64, totalTokens int64, cacheEff float64, 
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, cards...)
+}
+
+// ---------------------------------------------------------------------------
+// Per-agent breakdown
+// ---------------------------------------------------------------------------
+
+// AgentTotals aggregates token counts and cost per agent.
+type agentTotals struct {
+	AgentID     string
+	Tokens      int64
+	Cost        float64
+	SessionCount int
+}
+
+func renderAgentBreakdown(sessions []*aggregator.SessionStats) string {
+	byAgent := map[string]*agentTotals{}
+	for _, s := range sessions {
+		id := string(s.AgentID)
+		if id == "" {
+			id = "unknown"
+		}
+		t, ok := byAgent[id]
+		if !ok {
+			t = &agentTotals{AgentID: id}
+			byAgent[id] = t
+		}
+		t.Tokens += s.TotalTokens
+		t.Cost += s.CostUSD
+		t.SessionCount++
+	}
+
+	totalTokens := int64(0)
+	totalCost := 0.0
+	totalSessions := 0
+	for _, t := range byAgent {
+		totalTokens += t.Tokens
+		totalCost += t.Cost
+		totalSessions += t.SessionCount
+	}
+
+	var parts []string
+	for _, t := range byAgent {
+		tokPct := 0.0
+		if totalTokens > 0 {
+			tokPct = float64(t.Tokens) / float64(totalTokens)
+		}
+		barW := 40
+		filled := int(tokPct * float64(barW))
+		if filled < 1 && t.Tokens > 0 {
+			filled = 1
+		}
+		bar := lipgloss.NewStyle().
+			Background(lipgloss.Color("#4A90D9")).
+			Width(filled).Render("")
+		emptyW := barW - filled
+		if emptyW < 0 {
+			emptyW = 0
+		}
+		emptyBar := lipgloss.NewStyle().
+			Background(lipgloss.Color(theme.BarEmpty)).
+			Width(emptyW).Render("")
+		costStr := StyleSecondary.Render(fmt.Sprintf("$%.2f", t.Cost))
+		tokStr := StyleSecondary.Render(HumanizeTokens(t.Tokens))
+		countStr := StyleDim.Render(fmt.Sprintf("%d sess", t.SessionCount))
+		line := fmt.Sprintf("  %s  %s  %s  %s  %s%s",
+			AgentTag(t.AgentID), bar+emptyBar, tokStr, costStr, countStr, StyleDim.Render(fmt.Sprintf(" (%.0f%%)", tokPct*100)))
+		parts = append(parts, line)
+	}
+
+	heading := StyleBold.Render("agenda") + StyleDim.Render(" · per agent breakdown")
+	return "\n" + heading + "\n" + strings.Join(parts, "\n")
 }
 
 // ---------------------------------------------------------------------------

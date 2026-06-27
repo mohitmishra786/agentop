@@ -163,7 +163,11 @@ func renderDoctorDetail(s *aggregator.SessionStats, anomalies []Anomaly, width i
 	effVal := lipgloss.NewStyle().Foreground(lipgloss.Color(effColor)).Bold(true).
 		Render(fmt.Sprintf("%.0f%%", s.CacheEfficiency*100))
 
-	sessionCell := ui.StylePrimary.Render(name) + "\n" +
+	agentBadge := ""
+	if string(s.AgentID) != "" {
+		agentBadge = ui.AgentTag(string(s.AgentID)) + " "
+	}
+	sessionCell := agentBadge + ui.StylePrimary.Render(name) + "\n" +
 		ui.StyleDim.Render(shortID) + "  " + ui.StyleSecondary.Render(s.ProjectName)
 	metaCell := ui.FormatCost(s.CostUSD) + "\n" +
 		ui.StyleSecondary.Render(ui.FormatDuration(s.Duration))
@@ -315,7 +319,11 @@ func renderDoctorSummary(sessions []*aggregator.SessionStats, anomalies []Anomal
 		}
 		name := sessionName(s)
 
-		sessionCell := ui.StylePrimary.Render(name) + "\n" +
+		agentBadge := ""
+		if string(s.AgentID) != "" {
+			agentBadge = ui.AgentTag(string(s.AgentID)) + " "
+		}
+		sessionCell := agentBadge + ui.StylePrimary.Render(name) + "\n" +
 			ui.StyleDim.Render(shortID)
 		if s.ProjectName != "" {
 			sessionCell += "  " + ui.StyleSecondary.Render(ui.Truncate(s.ProjectName, 14))
