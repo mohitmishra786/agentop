@@ -12,6 +12,11 @@ import (
 
 	"github.com/agentop-dev/agentop/internal/adapter"
 	claudeAdapter "github.com/agentop-dev/agentop/internal/adapter/claude"
+	codexAdapter "github.com/agentop-dev/agentop/internal/adapter/codex"
+	copilotAdapter "github.com/agentop-dev/agentop/internal/adapter/copilot"
+	geminiAdapter "github.com/agentop-dev/agentop/internal/adapter/gemini"
+	kiroAdapter "github.com/agentop-dev/agentop/internal/adapter/kiro"
+	opencodeAdapter "github.com/agentop-dev/agentop/internal/adapter/opencode"
 )
 
 var (
@@ -35,6 +40,11 @@ var (
 
 func init() {
 	registry.Register(&claudeAdapter.Adapter{})
+	registry.Register(&codexAdapter.Adapter{})
+	registry.Register(&copilotAdapter.Adapter{})
+	registry.Register(&geminiAdapter.Adapter{})
+	registry.Register(&kiroAdapter.Adapter{})
+	registry.Register(&opencodeAdapter.Adapter{})
 }
 
 var rootCmd = &cobra.Command{
