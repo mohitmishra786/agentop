@@ -50,9 +50,16 @@
         "llama-4-scout":    { "input": 0.10,  "output": 0.40,  "cacheCreate": 0.05,  "cacheRead": 0.02 }
       }
     },
-    "deepseek": {
-      "fallback": "deepseek-chat",
+    "devin": {
+      "fallback": "swe-1-6-slow",
       "models": {
+        "swe-1-6-slow":  { "input": 3.00, "output": 15.00, "cacheCreate": 0, "cacheRead": 0 },
+        "swe-1-6-fast":  { "input": 0.80, "output": 4.00, "cacheCreate": 0, "cacheRead": 0 }
+      }
+    },
+	"deepseek": {
+	      "fallback": "deepseek-chat",
+	      "models": {
         "deepseek-chat":    { "input": 0.27,  "output": 1.10,  "cacheCreate": 0.135, "cacheRead": 0.07 },
         "deepseek-reasoner":{ "input": 0.55,  "output": 2.19,  "cacheCreate": 0.275, "cacheRead": 0.14 }
       }

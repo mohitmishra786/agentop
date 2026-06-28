@@ -47,18 +47,18 @@ type Theme struct {
 	TagUnknownBg string
 	TagUnknownFg string
 
-	TagClaudeBg  string
-	TagClaudeFg  string
-	TagCodexBg   string
-	TagCodexFg   string
-	TagCursorBg  string
-	TagCursorFg  string
-	TagCopilotBg string
-	TagCopilotFg string
-	TagGeminiBg  string
-	TagGeminiFg  string
-	TagKiroBg    string
-	TagKiroFg    string
+	TagClaudeBg    string
+	TagClaudeFg    string
+	TagCodexBg     string
+	TagCodexFg     string
+	TagCursorBg    string
+	TagCursorFg    string
+	TagCopilotBg   string
+	TagCopilotFg   string
+	TagGeminiBg    string
+	TagGeminiFg    string
+	TagKiroBg      string
+	TagKiroFg      string
 	TagOpenCodeBg  string
 	TagOpenCodeFg  string
 	TagJetBrainsBg string
@@ -71,6 +71,8 @@ type Theme struct {
 	TagGrokFg      string
 	TagDeepseekBg  string
 	TagDeepseekFg  string
+	TagDevinBg     string
+	TagDevinFg     string
 }
 
 var theme Theme
@@ -122,6 +124,7 @@ func InitTheme(name string) error {
 			TagWindsurfBg: "#222A1A", TagWindsurfFg: "#A0C060",
 			TagGrokBg: "#1A1A2A", TagGrokFg: "#C0C0E0",
 			TagDeepseekBg: "#1A221A", TagDeepseekFg: "#80C080",
+			TagDevinBg: "#2A1A1A", TagDevinFg: "#E08060",
 		},
 		"light": {
 			BarInput:       "#D4891A",
@@ -161,6 +164,7 @@ func InitTheme(name string) error {
 			TagWindsurfBg: "#E8F0C8", TagWindsurfFg: "#506010",
 			TagGrokBg: "#D0D0E8", TagGrokFg: "#303060",
 			TagDeepseekBg: "#C8E8C8", TagDeepseekFg: "#106010",
+			TagDevinBg: "#F0D0C0", TagDevinFg: "#803020",
 		},
 	}
 	t, ok := themes[name]
@@ -324,6 +328,11 @@ func ModelTag(model string) string {
 			Background(lipgloss.Color(theme.TagGrokBg)).
 			Foreground(lipgloss.Color(theme.TagGrokFg)).
 			Padding(0, 1).Render(label("grok"))
+	case strings.HasPrefix(ml, "swe"):
+		return lipgloss.NewStyle().
+			Background(lipgloss.Color(theme.TagDevinBg)).
+			Foreground(lipgloss.Color(theme.TagDevinFg)).
+			Padding(0, 1).Render("swe")
 	default:
 		return lipgloss.NewStyle().
 			Background(lipgloss.Color(theme.TagUnknownBg)).
@@ -350,6 +359,7 @@ func AgentTag(agentID string) string {
 		"continue":  {theme.TagContinueBg, theme.TagContinueFg, "continue"},
 		"windsurf":  {theme.TagWindsurfBg, theme.TagWindsurfFg, "windsurf"},
 		"grok":      {theme.TagGrokBg, theme.TagGrokFg, "grok"},
+		"devin":     {theme.TagDevinBg, theme.TagDevinFg, "devin"},
 	}
 	b, ok := badges[agentID]
 	if !ok {
@@ -1036,9 +1046,9 @@ func renderSummaryStrip(totalCost float64, totalTokens int64, cacheEff float64, 
 
 // AgentTotals aggregates token counts and cost per agent.
 type agentTotals struct {
-	AgentID     string
-	Tokens      int64
-	Cost        float64
+	AgentID      string
+	Tokens       int64
+	Cost         float64
 	SessionCount int
 }
 

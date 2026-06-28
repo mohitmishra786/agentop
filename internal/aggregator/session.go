@@ -70,7 +70,7 @@ type SessionStats struct {
 	// Divide by ~4 for a rough token estimate.
 	MaxToolResultBytes int64
 
-	AgentID    adapter.AgentID
+	AgentID     adapter.AgentID
 	TokenSource adapter.TokenSource
 }
 
@@ -278,15 +278,24 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 		s.CostUSD = s.CostUSDCalculated
 	}
 
+	models := make([]string, 0, len(modelTokens))
+	for model := range modelTokens {
+		models = append(models, model)
+	}
+	sort.Strings(models)
+
+	s.AllModels = models
 	maxTokens := 0
-	for model, usage := range modelTokens {
-		if usage.InputTokens > maxTokens {
-			maxTokens = usage.InputTokens
+	for _, model := range models {
+		usage := modelTokens[model]
+		total := usage.InputTokens + usage.OutputTokens
+		if total > maxTokens {
+			maxTokens = total
+			s.Model = model
+		} else if total == 0 && maxTokens == 0 && s.Model == "" {
 			s.Model = model
 		}
-		s.AllModels = append(s.AllModels, model)
 	}
-	sort.Strings(s.AllModels)
 
 	if s.MessageCount > 0 {
 		s.CostPerMessage = s.CostUSD / float64(s.MessageCount)

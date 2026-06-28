@@ -74,7 +74,7 @@ func loadSessions() ([]*aggregator.SessionStats, error) {
 		}
 
 		result, err := ad.ParseSession(f.Path)
-		if err != nil {
+		if err != nil || result == nil {
 			continue
 		}
 
