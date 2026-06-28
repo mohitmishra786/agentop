@@ -34,7 +34,7 @@ func (s StepType) String() string {
 
 // CortexTrajectory is the top-level protobuf message stored in .pb files.
 type CortexTrajectory struct {
-	Steps    []*CortexStep  `json:"steps,omitempty"`
+	Steps    []*CortexStep   `json:"steps,omitempty"`
 	Metadata *TrajectoryMeta `json:"metadata,omitempty"`
 }
 
@@ -51,14 +51,14 @@ type TrajectoryMeta struct {
 
 // CortexStep is a single step within a trajectory.
 type CortexStep struct {
-	Type       StepType          `json:"type,omitempty"`
-	ID         string            `json:"id,omitempty"`
-	Content    string            `json:"content,omitempty"`
-	Timestamp  time.Time         `json:"timestamp,omitempty"`
-	ToolName   string            `json:"toolName,omitempty"`
-	ToolInput  json.RawMessage   `json:"toolInput,omitempty"`
-	ToolResult json.RawMessage   `json:"toolResult,omitempty"`
-	Model      string            `json:"model,omitempty"`
-	Provider   string            `json:"provider,omitempty"`
-	IsThinking bool              `json:"isThinking,omitempty"`
+	Type       StepType        `json:"type,omitempty"`
+	ID         string          `json:"id,omitempty"`
+	Content    string          `json:"content,omitempty"`
+	Timestamp  time.Time       `json:"timestamp,omitempty"`
+	ToolName   string          `json:"toolName,omitempty"`
+	ToolInput  json.RawMessage `json:"toolInput,omitempty"`
+	ToolResult json.RawMessage `json:"toolResult,omitempty"`
+	Model      string          `json:"model,omitempty"`
+	Provider   string          `json:"provider,omitempty"`
+	IsThinking bool            `json:"isThinking,omitempty"`
 }

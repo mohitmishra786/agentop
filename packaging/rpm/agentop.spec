@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           agentop
-Version:        1.0.1
+Version:        1.0.2
 Release:        1%{?dist}
 Summary:        Terminal dashboard for AI coding assistant sessions
 
@@ -44,6 +44,9 @@ go test ./...
 %{_mandir}/man1/%{name}.1*
 
 %changelog
+* Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.2-1
+- v1.0.2: Fix AggregateSession dropping tokens from 8/12 adapters
+
 * Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.1-1
 - v1.0.1: Devin Desktop adapter, codex nil pointer fix, Grok CLI adapter
 

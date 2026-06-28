@@ -13,10 +13,10 @@ var _ adapter.Adapter = (*Adapter)(nil)
 
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID    { return adapter.AgentJetBrains }
-func (a *Adapter) Name() string           { return "JetBrains Copilot" }
-func (a *Adapter) DefaultDir() string     { return jetbrainsDefaultDir() }
-func (a *Adapter) IsAvailable() bool      { return jetbrainsAvailable() }
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentJetBrains }
+func (a *Adapter) Name() string        { return "JetBrains Copilot" }
+func (a *Adapter) DefaultDir() string  { return jetbrainsDefaultDir() }
+func (a *Adapter) IsAvailable() bool   { return jetbrainsAvailable() }
 
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile

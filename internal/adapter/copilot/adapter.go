@@ -12,10 +12,10 @@ var _ adapter.Adapter = (*Adapter)(nil)
 
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentCopilot }
-func (a *Adapter) Name() string          { return "Copilot CLI" }
-func (a *Adapter) DefaultDir() string    { return copilotDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return copilotAvailable() }
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentCopilot }
+func (a *Adapter) Name() string        { return "Copilot CLI" }
+func (a *Adapter) DefaultDir() string  { return copilotDefaultDir() }
+func (a *Adapter) IsAvailable() bool   { return copilotAvailable() }
 
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile

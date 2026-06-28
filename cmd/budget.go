@@ -33,19 +33,19 @@ type budgetProjectSummary struct {
 }
 
 type budgetJSONOutput struct {
-	MonthlyLimit    float64                 `json:"monthly_limit"`
-	WarnAt          float64                 `json:"warn_at"`
-	DailyLimit      float64                 `json:"daily_limit"`
-	TotalCost       float64                 `json:"total_cost"`
-	UsedPercent     float64                 `json:"used_percent"`
-	SessionCount    int                     `json:"session_count"`
-	DailyRunRate    float64                 `json:"daily_run_rate"`
+	MonthlyLimit     float64                `json:"monthly_limit"`
+	WarnAt           float64                `json:"warn_at"`
+	DailyLimit       float64                `json:"daily_limit"`
+	TotalCost        float64                `json:"total_cost"`
+	UsedPercent      float64                `json:"used_percent"`
+	SessionCount     int                    `json:"session_count"`
+	DailyRunRate     float64                `json:"daily_run_rate"`
 	EstimatedMonthly float64                `json:"estimated_monthly"`
-	DayOfMonth      int                     `json:"day_of_month"`
-	DaysInMonth     int                     `json:"days_in_month"`
-	ByAgent         []budgetAgentSummary    `json:"by_agent"`
-	ByProject       []budgetProjectSummary  `json:"by_project"`
-	Status          string                  `json:"status"`
+	DayOfMonth       int                    `json:"day_of_month"`
+	DaysInMonth      int                    `json:"days_in_month"`
+	ByAgent          []budgetAgentSummary   `json:"by_agent"`
+	ByProject        []budgetProjectSummary `json:"by_project"`
+	Status           string                 `json:"status"`
 }
 
 var (

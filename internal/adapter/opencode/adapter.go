@@ -14,10 +14,10 @@ var _ adapter.Adapter = (*Adapter)(nil)
 
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentOpenCode }
-func (a *Adapter) Name() string          { return "OpenCode" }
-func (a *Adapter) DefaultDir() string    { return defaultDir() }
-func (a *Adapter) IsAvailable() bool     { return available() }
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentOpenCode }
+func (a *Adapter) Name() string        { return "OpenCode" }
+func (a *Adapter) DefaultDir() string  { return defaultDir() }
+func (a *Adapter) IsAvailable() bool   { return available() }
 
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	dbPath := filepath.Join(dataDir, "opencode.db")

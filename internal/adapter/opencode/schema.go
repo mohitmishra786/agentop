@@ -1,7 +1,7 @@
 package opencode
 
 type messageData struct {
-	Role       string     `json:"role"`
+	Role       string      `json:"role"`
 	Tokens     *tokensData `json:"tokens"`
 	Cost       float64     `json:"cost"`
 	ModelID    string      `json:"modelID"`

@@ -14,10 +14,10 @@ var _ adapter.Adapter = (*Adapter)(nil)
 
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentCodex }
-func (a *Adapter) Name() string          { return "Codex CLI" }
-func (a *Adapter) DefaultDir() string    { return codexDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return codexAvailable() }
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentCodex }
+func (a *Adapter) Name() string        { return "Codex CLI" }
+func (a *Adapter) DefaultDir() string  { return codexDefaultDir() }
+func (a *Adapter) IsAvailable() bool   { return codexAvailable() }
 
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile

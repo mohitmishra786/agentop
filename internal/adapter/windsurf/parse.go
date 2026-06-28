@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	bytesPerStep = 5120   // avg encrypted step size
-	tokenDivisor = 4      // chars per estimated token
-	inputRatio   = 0.4    // typical input/output split
+	bytesPerStep = 5120    // avg encrypted step size
+	tokenDivisor = 4       // chars per estimated token
+	inputRatio   = 0.4     // typical input/output split
 	maxReadBytes = 1 << 20 // 1MB — only read header to detect format
 )
 
@@ -42,9 +42,9 @@ func parseSession(path string) (*adapter.ParseResult, error) {
 	result := &adapter.ParseResult{
 		Events: events,
 		Meta: &adapter.SessionMeta{
-			ID:        sessionID,
-			CreatedAt: fi.ModTime(),
-			UpdatedAt: fi.ModTime(),
+			ID:           sessionID,
+			CreatedAt:    fi.ModTime(),
+			UpdatedAt:    fi.ModTime(),
 			MessageCount: len(events),
 		},
 	}
@@ -104,7 +104,7 @@ func estimateFromSize(path string, fi os.FileInfo, data []byte) []adapter.Event 
 			}
 		} else {
 			usage = &adapter.Usage{
-				OutputTokens: int(float64(totalTokens)*(1-inputRatio) / float64(stepCount)),
+				OutputTokens: int(float64(totalTokens) * (1 - inputRatio) / float64(stepCount)),
 			}
 			eType = "assistant"
 		}
@@ -162,7 +162,7 @@ func tryTextParse(data []byte, path string, fi os.FileInfo) ([]adapter.Event, er
 				Message: &adapter.Message{
 					Role: "assistant",
 					Usage: &adapter.Usage{
-						InputTokens:  int(fi.Size()) / tokenDivisor / 2,
+						InputTokens: int(fi.Size()) / tokenDivisor / 2,
 					},
 				},
 			},
@@ -196,7 +196,7 @@ func tryTextParse(data []byte, path string, fi os.FileInfo) ([]adapter.Event, er
 			Message: &adapter.Message{
 				Role: eType,
 				Usage: &adapter.Usage{
-					InputTokens:  len(line) / tokenDivisor,
+					InputTokens: len(line) / tokenDivisor,
 				},
 			},
 		})

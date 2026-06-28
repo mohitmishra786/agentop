@@ -12,10 +12,10 @@ var _ adapter.Adapter = (*Adapter)(nil)
 
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentKiro }
-func (a *Adapter) Name() string          { return "Kiro CLI" }
-func (a *Adapter) DefaultDir() string    { return kiroDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return kiroAvailable() }
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentKiro }
+func (a *Adapter) Name() string        { return "Kiro CLI" }
+func (a *Adapter) DefaultDir() string  { return kiroDefaultDir() }
+func (a *Adapter) IsAvailable() bool   { return kiroAvailable() }
 
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	sessionsDir := filepath.Join(dataDir, "sessions", "cli")

@@ -151,7 +151,7 @@ func Execute() {
 
 var (
 	// Version is the current agentop version, set via ldflags at build time.
-	Version   = "1.0.1"
+	Version   = "1.0.2"
 	CommitSHA = ""
 )
 

@@ -17,7 +17,7 @@
 %endif
 
 Name:           agentop
-Version:        1.0.1
+Version:        1.0.2
 Release:        1%{?dist}
 Summary:        Terminal dashboard for AI coding assistant sessions
 License:        MIT
@@ -59,6 +59,13 @@ rm -rf "%{agentop_src}"
 %{_datadir}/licenses/%{name}/LICENSE
 
 %changelog
+* Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.2-1
+- v1.0.2: Fix AggregateSession dropping tokens from 8/12 adapters
+- Remove stopReason gate in aggregator — all adapters now count tokens
+- Fix codex session_meta JSON tag (session_id -> id)
+- Add windsurf implicit/ sibling directory discovery
+- Improve claude IsAvailable to detect v2+ empty projects dir
+
 * Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.1-1
 - v1.0.1: Devin Desktop adapter, codex nil pointer fix
 - Add Devin Desktop (SQLite) adapter for session discovery
