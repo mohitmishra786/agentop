@@ -67,6 +67,7 @@ jobs:
           printf '\tsource_aarch64 = agentop-%s-aarch64.tar.gz::https://github.com/mohitmishra786/agentop/releases/download/%s/agentop_%s_linux_arm64.tar.gz\n' "$PKGVER" "$VERSION" "$PKGVER" >> .SRCINFO
           printf '\tsha256sums_x86_64 = %s\n' "$SHA_X86" >> .SRCINFO
           printf '\tsha256sums_aarch64 = %s\n' "$SHA_AARCH" >> .SRCINFO
+          printf '\tpkgname = agentop-bin\n' >> .SRCINFO
           git add PKGBUILD .SRCINFO
           git config user.name "Mohit Mishra"
           git config user.email "mohitmishra786687@gmail.com"
