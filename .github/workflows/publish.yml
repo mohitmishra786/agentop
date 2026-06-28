@@ -1,0 +1,80 @@
+name: publish
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version to publish (e.g. v1.0.2)"
+        required: true
+        type: string
+      targets:
+        description: "Targets to publish (comma-separated: aur,homebrew,scoop)"
+        required: true
+        default: "aur,homebrew,scoop"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.version }}
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Download checksums
+        run: |
+          VERSION="${{ inputs.version }}"
+          curl -sL "https://github.com/mohitmishra786/agentop/releases/download/${VERSION}/checksums.txt" -o /tmp/checksums.txt
+
+      - name: Publish AUR
+        if: contains(inputs.targets, 'aur')
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          version: latest
+          args: release --clean --skip=homebrew --skip=nfpm --skip=nix --skip=winget --skip=publish --skip=sign --skip=scoop --skip=aur-source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+
+      - name: Publish Homebrew
+        if: contains(inputs.targets, 'homebrew')
+        uses: goreleaser/goreleaser-action@v7
+        with:
+          version: latest
+          args: release --clean --skip=publish --skip=nfpm --skip=aur --skip=scoop --skip=nix --skip=winget --skip=sign --skip=aur-source
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+
+      - name: Publish Scoop
+        if: contains(inputs.targets, 'scoop')
+        run: |
+          VERSION="${{ inputs.version }}"
+          git clone https://x-access-token:${{ secrets.SCOOP_GITHUB_TOKEN }}@github.com/mohitmishra786/scoop-bucket.git /tmp/scoop-bucket
+          cd /tmp/scoop-bucket/bucket
+          SHA64=$(grep "windows_x86_64.zip" /tmp/checksums.txt | awk '{print $1}')
+          SHAARM=$(grep "windows_arm64.zip" /tmp/checksums.txt | awk '{print $1}')
+          jq --arg v "${VERSION#v}" \
+             --arg sha64 "$SHA64" \
+             --arg shaarm "$SHAARM" \
+             '.version = $v |
+              .architecture."64bit".hash = $sha64 |
+              .architecture."arm64".hash = $shaarm |
+              .architecture."64bit".url = "https://github.com/mohitmishra786/agentop/releases/download/v\($v)/agentop_\($v)_windows_x86_64.zip" |
+              .architecture."arm64".url = "https://github.com/mohitmishra786/agentop/releases/download/v\($v)/agentop_\($v)_windows_arm64.zip"' \
+             agentop.json > agentop.json.tmp && mv agentop.json.tmp agentop.json
+          git config user.name "Mohit Mishra"
+          git config user.email "mohitmishra786687@gmail.com"
+          git add agentop.json
+          git commit -m "Update agentop to ${VERSION}"
+          git push
