@@ -1,7 +1,7 @@
 # Contributor: Mohit Mishra <mohitmishra786687@gmail.com>
 # Maintainer: Mohit Mishra <mohitmishra786687@gmail.com>
 pkgname=agentop
-pkgver=1.0.0
+pkgver=1.0.1
 pkgrel=0
 pkgdesc="Terminal dashboard for AI coding assistant sessions"
 url="https://github.com/mohitmishra786/agentop"
@@ -33,5 +33,5 @@ package() {
 }
 
 sha512sums="
-ce6064c45b784b1042c4551a0732b6c325291eed9e7856c111f2336c62b4cd16aeeb0b822095ee043a22a83662ebe19ee5cf8265d2038b3f25916ce9e2a21643  agentop-1.0.0.tar.gz
+6c306a861d79c0c33a70bc1d5654b58733737592bb87a3623702726f3cad6f4f34154b08ceaf9682479b5036a5cb2a2fab89856e95774cd6b4189938051dc45b  agentop-1.0.1.tar.gz
 "
