@@ -10,16 +10,24 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Windsurf/Devin Desktop session files.
 type Adapter struct{}
 
+// ID returns the agent identifier.
 func (a *Adapter) ID() adapter.AgentID { return adapter.AgentWindsurf }
-func (a *Adapter) Name() string        { return "Windsurf/Devin Desktop" }
-func (a *Adapter) DefaultDir() string  { return windsurfDefaultDir() }
-func (a *Adapter) IsAvailable() bool   { return windsurfAvailable() }
+
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Windsurf/Devin Desktop" }
+
+// DefaultDir returns the default data directory for Windsurf/Devin Desktop.
+func (a *Adapter) DefaultDir() string { return windsurfDefaultDir() }
+
+// IsAvailable checks whether Windsurf/Devin Desktop session data exists.
+func (a *Adapter) IsAvailable() bool { return windsurfAvailable() }
 
 // Discover walks the Windsurf and Devin Desktop cascade + implicit directories
 // for session .pb files.
-func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
+func (a *Adapter) Discover(_ string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile
 
 	pairs := []struct{ base, sub string }{

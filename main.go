@@ -1,3 +1,4 @@
+// Package main is the entry point for the agentop terminal dashboard.
 package main
 
 import (

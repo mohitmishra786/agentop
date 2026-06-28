@@ -1,3 +1,4 @@
+// Package aggregator computes session statistics from raw event data.
 package aggregator
 
 import (
@@ -22,6 +23,7 @@ type TurnStat struct {
 	Model        string
 }
 
+// SessionStats holds aggregated token, cost, and usage metrics for a session.
 type SessionStats struct {
 	ID          string
 	ProjectHash string
@@ -75,6 +77,7 @@ type SessionStats struct {
 	TokenSource adapter.TokenSource
 }
 
+// AggregateSession processes raw events into a SessionStats summary.
 func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer pricing.Pricer) *SessionStats {
 	if len(events) == 0 {
 		return nil
@@ -329,6 +332,7 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	return s
 }
 
+// AggregateSubagents computes combined token, count, and cost for subagent sessions.
 func AggregateSubagents(subagentFiles []string, pricer pricing.Pricer) (int64, int, float64) {
 	var totalTokens int64
 	var count int

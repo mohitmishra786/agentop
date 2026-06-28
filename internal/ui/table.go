@@ -85,7 +85,7 @@ func modelTransformer(val interface{}) string {
 	return ModelCell(s.Model)
 }
 
-func tokenBarTransformer(width int) func(interface{}) string {
+func tokenBarTransformer(_ int) func(interface{}) string {
 	return func(val interface{}) string {
 		s, ok := val.(*aggregator.SessionStats)
 		if !ok {
@@ -173,7 +173,7 @@ func tableSessionName(s *aggregator.SessionStats) string {
 	return agentBadge + Truncate(name, 20)
 }
 
-func max(a, b int) int {
+func maxInt(a, b int) int {
 	if a > b {
 		return a
 	}

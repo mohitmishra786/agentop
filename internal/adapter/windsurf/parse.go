@@ -138,13 +138,13 @@ func looksTextual(data []byte) bool {
 		return true
 	}
 	// Check for reasonable ASCII ratio.
-	nonAscii := 0
+	nonASCII := 0
 	for _, b := range trimmed {
 		if b > 127 {
-			nonAscii++
+			nonASCII++
 		}
 	}
-	return float64(nonAscii)/float64(len(trimmed)) < 0.1
+	return float64(nonASCII)/float64(len(trimmed)) < 0.1
 }
 
 // tryTextParse attempts to parse a text-based session file (JSONL or JSON).

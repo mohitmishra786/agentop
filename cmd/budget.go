@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// BudgetConfig holds monthly budget limits for cost tracking.
 type BudgetConfig struct {
 	MonthlyLimit float64 `json:"monthly_limit"`
 	WarnAt       float64 `json:"warn_at"`
@@ -113,7 +114,7 @@ func persistBudgetLimit(limit float64) error {
 	return nil
 }
 
-func runBudget(cmd *cobra.Command, args []string) error {
+func runBudget(cmd *cobra.Command, _ []string) error {
 	if err := ui.Init(); err != nil {
 		return err
 	}
@@ -245,9 +246,9 @@ func runBudget(cmd *cobra.Command, args []string) error {
 	var sb strings.Builder
 
 	monthLabel := now.Format("Jan 2006")
-	sb.WriteString(fmt.Sprintf("\n  %s  %s\n\n",
+	fmt.Fprintf(&sb, "\n  %s  %s\n\n",
 		ui.StyleBold.Render("Budget  "+monthLabel),
-		ui.StyleDim.Render("● "+status)))
+		ui.StyleDim.Render("● "+status))
 
 	limitStr := fmt.Sprintf("$%.2f", config.MonthlyLimit)
 	costStr := fmt.Sprintf("$%.2f", totalCost)
@@ -263,25 +264,25 @@ func runBudget(cmd *cobra.Command, args []string) error {
 		pctStr = ui.StyleGreen.Render(fmt.Sprintf("%.0f%%", usedPct*100))
 	}
 
-	sb.WriteString(fmt.Sprintf("  %s  %s  %s  %s\n",
+	fmt.Fprintf(&sb, "  %s  %s  %s  %s\n",
 		ui.StylePrimary.Render(costStr),
 		ui.StyleDim.Render("of"),
 		ui.StylePrimary.Render(limitStr),
-		bar))
-	sb.WriteString(fmt.Sprintf("  %s\n\n",
-		pctStr))
+		bar)
+	fmt.Fprintf(&sb, "  %s\n\n",
+		pctStr)
 
 	estStr := fmt.Sprintf("$%.2f", estimatedMonthly)
 	rateStr := fmt.Sprintf("$%.2f/day", dailyRunRate)
-	sb.WriteString(fmt.Sprintf("  %s  %s\n",
+	fmt.Fprintf(&sb, "  %s  %s\n",
 		ui.StyleDim.Render("Estimated monthly:"),
-		ui.StylePrimary.Render(estStr)))
-	sb.WriteString(fmt.Sprintf("  %s  %s\n\n",
+		ui.StylePrimary.Render(estStr))
+	fmt.Fprintf(&sb, "  %s  %s\n\n",
 		ui.StyleDim.Render("Daily run rate:   "),
-		ui.StyleSecondary.Render(rateStr)))
+		ui.StyleSecondary.Render(rateStr))
 
 	if len(agentSummaries) > 1 {
-		sb.WriteString(fmt.Sprintf("  %s\n", ui.StyleColHeader.Render("By agent")))
+		fmt.Fprintf(&sb, "  %s\n", ui.StyleColHeader.Render("By agent"))
 		for _, a := range agentSummaries {
 			aPct := 0.0
 			if totalCost > 0 {
@@ -290,13 +291,13 @@ func runBudget(cmd *cobra.Command, args []string) error {
 			aCostStr := fmt.Sprintf("$%.2f", a.Cost)
 			aPctStr := fmt.Sprintf("%.1f%%", aPct*100)
 			tag := ui.AgentTag(a.AgentID)
-			sb.WriteString(fmt.Sprintf("  %s  %s  %s\n", tag, ui.StylePrimary.Render(aCostStr), ui.StyleDim.Render(aPctStr)))
+			fmt.Fprintf(&sb, "  %s  %s  %s\n", tag, ui.StylePrimary.Render(aCostStr), ui.StyleDim.Render(aPctStr))
 		}
 		sb.WriteString("\n")
 	}
 
 	if len(topProjects) > 0 {
-		sb.WriteString(fmt.Sprintf("  %s\n", ui.StyleColHeader.Render("By project (top 3)")))
+		fmt.Fprintf(&sb, "  %s\n", ui.StyleColHeader.Render("By project (top 3)"))
 		for _, p := range topProjects {
 			pPct := 0.0
 			if totalCost > 0 {
@@ -308,15 +309,15 @@ func runBudget(cmd *cobra.Command, args []string) error {
 			if len(projName) > 28 {
 				projName = projName[:28] + "…"
 			}
-			sb.WriteString(fmt.Sprintf("  %-28s  %s  %s\n",
+			fmt.Fprintf(&sb, "  %-28s  %s  %s\n",
 				ui.StylePrimary.Render(projName),
 				ui.StyleSecondary.Render(pCostStr),
-				ui.StyleDim.Render(pPctStr)))
+				ui.StyleDim.Render(pPctStr))
 		}
 		sb.WriteString("\n")
 	}
 
-	sb.WriteString(fmt.Sprintf("  %s\n", ui.StyleDim.Render("agentop budget · --help for flags")))
+	fmt.Fprintf(&sb, "  %s\n", ui.StyleDim.Render("agentop budget · --help for flags"))
 	fmt.Print(sb.String())
 	return nil
 }

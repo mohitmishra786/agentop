@@ -19,7 +19,7 @@ var dailyCmd = &cobra.Command{
 	RunE:  runDaily,
 }
 
-func runDaily(cmd *cobra.Command, args []string) error {
+func runDaily(_ *cobra.Command, _ []string) error {
 	sessions, err := loadSessions()
 	if err != nil {
 		return err

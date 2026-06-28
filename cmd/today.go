@@ -21,7 +21,7 @@ var todayCmd = &cobra.Command{
 	RunE:  runToday,
 }
 
-func runToday(cmd *cobra.Command, args []string) error {
+func runToday(_ *cobra.Command, _ []string) error {
 	if err := ui.Init(); err != nil {
 		return err
 	}

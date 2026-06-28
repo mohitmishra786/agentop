@@ -1,3 +1,4 @@
+// Package ui provides the terminal user interface for agentop using Bubble Tea.
 package ui
 
 import (
@@ -9,6 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// Model is the Bubble Tea model for the watch-mode TUI.
 type Model struct {
 	sessions      []*aggregator.SessionStats
 	termWidth     int
@@ -22,6 +24,7 @@ type Model struct {
 	filterText    string
 }
 
+// NewModel creates a new Bubble Tea model for session display.
 func NewModel(sessions []*aggregator.SessionStats) Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
@@ -38,10 +41,12 @@ func NewModel(sessions []*aggregator.SessionStats) Model {
 	}
 }
 
+// Init initializes the Bubble Tea model.
 func (m Model) Init() tea.Cmd {
 	return m.spinner.Tick
 }
 
+// Update handles messages and user input in the watch-mode TUI.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -87,6 +92,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+// View renders the current state of the TUI.
 func (m Model) View() string {
 	if m.err != nil {
 		return StyleRed.Render("Error: " + m.err.Error())
@@ -138,7 +144,7 @@ func (m Model) renderStatusBar() string {
 }
 
 func (m Model) maxVisibleSessions() int {
-	return max(1, m.termHeight/3-2)
+	return maxInt(1, m.termHeight/3-2)
 }
 
 func (m *Model) cycleSort() {

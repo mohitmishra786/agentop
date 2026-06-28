@@ -13,9 +13,13 @@ import (
 type StepType int32
 
 const (
-	StepTypeUnknown       StepType = 0
-	StepTypeUserMessage   StepType = 14
+	// StepTypeUnknown is the default zero-value step type.
+	StepTypeUnknown StepType = 0
+	// StepTypeUserMessage represents a user message step.
+	StepTypeUserMessage StepType = 14
+	// StepTypeAssistantResp represents an assistant response step.
 	StepTypeAssistantResp StepType = 15
+	// StepTypeToolExecution represents a tool execution step.
 	StepTypeToolExecution StepType = 21
 )
 

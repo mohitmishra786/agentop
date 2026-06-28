@@ -1,3 +1,4 @@
+// Package cmd implements the CLI commands for agentop.
 package cmd
 
 import (
@@ -20,7 +21,7 @@ var blocksCmd = &cobra.Command{
 	RunE:  runBlocks,
 }
 
-func runBlocks(cmd *cobra.Command, args []string) error {
+func runBlocks(_ *cobra.Command, _ []string) error {
 	sessions, err := loadSessions()
 	if err != nil {
 		return err
@@ -59,6 +60,7 @@ func runBlocks(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// BlockStats groups sessions within a 5-hour billing window.
 type BlockStats struct {
 	Start       time.Time
 	End         time.Time

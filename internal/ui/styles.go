@@ -84,6 +84,7 @@ func defaultThemeName() string {
 	return "dark"
 }
 
+// InitTheme initializes the UI theme by name (dark, light, ansi).
 func InitTheme(name string) error {
 	themes := map[string]Theme{
 		"dark": {
@@ -176,6 +177,7 @@ func InitTheme(name string) error {
 	return nil
 }
 
+// Init initialises the UI theme based on the terminal's background.
 func Init() error {
 	return InitTheme(defaultThemeName())
 }
@@ -185,17 +187,28 @@ func Init() error {
 // ---------------------------------------------------------------------------
 
 var (
-	StyleBorder    lipgloss.Style
-	StyleHeader    lipgloss.Style
+	// StyleBorder is the lipgloss style for borders.
+	StyleBorder lipgloss.Style
+	// StyleHeader is the lipgloss style for header text.
+	StyleHeader lipgloss.Style
+	// StyleColHeader is the lipgloss style for column header text.
 	StyleColHeader lipgloss.Style
-	StyleDim       lipgloss.Style
+	// StyleDim is the lipgloss style for dimmed text.
+	StyleDim lipgloss.Style
+	// StyleSecondary is the lipgloss style for secondary text.
 	StyleSecondary lipgloss.Style
-	StylePrimary   lipgloss.Style
-	StyleGreen     lipgloss.Style
-	StyleAmber     lipgloss.Style
-	StyleRed       lipgloss.Style
-	StyleBold      lipgloss.Style
-	StyleRowSep    lipgloss.Style
+	// StylePrimary is the lipgloss style for primary text.
+	StylePrimary lipgloss.Style
+	// StyleGreen is the lipgloss style for green text.
+	StyleGreen lipgloss.Style
+	// StyleAmber is the lipgloss style for amber text.
+	StyleAmber lipgloss.Style
+	// StyleRed is the lipgloss style for red text.
+	StyleRed lipgloss.Style
+	// StyleBold is the lipgloss style for bold text.
+	StyleBold lipgloss.Style
+	// StyleRowSep is the lipgloss style for row separators.
+	StyleRowSep lipgloss.Style
 )
 
 func initStyles() {
@@ -401,6 +414,7 @@ func FormatTokenWithSource(n int64, src adapter.TokenSource) string {
 // Cache efficiency
 // ---------------------------------------------------------------------------
 
+// CacheEfficiencyColor returns the theme color for a cache efficiency value.
 func CacheEfficiencyColor(eff float64) string {
 	switch {
 	case eff >= 0.80:
@@ -416,11 +430,13 @@ func CacheEfficiencyColor(eff float64) string {
 // TokenBar — proportional colored bar (duf-style)
 // ---------------------------------------------------------------------------
 
+// TokenBar renders a proportional colored bar showing token breakdown.
 type TokenBar struct {
 	Input, Output, CacheCreate, CacheRead int64
 	Width                                 int
 }
 
+// Render draws the token bar as a formatted string.
 func (b TokenBar) Render() string {
 	total := b.Input + b.Output + b.CacheCreate + b.CacheRead
 	innerW := b.Width - 2
@@ -513,6 +529,7 @@ func BarLegend() string {
 // MiniBar — small bar for the summary strip
 // ---------------------------------------------------------------------------
 
+// MiniBar renders a small solid-filled bar for summary display.
 func MiniBar(ratio float64, width int, fillColor string) string {
 	if ratio < 0 {
 		ratio = 0
@@ -597,6 +614,7 @@ func TokenCompact(input, output, cc, cr int64, src adapter.TokenSource) string {
 // Formatters
 // ---------------------------------------------------------------------------
 
+// HumanizeTokens formats a token count as a human-readable string.
 func HumanizeTokens(n int64) string {
 	switch {
 	case n >= 1_000_000_000:
@@ -610,6 +628,7 @@ func HumanizeTokens(n int64) string {
 	}
 }
 
+// FormatCost formats a USD cost as a colored string.
 func FormatCost(usd float64) string {
 	if usd <= 0 {
 		return StyleDim.Render("~")
@@ -620,6 +639,7 @@ func FormatCost(usd float64) string {
 	return StylePrimary.Render(fmt.Sprintf("$%.2f", usd))
 }
 
+// FormatCostRaw formats a USD cost as a plain string.
 func FormatCostRaw(usd float64) string {
 	if usd <= 0 {
 		return "~"
@@ -627,6 +647,7 @@ func FormatCostRaw(usd float64) string {
 	return fmt.Sprintf("$%.2f", usd)
 }
 
+// FormatDuration formats a duration as a human-readable string.
 func FormatDuration(d time.Duration) string {
 	if d < 0 {
 		d = 0
@@ -647,6 +668,7 @@ func FormatDuration(d time.Duration) string {
 	return fmt.Sprintf("%dh%dm", h, int(d.Minutes())%60)
 }
 
+// FormatCostPerMessage formats the cost per message as a string.
 func FormatCostPerMessage(cost float64, msgs int) string {
 	if msgs == 0 || cost <= 0 {
 		return StyleDim.Render("N/A")
@@ -654,16 +676,18 @@ func FormatCostPerMessage(cost float64, msgs int) string {
 	return fmt.Sprintf("$%.2f/msg", cost/float64(msgs))
 }
 
-func Truncate(s string, max int) string {
-	if len(s) <= max {
+// Truncate truncates a string to the given maximum length with ellipsis.
+func Truncate(s string, mx int) string {
+	if len(s) <= mx {
 		return s
 	}
-	if max <= 3 {
-		return s[:max]
+	if mx <= 3 {
+		return s[:mx]
 	}
-	return s[:max-3] + "..."
+	return s[:mx-3] + "..."
 }
 
+// PadRight pads a string on the right to a given visual width.
 func PadRight(s string, w int) string {
 	vis := lipgloss.Width(s)
 	if vis >= w {
@@ -672,6 +696,7 @@ func PadRight(s string, w int) string {
 	return s + strings.Repeat(" ", w-vis)
 }
 
+// PadLeft pads a string on the left to a given visual width.
 func PadLeft(s string, w int) string {
 	vis := lipgloss.Width(s)
 	if vis >= w {
@@ -680,6 +705,7 @@ func PadLeft(s string, w int) string {
 	return strings.Repeat(" ", w-vis) + s
 }
 
+// Separator renders a horizontal line separator of the given width.
 func Separator(width int) string {
 	return StyleRowSep.Render(strings.Repeat("─", width))
 }
@@ -725,6 +751,7 @@ func sessionDisplayName(s *aggregator.SessionStats) string {
 // Panel — simple bordered box used only for anomalies
 // ---------------------------------------------------------------------------
 
+// Panel renders a bordered panel with title and content.
 func Panel(title, content string, width int) string {
 	maxWidth := width
 	if maxWidth > 120 {
@@ -801,6 +828,7 @@ func dufStyle() table.Style {
 // Today view — duf-style grid table
 // ---------------------------------------------------------------------------
 
+// RenderToday renders the main duf-style grid of sessions.
 func RenderToday(sessions []*aggregator.SessionStats, termWidth int) string {
 	if len(sessions) == 0 {
 		return StyleDim.Render("  No sessions found.")

@@ -12,18 +12,30 @@ import (
 type AgentID string
 
 const (
-	AgentClaude    AgentID = "claude"
-	AgentCodex     AgentID = "codex"
-	AgentKiro      AgentID = "kiro"
-	AgentCopilot   AgentID = "copilot"
-	AgentCursor    AgentID = "cursor"
-	AgentGemini    AgentID = "gemini"
-	AgentOpenCode  AgentID = "opencode"
+	// AgentClaude identifies Claude Code sessions.
+	AgentClaude AgentID = "claude"
+	// AgentCodex identifies Codex CLI sessions.
+	AgentCodex AgentID = "codex"
+	// AgentKiro identifies Kiro CLI sessions.
+	AgentKiro AgentID = "kiro"
+	// AgentCopilot identifies Copilot CLI sessions.
+	AgentCopilot AgentID = "copilot"
+	// AgentCursor identifies Cursor sessions.
+	AgentCursor AgentID = "cursor"
+	// AgentGemini identifies Gemini CLI sessions.
+	AgentGemini AgentID = "gemini"
+	// AgentOpenCode identifies OpenCode sessions.
+	AgentOpenCode AgentID = "opencode"
+	// AgentJetBrains identifies JetBrains Copilot sessions.
 	AgentJetBrains AgentID = "jetbrains"
-	AgentContinue  AgentID = "continue"
-	AgentWindsurf  AgentID = "windsurf"
-	AgentDevin     AgentID = "devin"
-	AgentGrok      AgentID = "grok"
+	// AgentContinue identifies Continue sessions.
+	AgentContinue AgentID = "continue"
+	// AgentWindsurf identifies Windsurf/Devin Desktop sessions.
+	AgentWindsurf AgentID = "windsurf"
+	// AgentDevin identifies Devin Desktop sessions.
+	AgentDevin AgentID = "devin"
+	// AgentGrok identifies Grok sessions.
+	AgentGrok AgentID = "grok"
 )
 
 // TokenSource indicates whether token counts come directly from the agent's data
@@ -31,8 +43,10 @@ const (
 type TokenSource int
 
 const (
-	TokenExact     TokenSource = iota // exact token counts from API response
-	TokenEstimated                    // estimated from other fields
+	// TokenExact indicates exact token counts from API response.
+	TokenExact TokenSource = iota
+	// TokenEstimated indicates token counts estimated from other fields.
+	TokenEstimated
 )
 
 func (t TokenSource) String() string {

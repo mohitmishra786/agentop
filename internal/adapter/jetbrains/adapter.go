@@ -1,3 +1,4 @@
+// Package jetbrains implements the adapter.Adapter interface for JetBrains Copilot session data.
 package jetbrains
 
 import (
@@ -11,13 +12,22 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for JetBrains Copilot session files.
 type Adapter struct{}
 
+// ID returns the agent identifier.
 func (a *Adapter) ID() adapter.AgentID { return adapter.AgentJetBrains }
-func (a *Adapter) Name() string        { return "JetBrains Copilot" }
-func (a *Adapter) DefaultDir() string  { return jetbrainsDefaultDir() }
-func (a *Adapter) IsAvailable() bool   { return jetbrainsAvailable() }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "JetBrains Copilot" }
+
+// DefaultDir returns the default data directory for JetBrains Copilot.
+func (a *Adapter) DefaultDir() string { return jetbrainsDefaultDir() }
+
+// IsAvailable checks whether JetBrains Copilot session data exists.
+func (a *Adapter) IsAvailable() bool { return jetbrainsAvailable() }
+
+// Discover finds JetBrains Copilot session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile
 
@@ -65,6 +75,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads and converts a JetBrains Copilot JSONL session file.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSessionFile(path)
 }
