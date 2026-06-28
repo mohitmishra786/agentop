@@ -1,3 +1,5 @@
+// Package devin implements the adapter for Devin Desktop sessions stored in
+// ~/.local/share/devin/cli/sessions.db (SQLite).
 package devin
 
 import (
@@ -7,18 +9,27 @@ import (
 	"time"
 
 	"github.com/agentop-dev/agentop/internal/adapter"
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // SQLite driver
 )
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter discovers and parses Devin Desktop sessions.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentDevin }
-func (a *Adapter) Name() string          { return "Devin Desktop" }
-func (a *Adapter) DefaultDir() string    { return defaultDir() }
-func (a *Adapter) IsAvailable() bool     { return available() }
+// ID returns the agent identifier for Devin Desktop.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentDevin }
 
+// Name returns the human-readable name for Devin Desktop.
+func (a *Adapter) Name() string { return "Devin Desktop" }
+
+// DefaultDir returns the default data directory for Devin Desktop.
+func (a *Adapter) DefaultDir() string { return defaultDir() }
+
+// IsAvailable checks whether Devin Desktop session data exists.
+func (a *Adapter) IsAvailable() bool { return available() }
+
+// Discover finds Devin Desktop sessions in the SQLite database.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	dbPath := filepath.Join(dataDir, "cli", "sessions.db")
 
@@ -71,6 +82,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads a single Devin Desktop session from the SQLite database.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSession(path)
 }

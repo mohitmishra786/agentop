@@ -13,16 +13,16 @@ import (
 	"github.com/agentop-dev/agentop/internal/adapter"
 	claudeAdapter "github.com/agentop-dev/agentop/internal/adapter/claude"
 	codexAdapter "github.com/agentop-dev/agentop/internal/adapter/codex"
+	continueAdapter "github.com/agentop-dev/agentop/internal/adapter/continueadapter"
 	copilotAdapter "github.com/agentop-dev/agentop/internal/adapter/copilot"
+	cursorAdapter "github.com/agentop-dev/agentop/internal/adapter/cursor"
+	devinAdapter "github.com/agentop-dev/agentop/internal/adapter/devin"
 	geminiAdapter "github.com/agentop-dev/agentop/internal/adapter/gemini"
+	grokAdapter "github.com/agentop-dev/agentop/internal/adapter/grok"
+	jetbrainsAdapter "github.com/agentop-dev/agentop/internal/adapter/jetbrains"
 	kiroAdapter "github.com/agentop-dev/agentop/internal/adapter/kiro"
 	opencodeAdapter "github.com/agentop-dev/agentop/internal/adapter/opencode"
-	cursorAdapter "github.com/agentop-dev/agentop/internal/adapter/cursor"
-	continueAdapter "github.com/agentop-dev/agentop/internal/adapter/continueadapter"
-	jetbrainsAdapter "github.com/agentop-dev/agentop/internal/adapter/jetbrains"
-	devinAdapter "github.com/agentop-dev/agentop/internal/adapter/devin"
 	windsurfAdapter "github.com/agentop-dev/agentop/internal/adapter/windsurf"
-	grokAdapter "github.com/agentop-dev/agentop/internal/adapter/grok"
 )
 
 var (
@@ -150,6 +150,7 @@ func Execute() {
 }
 
 var (
+	// Version is the current agentop version, set via ldflags at build time.
 	Version   = "1.0.1"
 	CommitSHA = ""
 )

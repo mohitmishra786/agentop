@@ -70,7 +70,7 @@ type SessionStats struct {
 	// Divide by ~4 for a rough token estimate.
 	MaxToolResultBytes int64
 
-	AgentID    adapter.AgentID
+	AgentID     adapter.AgentID
 	TokenSource adapter.TokenSource
 }
 

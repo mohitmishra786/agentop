@@ -85,8 +85,8 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 					SessionID: sessionID,
 					Timestamp: ts,
 					Message: &adapter.Message{
-						Model:   currentModel,
-						Role:    p.Role,
+						Model: currentModel,
+						Role:  p.Role,
 					},
 				})
 			case "function_call":
@@ -102,11 +102,11 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 					_ = json.Unmarshal(p.Content, &content)
 				}
 				events = append(events, adapter.Event{
-					Type:        "tool_result",
-					SessionID:   sessionID,
-					Timestamp:   ts,
-					ToolResult:  p.Content,
-					ToolName:    content,
+					Type:       "tool_result",
+					SessionID:  sessionID,
+					Timestamp:  ts,
+					ToolResult: p.Content,
+					ToolName:   content,
 				})
 			}
 

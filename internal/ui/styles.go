@@ -47,18 +47,18 @@ type Theme struct {
 	TagUnknownBg string
 	TagUnknownFg string
 
-	TagClaudeBg  string
-	TagClaudeFg  string
-	TagCodexBg   string
-	TagCodexFg   string
-	TagCursorBg  string
-	TagCursorFg  string
-	TagCopilotBg string
-	TagCopilotFg string
-	TagGeminiBg  string
-	TagGeminiFg  string
-	TagKiroBg    string
-	TagKiroFg    string
+	TagClaudeBg    string
+	TagClaudeFg    string
+	TagCodexBg     string
+	TagCodexFg     string
+	TagCursorBg    string
+	TagCursorFg    string
+	TagCopilotBg   string
+	TagCopilotFg   string
+	TagGeminiBg    string
+	TagGeminiFg    string
+	TagKiroBg      string
+	TagKiroFg      string
 	TagOpenCodeBg  string
 	TagOpenCodeFg  string
 	TagJetBrainsBg string
@@ -1046,9 +1046,9 @@ func renderSummaryStrip(totalCost float64, totalTokens int64, cacheEff float64, 
 
 // AgentTotals aggregates token counts and cost per agent.
 type agentTotals struct {
-	AgentID     string
-	Tokens      int64
-	Cost        float64
+	AgentID      string
+	Tokens       int64
+	Cost         float64
 	SessionCount int
 }
 
