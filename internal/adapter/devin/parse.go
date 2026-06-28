@@ -81,7 +81,9 @@ func parseSession(path string) (*adapter.ParseResult, error) {
 
 		var msg chatMessage
 		if chatMsgStr != "" {
-			_ = json.Unmarshal([]byte(chatMsgStr), &msg)
+			if err := json.Unmarshal([]byte(chatMsgStr), &msg); err != nil {
+				continue
+			}
 		}
 
 		evtType := msg.Role
@@ -95,12 +97,10 @@ func parseSession(path string) (*adapter.ParseResult, error) {
 		}
 
 		var usage *adapter.Usage
-		est := estimateTokens(msg.Content)
 		if msg.Metadata != nil && msg.Metadata.NumTokens != nil && *msg.Metadata.NumTokens > 0 {
-			t := *msg.Metadata.NumTokens
-			usage = &adapter.Usage{InputTokens: est, OutputTokens: t}
-		} else if est > 0 {
-			usage = &adapter.Usage{InputTokens: 0, OutputTokens: est}
+			usage = &adapter.Usage{OutputTokens: *msg.Metadata.NumTokens}
+		} else if est := estimateTokens(msg.Content); est > 0 {
+			usage = &adapter.Usage{OutputTokens: est}
 		}
 
 		msgObj := &adapter.Message{
@@ -136,10 +136,10 @@ func parseSession(path string) (*adapter.ParseResult, error) {
 	}
 
 	meta := &adapter.SessionMeta{
-		ID:          sid,
-		Summary:     title,
-		CreatedAt:   createdAtTime,
-		ProjectPath: workingDir,
+		ID:        sid,
+		Summary:   title,
+		CreatedAt: createdAtTime,
+		CWD:       workingDir,
 	}
 	if len(events) > 0 {
 		meta.UpdatedAt = events[len(events)-1].Timestamp

@@ -64,6 +64,9 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 			AgentID:     adapter.AgentDevin,
 		})
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 
 	return files, nil
 }
