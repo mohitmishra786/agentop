@@ -11,8 +11,8 @@ conflicts=('agentop')
 source_x86_64=("agentop-${pkgver}-x86_64.tar.gz::https://github.com/mohitmishra786/agentop/releases/download/v${pkgver}/agentop_${pkgver}_linux_x86_64.tar.gz")
 source_aarch64=("agentop-${pkgver}-aarch64.tar.gz::https://github.com/mohitmishra786/agentop/releases/download/v${pkgver}/agentop_${pkgver}_linux_arm64.tar.gz")
 
-sha256sums_x86_64=('601050dc2dea9396b4b49812a6a8ead5a804d35bd9b84f6e2163e1931b804da8')
-sha256sums_aarch64=('80bf672bc3805e3b25a836bbbfc118f34d2eeb9ec8cbeeefaa05d8a6ee1c11ab')
+sha256sums_x86_64=('1b02b15f7fb85992d12d6efaa6607bb7cce3edde56b56257b267df58a9a36d49')
+sha256sums_aarch64=('89b10c4b15e25460d378b835f5d11b8a5dd3847720843111d7cd588b43bbbc4d')
 
 package() {
   install -Dm755 agentop "$pkgdir/usr/bin/agentop"

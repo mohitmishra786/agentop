@@ -11,7 +11,7 @@ buildGoModule rec {
     owner = "mohitmishra786";
     repo = "agentop";
     rev = "v${version}";
-    hash = "sha256-lJEWh6SRVekOFsKsuQE88VEoskQAvHm1rPtMq1RQbho=";
+    hash = "sha256-MTu32h3sL0fAavW/JGJaZg9yl3JuBjYi7ktxjN78Q9w=";
   };
 
   vendorHash = "sha256-AR1IpxAlwRK1uH3iBXMstIZJ/eIV9yeSYtYY2Q29rLg=";

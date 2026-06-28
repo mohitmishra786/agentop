@@ -1,16 +1,16 @@
 {
-    "version": "0.1.2",
+    "version": "1.0.0",
     "description": "Terminal dashboard for AI coding assistant sessions - token usage, cost, and cache efficiency",
     "homepage": "https://github.com/mohitmishra786/agentop",
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/mohitmishra786/agentop/releases/download/v0.1.2/agentop_0.1.2_windows_x86_64.zip",
-            "hash": "eeda1ee9844c29ec321663e692255fe2677b37e854b8a6adcef5f0cf13e4fa87"
+            "url": "https://github.com/mohitmishra786/agentop/releases/download/v1.0.0/agentop_1.0.0_windows_x86_64.zip",
+            "hash": "03442292ce3f2477b3166b4e7d57fca17637b113ec8e9ee8b93d88888f5cc42b"
         },
         "arm64": {
-            "url": "https://github.com/mohitmishra786/agentop/releases/download/v0.1.2/agentop_0.1.2_windows_arm64.zip",
-            "hash": "1dac96235aa1ef4df929c89791e12a8063616e8d14d69128751c8f59b411b9f8"
+            "url": "https://github.com/mohitmishra786/agentop/releases/download/v1.0.0/agentop_1.0.0_windows_arm64.zip",
+            "hash": "a6f1ce7250f91e9820392039f22ab88eb85a34a52b6fca56050a7437383d8693"
         }
     },
     "bin": "agentop.exe",
