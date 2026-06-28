@@ -130,12 +130,18 @@ func devinDefaultDir() string {
 }
 
 func windsurfAvailable() bool {
-	dir := filepath.Join(windsurfDefaultDir(), "windsurf", "cascade")
-	info, err := os.Stat(dir)
-	if err == nil && info.IsDir() {
-		return true
+	pairs := []struct{ base, sub string }{
+		{windsurfDefaultDir(), "windsurf"},
+		{devinDefaultDir(), "desktop"},
 	}
-	dir = filepath.Join(devinDefaultDir(), "desktop", "cascade")
-	info, err = os.Stat(dir)
-	return err == nil && info.IsDir()
+	for _, p := range pairs {
+		for _, subdir := range []string{"cascade", "implicit"} {
+			dir := filepath.Join(p.base, p.sub, subdir)
+			info, err := os.Stat(dir)
+			if err == nil && info.IsDir() {
+				return true
+			}
+		}
+	}
+	return false
 }
