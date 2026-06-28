@@ -17,7 +17,7 @@
 %endif
 
 Name:           agentop
-Version:        0.1.2
+Version:        1.0.0
 Release:        1%{?dist}
 Summary:        Terminal dashboard for AI coding assistant sessions
 License:        MIT
@@ -59,5 +59,8 @@ rm -rf "%{agentop_src}"
 %{_datadir}/licenses/%{name}/LICENSE
 
 %changelog
-* Fri Apr 18 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 0.1.2-1
-- Binary-only package; curl-downloads arch tarball at build time, works on Fedora and EPEL 9
+* Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.0-1
+- v1.0.0: multi-agent dashboard supporting 10 AI coding assistants
+- New: Grok CLI, OpenCode, Kiro, JetBrains, Continue adapters
+- Enhanced: pricing, filtering, UI themes, budget tracking
+- Breaking: agentop now aggregates all agents, not just Claude

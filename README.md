@@ -127,7 +127,7 @@ go install github.com/mohitmishra786/agentop@latest
 
 ### Prebuilt Binaries
 
-**[Download v0.1.2](https://github.com/mohitmishra786/agentop/releases/tag/v0.1.2)**
+**[Download v1.0.0](https://github.com/mohitmishra786/agentop/releases/tag/v1.0.0)**
 
 | Platform | Format |
 |----------|--------|

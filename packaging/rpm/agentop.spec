@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           agentop
-Version:        0.1.2
+Version:        1.0.0
 Release:        1%{?dist}
 Summary:        Terminal dashboard for AI coding assistant sessions
 
@@ -10,14 +10,14 @@ License:        MIT
 URL:            https://github.com/mohitmishra786/agentop
 Source0:        https://github.com/mohitmishra786/%{name}/archive/refs/tags/v%{version}.tar.gz
 
-BuildRequires:  golang >= 1.23
+BuildRequires:  golang >= 1.25
 BuildRequires:  git
 
 %description
-agentop reads AI assistant session data from ~/.claude/projects/ and shows
-token usage, cost, and cache efficiency in a clean terminal dashboard.
-Supports Claude Code sessions with duf-style grid layout, color-coded
-token bars, empty session filtering, and anomaly detection.
+agentop aggregates session data from all major AI coding assistants
+(Claude Code, Codex CLI, Cursor, Copilot CLI, Gemini CLI, Kiro,
+OpenCode, Continue, JetBrains, and Grok CLI) and renders token usage,
+cost, and cache efficiency in a clean terminal dashboard.
 
 %prep
 %autosetup
@@ -44,5 +44,5 @@ go test ./...
 %{_mandir}/man1/%{name}.1*
 
 %changelog
-* Mon Apr 13 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 0.1.2-1
-- Initial package
+* Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.0-1
+- v1.0.0: multi-agent dashboard with 10 adapter support, budget tracking, pricing config
