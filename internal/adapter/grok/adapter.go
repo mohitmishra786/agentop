@@ -1,3 +1,5 @@
+// Package grok implements the adapter.Adapter interface for Grok CLI sessions
+// stored under ~/.grok/sessions/.
 package grok
 
 import (
@@ -10,13 +12,22 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Grok CLI sessions.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentGrok }
-func (a *Adapter) Name() string          { return "Grok CLI" }
-func (a *Adapter) DefaultDir() string    { return defaultDir() }
-func (a *Adapter) IsAvailable() bool     { return available() }
+// ID returns the agent identifier for Grok CLI.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentGrok }
 
+// Name returns the human-readable display name.
+func (a *Adapter) Name() string { return "Grok CLI" }
+
+// DefaultDir returns the default Grok CLI data directory.
+func (a *Adapter) DefaultDir() string { return defaultDir() }
+
+// IsAvailable returns true if the Grok CLI sessions directory exists.
+func (a *Adapter) IsAvailable() bool { return available() }
+
+// Discover finds all Grok CLI session directories under ~/.grok/sessions/<project>/<session_id>/.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	sessionsDir := filepath.Join(dataDir, "sessions")
 	projectEntries, err := os.ReadDir(sessionsDir)
@@ -69,6 +80,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads a Grok session directory and returns parsed events.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSession(path)
 }
