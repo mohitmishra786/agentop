@@ -70,7 +70,25 @@ func claudeDefaultDir() string {
 func claudeAvailable() bool {
 	projectsDir := filepath.Join(claudeDefaultDir(), "projects")
 	info, err := os.Stat(projectsDir)
-	return err == nil && info.IsDir()
+	if err != nil || !info.IsDir() {
+		return false
+	}
+	entries, err := os.ReadDir(projectsDir)
+	if err != nil {
+		return false
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			sessionDir := filepath.Join(projectsDir, e.Name())
+			sessionFiles, _ := os.ReadDir(sessionDir)
+			for _, f := range sessionFiles {
+				if !f.IsDir() && strings.HasSuffix(f.Name(), ".jsonl") {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }
 
 // ErrClaudeNotFound is returned when the Claude Code data directory doesn't exist.

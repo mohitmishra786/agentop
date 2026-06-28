@@ -12,28 +12,28 @@ var _ adapter.Adapter = (*Adapter)(nil)
 
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentWindsurf }
-func (a *Adapter) Name() string          { return "Windsurf/Devin Desktop" }
-func (a *Adapter) DefaultDir() string    { return windsurfDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return windsurfAvailable() }
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentWindsurf }
+func (a *Adapter) Name() string        { return "Windsurf/Devin Desktop" }
+func (a *Adapter) DefaultDir() string  { return windsurfDefaultDir() }
+func (a *Adapter) IsAvailable() bool   { return windsurfAvailable() }
 
-// Discover walks both the Windsurf and Devin Desktop cascade directories and
-// any implicit/ subdirectories for auto-archived sessions.
+// Discover walks the Windsurf and Devin Desktop cascade + implicit directories
+// for session .pb files.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile
 
-	// Legacy Windsurf path: ~/.codeium/windsurf/cascade/
-	windsurfDir := filepath.Join(windsurfDefaultDir(), "windsurf", "cascade")
-	sf, err := discoverDir(windsurfDir)
-	if err == nil {
-		files = append(files, sf...)
+	pairs := []struct{ base, sub string }{
+		{windsurfDefaultDir(), "windsurf"},
+		{devinDefaultDir(), "desktop"},
 	}
-
-	// Devin Desktop path: ~/.devin/desktop/cascade/
-	devinDir := filepath.Join(devinDefaultDir(), "desktop", "cascade")
-	sf, err = discoverDir(devinDir)
-	if err == nil {
-		files = append(files, sf...)
+	for _, p := range pairs {
+		for _, subdir := range []string{"cascade", "implicit"} {
+			dir := filepath.Join(p.base, p.sub, subdir)
+			sf, err := discoverDir(dir)
+			if err == nil {
+				files = append(files, sf...)
+			}
+		}
 	}
 
 	sort.Slice(files, func(i, j int) bool {

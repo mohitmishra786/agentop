@@ -9,9 +9,9 @@ type codexEvent struct {
 }
 
 type sessionMetaPayload struct {
-	SessionID string       `json:"session_id"`
-	CWD       string       `json:"cwd"`
-	Source    *sourceInfo  `json:"source,omitempty"`
+	SessionID string      `json:"id"`
+	CWD       string      `json:"cwd"`
+	Source    *sourceInfo `json:"source,omitempty"`
 }
 
 type sourceInfo struct {
@@ -41,12 +41,12 @@ type tokenUsage struct {
 }
 
 type responseItemPayload struct {
-	Type     string          `json:"type"`
-	Role     string          `json:"role,omitempty"`
-	Status   string          `json:"status,omitempty"`
-	CallID   string          `json:"call_id,omitempty"`
-	Name     string          `json:"name,omitempty"`
-	Content  json.RawMessage `json:"content,omitempty"`
+	Type    string          `json:"type"`
+	Role    string          `json:"role,omitempty"`
+	Status  string          `json:"status,omitempty"`
+	CallID  string          `json:"call_id,omitempty"`
+	Name    string          `json:"name,omitempty"`
+	Content json.RawMessage `json:"content,omitempty"`
 }
 
 type configSnapshotPayload struct {

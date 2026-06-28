@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"sort"
 	"time"
@@ -109,6 +110,7 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	var turnCounter int
 
 	var firstTime, lastTime time.Time
+	var asstCounter int
 
 	for _, e := range events {
 		if e.IsSidechain {
@@ -147,6 +149,10 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 			}
 
 			msgID := e.Message.ID
+			if msgID == "" {
+				msgID = fmt.Sprintf("__synth_%d", asstCounter)
+				asstCounter++
+			}
 			stopReason := e.Message.StopReason
 			model := e.Message.Model
 			if model == "" {
@@ -217,10 +223,6 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	})
 
 	for _, entry := range sortedEntries {
-		if entry.stopReason == "" {
-			continue
-		}
-
 		if entry.usage == nil {
 			continue
 		}
