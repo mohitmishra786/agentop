@@ -36,11 +36,9 @@ func parseSessionFile(path string) (*adapter.ParseResult, error) {
 		}
 		rawEvents = append(rawEvents, e)
 	}
-	if err := scanner.Err(); err != nil {
-		if errors.Is(err, bufio.ErrTooLong) {
-			return nil, nil
-		}
-		return nil, err
+	scanErr := scanner.Err()
+	if scanErr != nil && !errors.Is(scanErr, bufio.ErrTooLong) {
+		return nil, scanErr
 	}
 
 	sort.Slice(rawEvents, func(i, j int) bool {

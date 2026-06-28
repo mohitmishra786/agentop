@@ -280,8 +280,9 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 
 	maxTokens := 0
 	for model, usage := range modelTokens {
-		if usage.InputTokens > maxTokens {
-			maxTokens = usage.InputTokens
+		total := usage.InputTokens + usage.OutputTokens
+		if total > maxTokens || (total == 0 && s.Model == "") {
+			maxTokens = total
 			s.Model = model
 		}
 		s.AllModels = append(s.AllModels, model)

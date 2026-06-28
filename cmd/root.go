@@ -20,6 +20,7 @@ import (
 	cursorAdapter "github.com/agentop-dev/agentop/internal/adapter/cursor"
 	continueAdapter "github.com/agentop-dev/agentop/internal/adapter/continueadapter"
 	jetbrainsAdapter "github.com/agentop-dev/agentop/internal/adapter/jetbrains"
+	devinAdapter "github.com/agentop-dev/agentop/internal/adapter/devin"
 	windsurfAdapter "github.com/agentop-dev/agentop/internal/adapter/windsurf"
 	grokAdapter "github.com/agentop-dev/agentop/internal/adapter/grok"
 )
@@ -53,6 +54,7 @@ func init() {
 	registry.Register(&cursorAdapter.Adapter{})
 	registry.Register(&continueAdapter.Adapter{})
 	registry.Register(&jetbrainsAdapter.Adapter{})
+	registry.Register(&devinAdapter.Adapter{})
 	registry.Register(&windsurfAdapter.Adapter{})
 	registry.Register(&grokAdapter.Adapter{})
 }
@@ -148,7 +150,7 @@ func Execute() {
 }
 
 var (
-	Version   = ""
+	Version   = "1.0.1"
 	CommitSHA = ""
 )
 
