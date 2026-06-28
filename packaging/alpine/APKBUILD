@@ -1,7 +1,7 @@
 # Contributor: Mohit Mishra <mohitmishra786687@gmail.com>
 # Maintainer: Mohit Mishra <mohitmishra786687@gmail.com>
 pkgname=agentop
-pkgver=1.0.1
+pkgver=1.0.2
 pkgrel=0
 pkgdesc="Terminal dashboard for AI coding assistant sessions"
 url="https://github.com/mohitmishra786/agentop"

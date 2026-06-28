@@ -19,7 +19,7 @@ var monthlyCmd = &cobra.Command{
 	RunE:  runMonthly,
 }
 
-func runMonthly(cmd *cobra.Command, args []string) error {
+func runMonthly(_ *cobra.Command, _ []string) error {
 	sessions, err := loadSessions()
 	if err != nil {
 		return err

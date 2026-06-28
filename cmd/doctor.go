@@ -20,6 +20,7 @@ import (
 	"github.com/agentop-dev/agentop/internal/ui"
 )
 
+// Anomaly represents a detected issue or insight for a session.
 type Anomaly struct {
 	Severity    string
 	SessionID   string
@@ -36,7 +37,7 @@ var doctorCmd = &cobra.Command{
 	RunE:  runDoctor,
 }
 
-func runDoctor(cmd *cobra.Command, args []string) error {
+func runDoctor(_ *cobra.Command, args []string) error {
 	sessions, err := loadSessions()
 	if err != nil {
 		return err

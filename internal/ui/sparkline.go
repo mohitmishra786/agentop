@@ -12,8 +12,8 @@ func Sparkline(data []float64, width int, color string) string {
 		return ""
 	}
 
-	min, max := minMax(data)
-	dataRange := max - min
+	mn, mx := minMax(data)
+	dataRange := mx - mn
 	if dataRange == 0 {
 		dataRange = 1
 	}
@@ -27,7 +27,7 @@ func Sparkline(data []float64, width int, color string) string {
 			dataIndex = len(data) - 1
 		}
 
-		normalized := (data[dataIndex] - min) / dataRange
+		normalized := (data[dataIndex] - mn) / dataRange
 		barIndex := int(normalized * float64(len(bars)-1))
 		if barIndex < 0 {
 			barIndex = 0
@@ -65,11 +65,11 @@ func TrendIndicator(current, previous float64) string {
 }
 
 // Gauge renders a horizontal gauge/bar
-func Gauge(value, max float64, width int, color string) string {
-	if width <= 0 || max == 0 {
+func Gauge(value, mx float64, width int, color string) string {
+	if width <= 0 || mx == 0 {
 		return ""
 	}
-	ratio := value / max
+	ratio := value / mx
 	if ratio > 1 {
 		ratio = 1
 	} else if ratio < 0 {
@@ -90,8 +90,8 @@ func MiniSpark(data []float64, width int) string {
 		return ""
 	}
 
-	min, max := minMax(data)
-	dataRange := max - min
+	mn, mx := minMax(data)
+	dataRange := mx - mn
 	if dataRange == 0 {
 		dataRange = 1
 	}
@@ -102,7 +102,7 @@ func MiniSpark(data []float64, width int) string {
 			break
 		}
 
-		normalized := (data[i] - min) / dataRange
+		normalized := (data[i] - mn) / dataRange
 		if normalized < 0.25 {
 			result += "▁"
 		} else if normalized < 0.5 {
@@ -162,14 +162,14 @@ func minMax(data []float64) (float64, float64) {
 		return 0, 0
 	}
 
-	min, max := data[0], data[0]
+	mn, mx := data[0], data[0]
 	for _, v := range data {
-		if v < min {
-			min = v
+		if v < mn {
+			mn = v
 		}
-		if v > max {
-			max = v
+		if v > mx {
+			mx = v
 		}
 	}
-	return min, max
+	return mn, mx
 }

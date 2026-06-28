@@ -64,7 +64,7 @@ var rootCmd = &cobra.Command{
 	Short: "Terminal dashboard for AI coding assistant sessions",
 	Long: `agentop reads AI assistant session data and shows token usage,
 cost, and cache efficiency in a duf-style terminal dashboard.`,
-	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+	PersistentPreRunE: func(_ *cobra.Command, _ []string) error {
 		if listAgents {
 			fmt.Print(registry.ListAgentsText())
 			return fmt.Errorf("__list_agents__")
@@ -138,6 +138,7 @@ func findClaudeDir() string {
 	return ".claude"
 }
 
+// Execute runs the root command and handles errors.
 func Execute() {
 	rootCmd.SilenceUsage = true
 	rootCmd.SilenceErrors = true
@@ -151,10 +152,12 @@ func Execute() {
 
 var (
 	// Version is the current agentop version, set via ldflags at build time.
-	Version   = "1.0.1"
+	Version = "1.0.2"
+	// CommitSHA is the git commit hash injected at build time.
 	CommitSHA = ""
 )
 
+// SetVersionInfo overrides the version and commit SHA values.
 func SetVersionInfo(v, c string) {
 	Version = v
 	CommitSHA = c

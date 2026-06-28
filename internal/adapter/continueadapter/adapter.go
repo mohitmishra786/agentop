@@ -1,3 +1,4 @@
+// Package continueadapter implements the adapter.Adapter interface for Continue session data.
 package continueadapter
 
 import (
@@ -12,13 +13,22 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Continue session files.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentContinue }
-func (a *Adapter) Name() string          { return "Continue" }
-func (a *Adapter) DefaultDir() string    { return continueDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return continueAvailable() }
+// ID returns the agent identifier.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentContinue }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Continue" }
+
+// DefaultDir returns the default data directory for Continue.
+func (a *Adapter) DefaultDir() string { return continueDefaultDir() }
+
+// IsAvailable checks whether Continue session data exists.
+func (a *Adapter) IsAvailable() bool { return continueAvailable() }
+
+// Discover finds Continue session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	sessionsDir := filepath.Join(dataDir, "sessions")
 	entries, err := os.ReadDir(sessionsDir)
@@ -56,6 +66,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads and converts a Continue JSON session file.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSessionFile(path)
 }

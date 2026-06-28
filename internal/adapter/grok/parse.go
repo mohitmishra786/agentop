@@ -14,13 +14,13 @@ type summaryData struct {
 		ID  string `json:"id"`
 		CWD string `json:"cwd"`
 	} `json:"info"`
-	SessionSummary   string `json:"session_summary"`
-	GeneratedTitle   string `json:"generated_title"`
-	CreatedAt        string `json:"created_at"`
-	UpdatedAt        string `json:"updated_at"`
-	CurrentModelID   string `json:"current_model_id"`
-	GitRootDir       string `json:"git_root_dir"`
-	HeadBranch       string `json:"head_branch"`
+	SessionSummary string `json:"session_summary"`
+	GeneratedTitle string `json:"generated_title"`
+	CreatedAt      string `json:"created_at"`
+	UpdatedAt      string `json:"updated_at"`
+	CurrentModelID string `json:"current_model_id"`
+	GitRootDir     string `json:"git_root_dir"`
+	HeadBranch     string `json:"head_branch"`
 }
 
 type signalsData struct {

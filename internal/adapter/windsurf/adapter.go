@@ -10,30 +10,38 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Windsurf/Devin Desktop session files.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentWindsurf }
-func (a *Adapter) Name() string          { return "Windsurf/Devin Desktop" }
-func (a *Adapter) DefaultDir() string    { return windsurfDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return windsurfAvailable() }
+// ID returns the agent identifier.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentWindsurf }
 
-// Discover walks both the Windsurf and Devin Desktop cascade directories and
-// any implicit/ subdirectories for auto-archived sessions.
-func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Windsurf/Devin Desktop" }
+
+// DefaultDir returns the default data directory for Windsurf/Devin Desktop.
+func (a *Adapter) DefaultDir() string { return windsurfDefaultDir() }
+
+// IsAvailable checks whether Windsurf/Devin Desktop session data exists.
+func (a *Adapter) IsAvailable() bool { return windsurfAvailable() }
+
+// Discover walks the Windsurf and Devin Desktop cascade + implicit directories
+// for session .pb files.
+func (a *Adapter) Discover(_ string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile
 
-	// Legacy Windsurf path: ~/.codeium/windsurf/cascade/
-	windsurfDir := filepath.Join(windsurfDefaultDir(), "windsurf", "cascade")
-	sf, err := discoverDir(windsurfDir)
-	if err == nil {
-		files = append(files, sf...)
+	pairs := []struct{ base, sub string }{
+		{windsurfDefaultDir(), "windsurf"},
+		{devinDefaultDir(), "desktop"},
 	}
-
-	// Devin Desktop path: ~/.devin/desktop/cascade/
-	devinDir := filepath.Join(devinDefaultDir(), "desktop", "cascade")
-	sf, err = discoverDir(devinDir)
-	if err == nil {
-		files = append(files, sf...)
+	for _, p := range pairs {
+		for _, subdir := range []string{"cascade", "implicit"} {
+			dir := filepath.Join(p.base, p.sub, subdir)
+			sf, err := discoverDir(dir)
+			if err == nil {
+				files = append(files, sf...)
+			}
+		}
 	}
 
 	sort.Slice(files, func(i, j int) bool {
@@ -122,12 +130,18 @@ func devinDefaultDir() string {
 }
 
 func windsurfAvailable() bool {
-	dir := filepath.Join(windsurfDefaultDir(), "windsurf", "cascade")
-	info, err := os.Stat(dir)
-	if err == nil && info.IsDir() {
-		return true
+	pairs := []struct{ base, sub string }{
+		{windsurfDefaultDir(), "windsurf"},
+		{devinDefaultDir(), "desktop"},
 	}
-	dir = filepath.Join(devinDefaultDir(), "desktop", "cascade")
-	info, err = os.Stat(dir)
-	return err == nil && info.IsDir()
+	for _, p := range pairs {
+		for _, subdir := range []string{"cascade", "implicit"} {
+			dir := filepath.Join(p.base, p.sub, subdir)
+			info, err := os.Stat(dir)
+			if err == nil && info.IsDir() {
+				return true
+			}
+		}
+	}
+	return false
 }

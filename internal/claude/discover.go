@@ -1,3 +1,4 @@
+// Package claude provides types and functions for Claude Code session data.
 package claude
 
 import (
@@ -7,8 +8,10 @@ import (
 	claudeAdapter "github.com/agentop-dev/agentop/internal/adapter/claude"
 )
 
+// ErrClaudeNotFound is returned when the Claude Code data directory doesn't exist.
 var ErrClaudeNotFound = errors.New("~/.claude/projects/ not found — is Claude Code installed?")
 
+// SessionFile represents a discovered Claude Code session file on disk.
 type SessionFile struct {
 	Path          string
 	ProjectHash   string
@@ -19,6 +22,7 @@ type SessionFile struct {
 
 var claudeAdapterInstance = &claudeAdapter.Adapter{}
 
+// Discover finds session files in the given Claude Code data directory.
 func Discover(claudeDir string) ([]SessionFile, error) {
 	files, err := claudeAdapterInstance.Discover(claudeDir)
 	if err != nil {

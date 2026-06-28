@@ -1,3 +1,4 @@
+// Package kiro implements the adapter.Adapter interface for Kiro CLI session data.
 package kiro
 
 import (
@@ -10,13 +11,22 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Kiro CLI session files.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentKiro }
-func (a *Adapter) Name() string          { return "Kiro CLI" }
-func (a *Adapter) DefaultDir() string    { return kiroDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return kiroAvailable() }
+// ID returns the agent identifier.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentKiro }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Kiro CLI" }
+
+// DefaultDir returns the default data directory for Kiro CLI.
+func (a *Adapter) DefaultDir() string { return kiroDefaultDir() }
+
+// IsAvailable checks whether Kiro CLI session data exists.
+func (a *Adapter) IsAvailable() bool { return kiroAvailable() }
+
+// Discover finds Kiro CLI session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	sessionsDir := filepath.Join(dataDir, "sessions", "cli")
 	entries, err := os.ReadDir(sessionsDir)
@@ -59,6 +69,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads and converts a Kiro CLI session file.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSession(path)
 }

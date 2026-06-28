@@ -96,7 +96,7 @@ type agentInfoResult struct {
 	Agents []agentEntry `json:"agents"`
 }
 
-func runMCP(cmd *cobra.Command, args []string) error {
+func runMCP(_ *cobra.Command, _ []string) error {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Buffer(make([]byte, 0, 1024*1024), 1024*1024)
 

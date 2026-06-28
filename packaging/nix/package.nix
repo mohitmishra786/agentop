@@ -5,7 +5,7 @@
 }:
 buildGoModule rec {
   pname = "agentop";
-  version = "1.0.1";
+  version = "1.0.2";
 
   src = fetchFromGitHub {
     owner = "mohitmishra786";

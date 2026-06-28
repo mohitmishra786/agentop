@@ -1,3 +1,4 @@
+// Package codex implements the adapter.Adapter interface for Codex CLI session data.
 package codex
 
 import (
@@ -12,13 +13,22 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Codex CLI session files.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentCodex }
-func (a *Adapter) Name() string          { return "Codex CLI" }
-func (a *Adapter) DefaultDir() string    { return codexDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return codexAvailable() }
+// ID returns the agent identifier.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentCodex }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Codex CLI" }
+
+// DefaultDir returns the default data directory for Codex CLI.
+func (a *Adapter) DefaultDir() string { return codexDefaultDir() }
+
+// IsAvailable checks whether Codex CLI session data exists.
+func (a *Adapter) IsAvailable() bool { return codexAvailable() }
+
+// Discover finds Codex CLI session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile
 
@@ -54,6 +64,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, err
 }
 
+// ParseSession reads and converts a Codex CLI JSONL session file.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSessionFile(path)
 }

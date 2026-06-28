@@ -1,3 +1,4 @@
+// Package cursor implements the adapter.Adapter interface for Cursor session data.
 package cursor
 
 import (
@@ -8,18 +9,27 @@ import (
 	"strings"
 
 	"github.com/agentop-dev/agentop/internal/adapter"
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // SQLite driver
 )
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Cursor session files.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentCursor }
-func (a *Adapter) Name() string          { return "Cursor" }
-func (a *Adapter) DefaultDir() string    { return defaultDir() }
-func (a *Adapter) IsAvailable() bool     { return available() }
+// ID returns the agent identifier.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentCursor }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Cursor" }
+
+// DefaultDir returns the default data directory for Cursor.
+func (a *Adapter) DefaultDir() string { return defaultDir() }
+
+// IsAvailable checks whether Cursor session data exists.
+func (a *Adapter) IsAvailable() bool { return available() }
+
+// Discover finds Cursor session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	dbPath := filepath.Join(dataDir, "state.vscdb")
 	info, err := os.Stat(dbPath)
@@ -62,6 +72,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads and converts a Cursor session from the VSCode DB.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSessionFile(path)
 }

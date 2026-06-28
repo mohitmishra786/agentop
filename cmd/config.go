@@ -14,7 +14,7 @@ var configCmd = &cobra.Command{
 	RunE:  runConfig,
 }
 
-func runConfig(cmd *cobra.Command, args []string) error {
+func runConfig(_ *cobra.Command, _ []string) error {
 	db := pricing.GetDB()
 
 	fmt.Println("agentop configuration")

@@ -8,6 +8,7 @@ import (
 	"github.com/agentop-dev/agentop/internal/adapter"
 )
 
+// ModelPrice holds per-model token pricing in USD per million tokens.
 type ModelPrice struct {
 	Input       float64 `json:"input"`
 	Output      float64 `json:"output"`
@@ -15,37 +16,40 @@ type ModelPrice struct {
 	CacheRead   float64 `json:"cacheRead"`
 }
 
+// ProviderPricing holds pricing data for a single provider.
 type ProviderPricing struct {
 	Fallback string                `json:"fallback"`
 	Models   map[string]ModelPrice `json:"models"`
 }
 
-type PricingDB struct {
+// DB is the root pricing configuration loaded from pricing.json.
+type DB struct {
 	Version          string                     `json:"version"`
 	FallbackModel    string                     `json:"FallbackModel"`
 	FallbackProvider string                     `json:"FallbackProvider"`
 	Providers        map[string]ProviderPricing `json:"providers"`
 }
 
-var db *PricingDB
+var pdb *DB
 
 func init() {
-	db = &PricingDB{}
-	if err := json.Unmarshal(embeddedPricing, db); err != nil {
+	pdb = &DB{}
+	if err := json.Unmarshal(embeddedPricing, pdb); err != nil {
 		panic("failed to parse embedded pricing: " + err.Error())
 	}
 }
 
+// Get returns the pricing for the given model, falling back to defaults.
 func Get(model string) ModelPrice {
 	modelLower := strings.ToLower(model)
 
-	for _, provider := range db.Providers {
+	for _, provider := range pdb.Providers {
 		if p, ok := provider.Models[modelLower]; ok {
 			return p
 		}
 	}
 
-	for _, provider := range db.Providers {
+	for _, provider := range pdb.Providers {
 		bestMatch := ""
 		for name := range provider.Models {
 			nl := strings.ToLower(name)
@@ -64,9 +68,9 @@ func Get(model string) ModelPrice {
 }
 
 func getFallbackPrice() ModelPrice {
-	fb, ok := db.Providers[db.FallbackProvider]
+	fb, ok := pdb.Providers[pdb.FallbackProvider]
 	if ok {
-		if p, ok := fb.Models[db.FallbackModel]; ok {
+		if p, ok := fb.Models[pdb.FallbackModel]; ok {
 			return p
 		}
 		if fb.Fallback != "" {
@@ -75,7 +79,7 @@ func getFallbackPrice() ModelPrice {
 			}
 		}
 	}
-	for _, provider := range db.Providers {
+	for _, provider := range pdb.Providers {
 		for _, price := range provider.Models {
 			return price
 		}
@@ -83,10 +87,11 @@ func getFallbackPrice() ModelPrice {
 	return ModelPrice{}
 }
 
+// ProviderForModel returns the provider name for a given model string.
 func ProviderForModel(model string) string {
 	modelLower := strings.ToLower(model)
 
-	for providerName, provider := range db.Providers {
+	for providerName, provider := range pdb.Providers {
 		for name := range provider.Models {
 			if strings.ToLower(name) == modelLower {
 				return providerName
@@ -94,8 +99,8 @@ func ProviderForModel(model string) string {
 		}
 	}
 
-	providers := make([]string, 0, len(db.Providers))
-	for providerName, provider := range db.Providers {
+	providers := make([]string, 0, len(pdb.Providers))
+	for providerName, provider := range pdb.Providers {
 		for name := range provider.Models {
 			nl := strings.ToLower(name)
 			if strings.HasPrefix(modelLower, nl) {
@@ -109,28 +114,33 @@ func ProviderForModel(model string) string {
 		return providers[0]
 	}
 
-	return db.FallbackProvider
+	return pdb.FallbackProvider
 }
 
+// ListProviders returns all known provider names.
 func ListProviders() []string {
-	providers := make([]string, 0, len(db.Providers))
-	for name := range db.Providers {
+	providers := make([]string, 0, len(pdb.Providers))
+	for name := range pdb.Providers {
 		providers = append(providers, name)
 	}
 	sort.Strings(providers)
 	return providers
 }
 
-func GetDB() *PricingDB {
-	return db
+// GetDB returns the global pricing database.
+func GetDB() *DB {
+	return pdb
 }
 
+// Pricer calculates the cost for a given usage and model.
 type Pricer interface {
 	Calculate(u adapter.Usage, model string) float64
 }
 
+// DefaultPricer implements Pricer using the embedded pricing database.
 type DefaultPricer struct{}
 
+// Calculate computes the cost for a given usage and model.
 func (DefaultPricer) Calculate(u adapter.Usage, model string) float64 {
 	p := Get(model)
 	return float64(u.InputTokens)*p.Input/1e6 +

@@ -1,7 +1,9 @@
+// Package aggregator computes session statistics from raw event data.
 package aggregator
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"sort"
 	"time"
@@ -21,6 +23,7 @@ type TurnStat struct {
 	Model        string
 }
 
+// SessionStats holds aggregated token, cost, and usage metrics for a session.
 type SessionStats struct {
 	ID          string
 	ProjectHash string
@@ -74,6 +77,7 @@ type SessionStats struct {
 	TokenSource adapter.TokenSource
 }
 
+// AggregateSession processes raw events into a SessionStats summary.
 func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer pricing.Pricer) *SessionStats {
 	if len(events) == 0 {
 		return nil
@@ -109,6 +113,7 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	var turnCounter int
 
 	var firstTime, lastTime time.Time
+	var asstCounter int
 
 	for _, e := range events {
 		if e.IsSidechain {
@@ -147,6 +152,10 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 			}
 
 			msgID := e.Message.ID
+			if msgID == "" {
+				msgID = fmt.Sprintf("__synth_%d", asstCounter)
+				asstCounter++
+			}
 			stopReason := e.Message.StopReason
 			model := e.Message.Model
 			if model == "" {
@@ -217,10 +226,6 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	})
 
 	for _, entry := range sortedEntries {
-		if entry.stopReason == "" {
-			continue
-		}
-
 		if entry.usage == nil {
 			continue
 		}
@@ -327,6 +332,7 @@ func AggregateSession(events []claude.RawEvent, meta *claude.SessionMeta, pricer
 	return s
 }
 
+// AggregateSubagents computes combined token, count, and cost for subagent sessions.
 func AggregateSubagents(subagentFiles []string, pricer pricing.Pricer) (int64, int, float64) {
 	var totalTokens int64
 	var count int

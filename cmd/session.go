@@ -19,7 +19,7 @@ var sessionCmd = &cobra.Command{
 	RunE:  runSession,
 }
 
-func runSession(cmd *cobra.Command, args []string) error {
+func runSession(_ *cobra.Command, args []string) error {
 	sessionID := args[0]
 
 	agentIDs := resolveAgentIDs()

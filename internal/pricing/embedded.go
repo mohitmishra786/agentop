@@ -1,3 +1,4 @@
+// Package pricing provides model-specific token pricing for cost calculation.
 package pricing
 
 import _ "embed"

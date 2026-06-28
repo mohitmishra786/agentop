@@ -18,11 +18,19 @@ var _ adapter.Adapter = (*Adapter)(nil)
 // Adapter implements adapter.Adapter for Claude Code session files.
 type Adapter struct{}
 
+// ID returns the agent identifier.
 func (a *Adapter) ID() adapter.AgentID { return adapter.AgentClaude }
-func (a *Adapter) Name() string        { return "Claude Code" }
-func (a *Adapter) DefaultDir() string  { return claudeDefaultDir() }
-func (a *Adapter) IsAvailable() bool   { return claudeAvailable() }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Claude Code" }
+
+// DefaultDir returns the default data directory for Claude Code.
+func (a *Adapter) DefaultDir() string { return claudeDefaultDir() }
+
+// IsAvailable checks whether Claude Code session data exists.
+func (a *Adapter) IsAvailable() bool { return claudeAvailable() }
+
+// Discover finds Claude Code session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	files, err := discoverSessionFiles(dataDir)
 	if err != nil {
@@ -42,6 +50,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return adapted, nil
 }
 
+// ParseSession reads and converts a Claude Code JSONL session file.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	events, err := parseSessionFile(path)
 	if err != nil {
@@ -70,7 +79,25 @@ func claudeDefaultDir() string {
 func claudeAvailable() bool {
 	projectsDir := filepath.Join(claudeDefaultDir(), "projects")
 	info, err := os.Stat(projectsDir)
-	return err == nil && info.IsDir()
+	if err != nil || !info.IsDir() {
+		return false
+	}
+	entries, err := os.ReadDir(projectsDir)
+	if err != nil {
+		return false
+	}
+	for _, e := range entries {
+		if e.IsDir() {
+			sessionDir := filepath.Join(projectsDir, e.Name())
+			sessionFiles, _ := os.ReadDir(sessionDir)
+			for _, f := range sessionFiles {
+				if !f.IsDir() && strings.HasSuffix(f.Name(), ".jsonl") {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }
 
 // ErrClaudeNotFound is returned when the Claude Code data directory doesn't exist.

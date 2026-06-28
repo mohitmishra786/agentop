@@ -1,3 +1,4 @@
+// Package opencode implements the adapter.Adapter interface for OpenCode session data.
 package opencode
 
 import (
@@ -7,18 +8,27 @@ import (
 	"time"
 
 	"github.com/agentop-dev/agentop/internal/adapter"
-	_ "modernc.org/sqlite"
+	_ "modernc.org/sqlite" // SQLite driver
 )
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for OpenCode session files.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentOpenCode }
-func (a *Adapter) Name() string          { return "OpenCode" }
-func (a *Adapter) DefaultDir() string    { return defaultDir() }
-func (a *Adapter) IsAvailable() bool     { return available() }
+// ID returns the agent identifier.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentOpenCode }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "OpenCode" }
+
+// DefaultDir returns the default data directory for OpenCode.
+func (a *Adapter) DefaultDir() string { return defaultDir() }
+
+// IsAvailable checks whether OpenCode session data exists.
+func (a *Adapter) IsAvailable() bool { return available() }
+
+// Discover finds OpenCode session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	dbPath := filepath.Join(dataDir, "opencode.db")
 
@@ -65,6 +75,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads and converts an OpenCode session from the SQLite DB.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSessionFile(path)
 }

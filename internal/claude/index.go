@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 )
 
+// ReadSessionsIndex reads the sessions index JSON file for a project.
 func ReadSessionsIndex(claudeDir, projectHash string) ([]SessionMeta, error) {
 	path := filepath.Join(claudeDir, "projects", projectHash, "sessions-index.json")
 	data, err := os.ReadFile(path)

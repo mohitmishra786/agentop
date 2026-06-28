@@ -1,3 +1,4 @@
+// Package copilot implements the adapter.Adapter interface for Copilot CLI session data.
 package copilot
 
 import (
@@ -10,13 +11,22 @@ import (
 
 var _ adapter.Adapter = (*Adapter)(nil)
 
+// Adapter implements adapter.Adapter for Copilot CLI session files.
 type Adapter struct{}
 
-func (a *Adapter) ID() adapter.AgentID   { return adapter.AgentCopilot }
-func (a *Adapter) Name() string          { return "Copilot CLI" }
-func (a *Adapter) DefaultDir() string    { return copilotDefaultDir() }
-func (a *Adapter) IsAvailable() bool     { return copilotAvailable() }
+// ID returns the agent identifier.
+func (a *Adapter) ID() adapter.AgentID { return adapter.AgentCopilot }
 
+// Name returns the display name of the agent.
+func (a *Adapter) Name() string { return "Copilot CLI" }
+
+// DefaultDir returns the default data directory for Copilot CLI.
+func (a *Adapter) DefaultDir() string { return copilotDefaultDir() }
+
+// IsAvailable checks whether Copilot CLI session data exists.
+func (a *Adapter) IsAvailable() bool { return copilotAvailable() }
+
+// Discover finds Copilot CLI session files in the given data directory.
 func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	var files []adapter.SessionFile
 
@@ -52,6 +62,7 @@ func (a *Adapter) Discover(dataDir string) ([]adapter.SessionFile, error) {
 	return files, nil
 }
 
+// ParseSession reads and converts a Copilot CLI JSONL session file.
 func (a *Adapter) ParseSession(path string) (*adapter.ParseResult, error) {
 	return parseSessionFile(path)
 }
