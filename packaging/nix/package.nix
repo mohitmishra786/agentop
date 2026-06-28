@@ -5,13 +5,13 @@
 }:
 buildGoModule rec {
   pname = "agentop";
-  version = "1.0.0";
+  version = "1.0.1";
 
   src = fetchFromGitHub {
     owner = "mohitmishra786";
     repo = "agentop";
     rev = "v${version}";
-    hash = "sha256-MTu32h3sL0fAavW/JGJaZg9yl3JuBjYi7ktxjN78Q9w=";
+    hash = "sha256-bER695CEy9KpvFNgt1SLmxK4MG01s64BO7qxgQ+edVA=";
   };
 
   vendorHash = "sha256-AR1IpxAlwRK1uH3iBXMstIZJ/eIV9yeSYtYY2Q29rLg=";

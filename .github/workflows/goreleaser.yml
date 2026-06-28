@@ -29,8 +29,38 @@ jobs:
         uses: goreleaser/goreleaser-action@v7
         with:
           version: latest
-          args: release --clean --skip=homebrew,aur
+          args: release --clean --skip=aur
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+
+      - name: Checkout scoop-bucket
+        uses: actions/checkout@v7
+        with:
+          repository: mohitmishra786/scoop-bucket
+          token: ${{ secrets.SCOOP_GITHUB_TOKEN }}
+          path: scoop-bucket
+
+      - name: Update scoop manifest
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          cd scoop-bucket/bucket
+          curl -sL "https://github.com/mohitmishra786/agentop/releases/download/v${VERSION}/checksums.txt" -o /tmp/checksums.txt
+          SHA64=$(grep "windows_x86_64.zip" /tmp/checksums.txt | awk '{print $1}')
+          SHAARM=$(grep "windows_arm64.zip" /tmp/checksums.txt | awk '{print $1}')
+          jq --arg v "$VERSION" \
+             --arg sha64 "$SHA64" \
+             --arg shaarm "$SHAARM" \
+             '.version = $v |
+              .architecture."64bit".hash = $sha64 |
+              .architecture."arm64".hash = $shaarm |
+              .architecture."64bit".url = "https://github.com/mohitmishra786/agentop/releases/download/v\($v)/agentop_\($v)_windows_x86_64.zip" |
+              .architecture."arm64".url = "https://github.com/mohitmishra786/agentop/releases/download/v\($v)/agentop_\($v)_windows_arm64.zip"' \
+             agentop.json > agentop.json.tmp && mv agentop.json.tmp agentop.json
+          git config user.name "Mohit Mishra"
+          git config user.email "mohitmishra786687@gmail.com"
+          git add agentop.json
+          git commit -m "Update agentop to v${VERSION}"
+          git push
