@@ -2,7 +2,7 @@
 %global debug_package %{nil}
 
 Name:           agentop
-Version:        1.0.0
+Version:        1.0.1
 Release:        1%{?dist}
 Summary:        Terminal dashboard for AI coding assistant sessions
 
@@ -44,5 +44,8 @@ go test ./...
 %{_mandir}/man1/%{name}.1*
 
 %changelog
+* Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.1-1
+- v1.0.1: Devin Desktop adapter, codex nil pointer fix, Grok CLI adapter
+
 * Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.0-1
 - v1.0.0: multi-agent dashboard with 10 adapter support, budget tracking, pricing config

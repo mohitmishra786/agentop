@@ -17,7 +17,7 @@
 %endif
 
 Name:           agentop
-Version:        1.0.0
+Version:        1.0.1
 Release:        1%{?dist}
 Summary:        Terminal dashboard for AI coding assistant sessions
 License:        MIT
@@ -59,6 +59,12 @@ rm -rf "%{agentop_src}"
 %{_datadir}/licenses/%{name}/LICENSE
 
 %changelog
+* Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.1-1
+- v1.0.1: Devin Desktop adapter, codex nil pointer fix
+- Add Devin Desktop (SQLite) adapter for session discovery
+- Fix codex adapter nil pointer on oversized lines
+- Fix token double-counting in Devin adapter
+
 * Sun Jun 28 2026 Mohit Mishra <mohitmishra786687@gmail.com> - 1.0.0-1
 - v1.0.0: multi-agent dashboard supporting 10 AI coding assistants
 - New: Grok CLI, OpenCode, Kiro, JetBrains, Continue adapters
