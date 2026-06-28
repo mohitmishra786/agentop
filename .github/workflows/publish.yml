@@ -38,13 +38,58 @@ jobs:
 
       - name: Publish AUR
         if: contains(inputs.targets, 'aur')
-        uses: goreleaser/goreleaser-action@v7
-        with:
-          version: latest
-          args: release --clean --skip=homebrew --skip=nfpm --skip=nix --skip=winget --skip=publish --skip=sign --skip=scoop --skip=aur-source
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          AUR_SSH_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          PKGVER="${VERSION#v}"
+
+          # Set up SSH key
+          mkdir -p ~/.ssh
+          ssh-keyscan -H aur.archlinux.org >> ~/.ssh/known_hosts
+          echo "$AUR_SSH_KEY" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+
+          # Clone AUR repo
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/aur -F /dev/null" git clone ssh://aur@aur.archlinux.org/agentop-bin.git /tmp/aur-repo
+
+          # Copy PKGBUILD from agentop repo
+          cp packaging/aur/PKGBUILD /tmp/aur-repo/
+
+          # Verify PKGBUILD version matches release
+          grep "pkgver=${PKGVER}" /tmp/aur-repo/PKGBUILD || { echo "PKGBUILD version mismatch"; exit 1; }
+
+          # Generate .SRCINFO
+          cd /tmp/aur-repo
+          cat > .SRCINFO << EOF
+pkgbase = agentop-bin
+\tpkgdesc = Terminal dashboard for AI coding assistant sessions — token usage, cost, and cache efficiency
+\tpkgver = ${PKGVER}
+\tpkgrel = 1
+\turl = https://github.com/mohitmishra786/agentop
+\tinstall =
+\tarch = x86_64
+\tarch = aarch64
+\tlicense = MIT
+\tprovides = agentop
+\tconflicts = agentop
+\tsource_x86_64 = agentop-${PKGVER}-x86_64.tar.gz::https://github.com/mohitmishra786/agentop/releases/download/${VERSION}/agentop_${PKGVER}_linux_x86_64.tar.gz
+\tsource_aarch64 = agentop-${PKGVER}-aarch64.tar.gz::https://github.com/mohitmishra786/agentop/releases/download/${VERSION}/agentop_${PKGVER}_linux_arm64.tar.gz
+EOF
+          # Parse checksums from PKGBUILD
+          SHA_X86=$(grep sha256sums_x86_64 PKGBUILD | grep -o "'[^']*'" | tr -d "'")
+          SHA_AARCH=$(grep sha256sums_aarch64 PKGBUILD | grep -o "'[^']*'" | tr -d "'")
+          cat >> .SRCINFO << EOF
+\tsha256sums_x86_64 = ${SHA_X86}
+\tsha256sums_aarch64 = ${SHA_AARCH}
+EOF
+
+          # Commit and push
+          git add PKGBUILD .SRCINFO
+          git config user.name "Mohit Mishra"
+          git config user.email "mohitmishra786687@gmail.com"
+          git commit -m "Update to ${VERSION}"
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/aur -F /dev/null" git push
 
       - name: Publish Homebrew
         if: contains(inputs.targets, 'homebrew')
