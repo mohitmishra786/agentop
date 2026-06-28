@@ -28,9 +28,27 @@ builds:
       - 6
       - 7
     ignore:
+      - goos: freebsd
+        goarch: "386"
+      - goos: freebsd
+        goarch: arm
+        goarm: "6"
+      - goos: freebsd
+        goarch: arm
+        goarm: "7"
+      - goos: openbsd
+        goarch: "386"
+      - goos: openbsd
+        goarch: arm
+        goarm: "6"
+      - goos: openbsd
+        goarch: arm
+        goarm: "7"
       - goos: windows
+        goarch: arm
         goarm: "6"
       - goos: windows
+        goarch: arm
         goarm: "7"
 
 archives:
